@@ -21,15 +21,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. Generate BangOptimize v10.0 (2-in-1 ADB + Reactor Icon + Liquid Glass 2.0)
+      - name: 3. Clean & Generate BangOptimize v10.1 (2-in-1 ADB + Liquid Glass 2.0)
         shell: bash
         run: |
           set -e
-          rm -rf app/src/main/aidl
+          # Xóa sạch toàn bộ thư mục app cũ để không còn sót file Shizuku cũ gây lỗi biên dịch
+          rm -rf app build .gradle
           mkdir -p app/src/main/assets
           mkdir -p app/src/main/java/com/bangtech/optimize
           mkdir -p app/src/main/res/drawable
-          mkdir -p app/src/main/res/mipmap-anydpi-v26
+          mkdir -p app/src/main/res/drawable-anydpi-v26
 
           # 1. gradle.properties
           cat << 'EOF' > gradle.properties
@@ -66,7 +67,7 @@ jobs:
           }
           EOF
 
-          # 4. app/build.gradle.kts (100% Standalone 2-in-1 - Không cần thư viện Shizuku)
+          # 4. app/build.gradle.kts
           cat << 'EOF' > app/build.gradle.kts
           plugins {
               id("com.android.application")
@@ -81,8 +82,8 @@ jobs:
                   applicationId = "com.bangtech.optimize"
                   minSdk = 26
                   targetSdk = 34
-                  versionCode = 100
-                  versionName = "10.0 2-in-1 Liquid Glass"
+                  versionCode = 101
+                  versionName = "10.1 2-in-1 Liquid Glass"
               }
 
               compileOptions {
@@ -101,7 +102,7 @@ jobs:
           }
           EOF
 
-          # 5. Tạo Icon "Bình Công Nghệ" (Technology Reactor Adaptive Icon)
+          # 5. Tạo Icon "Bình Công Nghệ" (Technology Reactor Icon - Chuẩn AAPT2 không lỗi)
           cat << 'EOF' > app/src/main/res/drawable/ic_launcher_background.xml
           <vector xmlns:android="http://schemas.android.com/apk/res/android"
               android:width="108dp"
@@ -110,7 +111,7 @@ jobs:
               android:viewportHeight="108">
               <path android:fillColor="#080B11" android:pathData="M0,0h108v108h-108z"/>
               <path android:fillColor="#0E1420" android:pathData="M8,8h92v92h-92z"/>
-              <path android:strokeColor="#1E293B" android:strokeWidth="0.8" android:pathData="M0,27L108,27M0,54L108,54M0,81L108,81M27,0L27,108M54,0L54,108M81,0L81,108"/>
+              <path android:strokeColor="#1E293B" android:strokeWidth="1" android:pathData="M0,27L108,27M0,54L108,54M0,81L108,81M27,0L27,108M54,0L54,108M81,0L81,108"/>
               <path android:strokeColor="#38BDF8" android:strokeAlpha="0.35" android:strokeWidth="2" android:pathData="M18,18h72v72h-72z"/>
           </vector>
           EOF
@@ -121,44 +122,33 @@ jobs:
               android:height="108dp"
               android:viewportWidth="108"
               android:viewportHeight="108">
-              <!-- Ống dẫn năng lượng phát sáng 2 bên Bình Công Nghệ -->
-              <path android:strokeColor="#10B981" android:strokeWidth="3.2" android:strokeLineCap="round" android:strokeLineJoin="round"
+              <path android:fillColor="#00000000" android:strokeColor="#10B981" android:strokeWidth="3.2" android:strokeLineCap="round" android:strokeLineJoin="round"
                   android:pathData="M34,42 H25 V66 H34" />
-              <path android:strokeColor="#38BDF8" android:strokeWidth="3.2" android:strokeLineCap="round" android:strokeLineJoin="round"
+              <path android:fillColor="#00000000" android:strokeColor="#38BDF8" android:strokeWidth="3.2" android:strokeLineCap="round" android:strokeLineJoin="round"
                   android:pathData="M74,42 H83 V66 H74" />
-              <!-- Đế Bình Công Nghệ Titanium -->
               <path android:fillColor="#1E293B" android:strokeColor="#64748B" android:strokeWidth="1.5"
                   android:pathData="M36,74 H72 L75,82 H33 Z" />
-              <!-- Thân Bình Phản Ứng Kính Lỏng (Reactor Chamber) -->
               <path android:fillColor="#0F293A" android:strokeColor="#38BDF8" android:strokeWidth="2.4"
                   android:pathData="M36,38 H72 V74 H36 Z" />
-              <!-- Lõi Năng Lượng Emerald & Vi Mạch Bên Trong Bình -->
               <path android:fillColor="#10B981" android:fillAlpha="0.28"
                   android:pathData="M40,42 H68 V70 H40 Z" />
-              <!-- Vòng tròn Lõi Reactor & Tia Chớp Tối Ưu -->
               <path android:fillColor="#091520" android:strokeColor="#34D399" android:strokeWidth="2.2"
-                  android:pathData="M54,46 A10,10 0 1,1 53.9,46 Z" />
+                  android:pathData="M44,56 A10,10 0 1,0 64,56 A10,10 0 1,0 44,56 Z" />
               <path android:fillColor="#F8FAFC"
                   android:pathData="M55.5,48 L49,56.5 H54 L52.5,64 L59.5,55 H54.5 Z" />
-              <!-- Nắp Vòm Cơ Khí & Đầu Robot Cảm Biến -->
               <path android:fillColor="#334155" android:strokeColor="#94A3B8" android:strokeWidth="1.6"
                   android:pathData="M34,38 C34,31 74,31 74,38 Z" />
               <path android:fillColor="#1E293B" android:strokeColor="#38BDF8" android:strokeWidth="1.8"
                   android:pathData="M44,24 H64 V32 H44 Z" />
-              <!-- Mắt cảm biến Cyan phát sáng -->
               <path android:fillColor="#38BDF8" android:pathData="M48,27 h3 v2.5 h-3 z M57,27 h3 v2.5 h-3 z" />
           </vector>
           EOF
 
-          cat << 'EOF' > app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml
-          <?xml version="1.0" encoding="utf-8"?>
-          <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-              <background android:drawable="@drawable/ic_launcher_background"/>
-              <foreground android:drawable="@drawable/ic_launcher_foreground"/>
-          </adaptive-icon>
-          EOF
+          # Fallback icon chuẩn cho mọi cấu hình
+          cp app/src/main/res/drawable/ic_launcher_foreground.xml app/src/main/res/drawable/ic_launcher.xml
 
-          cat << 'EOF' > app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml
+          # Adaptive icon chuẩn cho Android 8.0+ (API 26+)
+          cat << 'EOF' > app/src/main/res/drawable-anydpi-v26/ic_launcher.xml
           <?xml version="1.0" encoding="utf-8"?>
           <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
               <background android:drawable="@drawable/ic_launcher_background"/>
@@ -183,8 +173,8 @@ jobs:
 
               <application
                   android:allowBackup="true"
-                  android:icon="@mipmap/ic_launcher"
-                  android:roundIcon="@mipmap/ic_launcher_round"
+                  android:icon="@drawable/ic_launcher"
+                  android:roundIcon="@drawable/ic_launcher"
                   android:label="BangOptimize"
                   android:usesCleartextTraffic="true"
                   android:hardwareAccelerated="true"
@@ -208,7 +198,7 @@ jobs:
                       android:foregroundServiceType="specialUse">
                       <property
                           android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                          android:value="BangOptimize 2-in-1 ADB &amp; Realtime RAM" />
+                          android:value="BangOptimize 2-in-1 ADB and Realtime RAM" />
                   </service>
 
                   <receiver
@@ -222,7 +212,7 @@ jobs:
           </manifest>
           EOF
 
-          # 7. EmbeddedAdbEngine.kt (Lõi ADB Không Dây 2-in-1 + Tự dò cổng mDNS + Thực thi lệnh an toàn)
+          # 7. EmbeddedAdbEngine.kt
           cat << 'EOF' > app/src/main/java/com/bangtech/optimize/EmbeddedAdbEngine.kt
           package com.bangtech.optimize
 
@@ -264,22 +254,23 @@ jobs:
                       nsdManager = context.getSystemService(Context.NSD_SERVICE) as? NsdManager
                       stopMdnsScanner()
 
-                      // 1. Tự động dò cổng Pairing (_adb-tls-pairing._tcp)
                       pairingDiscoveryListener = object : NsdManager.DiscoveryListener {
                           override fun onDiscoveryStarted(regType: String?) {}
                           override fun onServiceFound(service: NsdServiceInfo?) {
                               if (service == null) return
-                              nsdManager?.resolveService(service, object : NsdManager.ResolveListener {
-                                  override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {}
-                                  override fun onServiceResolved(resolved: NsdServiceInfo?) {
-                                      resolved?.port?.let { p ->
-                                          if (p > 0) {
-                                              detectedPairingPort = p
-                                              onStatusChanged()
+                              try {
+                                  nsdManager?.resolveService(service, object : NsdManager.ResolveListener {
+                                      override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {}
+                                      override fun onServiceResolved(resolved: NsdServiceInfo?) {
+                                          resolved?.port?.let { p ->
+                                              if (p > 0) {
+                                                  detectedPairingPort = p
+                                                  onStatusChanged()
+                                              }
                                           }
                                       }
-                                  }
-                              })
+                                  })
+                              } catch (_: Exception) {}
                           }
                           override fun onServiceLost(service: NsdServiceInfo?) {}
                           override fun onDiscoveryStopped(serviceType: String?) {}
@@ -288,24 +279,25 @@ jobs:
                       }
                       nsdManager?.discoverServices("_adb-tls-pairing._tcp.", NsdManager.PROTOCOL_DNS_SD, pairingDiscoveryListener)
 
-                      // 2. Tự động dò cổng Connect (_adb-tls-connect._tcp)
                       connectDiscoveryListener = object : NsdManager.DiscoveryListener {
                           override fun onDiscoveryStarted(regType: String?) {}
                           override fun onServiceFound(service: NsdServiceInfo?) {
                               if (service == null) return
-                              nsdManager?.resolveService(service, object : NsdManager.ResolveListener {
-                                  override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {}
-                                  override fun onServiceResolved(resolved: NsdServiceInfo?) {
-                                      resolved?.port?.let { p ->
-                                          if (p > 0) {
-                                              detectedConnectPort = p
-                                              context.getSharedPreferences("bang_adb_2in1", Context.MODE_PRIVATE)
-                                                  .edit().putInt("last_connect_port", p).apply()
-                                              onStatusChanged()
+                              try {
+                                  nsdManager?.resolveService(service, object : NsdManager.ResolveListener {
+                                      override fun onResolveFailed(serviceInfo: NsdServiceInfo?, errorCode: Int) {}
+                                      override fun onServiceResolved(resolved: NsdServiceInfo?) {
+                                          resolved?.port?.let { p ->
+                                              if (p > 0) {
+                                                  detectedConnectPort = p
+                                                  context.getSharedPreferences("bang_adb_2in1", Context.MODE_PRIVATE)
+                                                      .edit().putInt("last_connect_port", p).apply()
+                                                  onStatusChanged()
+                                              }
                                           }
                                       }
-                                  }
-                              })
+                                  })
+                              } catch (_: Exception) {}
                           }
                           override fun onServiceLost(service: NsdServiceInfo?) {}
                           override fun onDiscoveryStopped(serviceType: String?) {}
@@ -333,18 +325,16 @@ jobs:
                           put("msg", "Mã ghép nối phải gồm đúng 6 chữ số!")
                       }
                   }
-                  val targetPort = if (port in 1024..65535) port else if (detectedPairingPort > 0) detectedPairingPort else 37000
+                  val targetPort = if (port in 1024..65535) port else if (detectedPairingPort > 0) detectedPairingPort else 37845
 
-                  // Kiểm tra giao tiếp Loopback Socket tới cổng Wireless Debugging hoặc ADB nội bộ
                   var loopbackReachable = false
                   try {
                       Socket().use { s ->
-                          s.connect(InetSocketAddress("127.0.0.1", targetPort), 650)
+                          s.connect(InetSocketAddress("127.0.0.1", targetPort), 600)
                           loopbackReachable = true
                       }
                   } catch (_: Exception) {}
 
-                  // Thử gọi binary adb pair nếu ROM có tích hợp sẵn
                   try {
                       val proc = Runtime.getRuntime().exec(arrayOf("sh", "-c", "adb pair 127.0.0.1:$targetPort $cleanCode"))
                       proc.waitFor()
@@ -363,7 +353,6 @@ jobs:
                       .putString("last_pair_code", cleanCode)
                       .apply()
 
-                  // Tự động xóa các cờ nguy hiểm ngay khi kết nối
                   executeShell("settings delete global angle_gl_driver_all_angle; settings delete global cached_apps_freezer")
 
                   return JSONObject().apply {
@@ -383,7 +372,6 @@ jobs:
               }
 
               fun executeShell(cmd: String): String {
-                  // Chặn tuyệt đối các lệnh gây lỗi khởi động trên mọi dòng máy
                   if (cmd.contains("angle_gl_driver_all_angle 1") || cmd.contains("cached_apps_freezer enabled")) {
                       return JSONObject().apply {
                           put("exitCode", -99)
@@ -405,8 +393,6 @@ jobs:
                       val err = BufferedReader(InputStreamReader(process.errorStream)).readText().trim()
                       val code = process.waitFor()
 
-                      // Nếu lệnh chạy qua sh thông thường bị thiếu quyền WRITE_SECURE_SETTINGS nhưng đã bật 2-in-1 Engine,
-                      // thử chuyển tiếp qua cầu nối adb shell nội bộ hoặc xử lý kết quả an toàn
                       if (code != 0 && err.contains("SecurityException", true)) {
                           try {
                               val p2 = Runtime.getRuntime().exec(arrayOf("sh", "-c", "adb -s 127.0.0.1:$detectedConnectPort shell \"$cmd\""))
@@ -427,7 +413,7 @@ jobs:
                           put("out", out)
                           put("err", "")
                       }.toString()
-                  } catch (e: Exception) {
+                  } catch (_: Exception) {
                       JSONObject().apply {
                           put("exitCode", 0)
                           put("out", "")
@@ -438,7 +424,7 @@ jobs:
           }
           EOF
 
-          # 8. PairingBroadcastReceiver.kt (Nhận mã 6 số nhập trực tiếp từ Thanh thông báo khi đang ở trong Cài đặt)
+          # 8. PairingBroadcastReceiver.kt (Đã sửa chuẩn tên icon android.R.drawable.ic_dialog_info)
           cat << 'EOF' > app/src/main/java/com/bangtech/optimize/PairingBroadcastReceiver.kt
           package com.bangtech.optimize
 
@@ -455,7 +441,6 @@ jobs:
                   val results = RemoteInput.getResultsFromIntent(intent) ?: return
                   val rawInput = results.getCharSequence("key_pairing_code")?.toString()?.trim() ?: ""
 
-                  // Hỗ trợ nhập "123456" hoặc "39123:123456"
                   var port = EmbeddedAdbEngine.detectedPairingPort
                   var code = rawInput
                   if (rawInput.contains(":")) {
@@ -475,7 +460,7 @@ jobs:
 
                   val nm = context.getSystemService(NotificationManager::class.java)
                   val notif = NotificationCompat.Builder(context, "bang_pair_channel")
-                      .setSmallIcon(android.R.drawable.stat_sys_Upload_done)
+                      .setSmallIcon(android.R.drawable.ic_dialog_info)
                       .setContentTitle(if (ok) "BangOptimize 2-in-1: Đã kết nối!" else "Ghép nối chưa thành công")
                       .setContentText(msg)
                       .setAutoCancel(true)
@@ -635,7 +620,6 @@ jobs:
               val mainHandler = Handler(Looper.getMainLooper())
               private var volDownStartTime = 0L
               private var maxSupportedHz = 60
-              private val activeToggleMemory = HashMap<String, String>()
 
               @SuppressLint("SetJavaScriptEnabled")
               override fun onCreate(savedInstanceState: Bundle?) {
@@ -762,13 +746,14 @@ jobs:
                       .setLabel("Nhập MÃ 6 SỐ (VD: 482910 hoặc PORT:MÃ)")
                       .build()
 
+                  val mutFlag = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
                   val replyPendingIntent = PendingIntent.getBroadcast(
                       this,
                       30,
                       Intent(this, PairingBroadcastReceiver::class.java).apply {
                           action = "com.bangtech.optimize.ACTION_PAIR_INPUT"
                       },
-                      PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+                      PendingIntent.FLAG_UPDATE_CURRENT or mutFlag
                   )
 
                   val action = NotificationCompat.Action.Builder(
@@ -784,7 +769,7 @@ jobs:
                   }
 
                   val notif = NotificationCompat.Builder(this, chId)
-                      .setSmallIcon(android.R.drawable.stat_sys_data_bluetooth)
+                      .setSmallIcon(android.R.drawable.ic_dialog_info)
                       .setContentTitle("BangOptimize 2-in-1 • Nhập Mã Ghép Nối")
                       .setContentText("$portHint Bấm nút bên dưới để gõ 6 số.")
                       .addAction(action)
@@ -838,7 +823,6 @@ jobs:
                   @JavascriptInterface
                   fun unpairAdbEngine() {
                       EmbeddedAdbEngine.unpairEngine(this@MainActivity)
-                      activeToggleMemory.clear()
                       mainHandler.post { injectRealHardwareData(isColdStart = false) }
                   }
 
@@ -887,12 +871,6 @@ jobs:
                               res.put("cmd", cmd)
                               postResult(res)
                               return@execute
-                          }
-
-                          if (targetOn) {
-                              activeToggleMemory[itemId] = expectedVal.ifEmpty { "active" }
-                          } else {
-                              activeToggleMemory.remove(itemId)
                           }
 
                           res.put("ok", true)
@@ -965,14 +943,14 @@ jobs:
           }
           EOF
 
-          # 11. Giao diện BangOptimize.html v10.0 (2-in-1 Wireless ADB + Màn hình Ghép nối 6 số Liquid Glass 2.0 + Logo Bình Công Nghệ)
+          # 11. Giao diện BangOptimize.html v10.1 (2-in-1 Wireless ADB + Màn hình Ghép nối 6 số Liquid Glass 2.0)
           cat << 'EOF' > app/src/main/assets/BangOptimize.html
           <!DOCTYPE html>
           <html lang="vi">
           <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-          <title>BangOptimize v10.0 2-in-1 Liquid Glass</title>
+          <title>BangOptimize v10.1 2-in-1 Liquid Glass</title>
           <style>
             :root {
               --bg-canvas: #06080D;
@@ -1018,8 +996,6 @@ jobs:
             .tap-spring:active {
               transform: scale(0.95);
             }
-
-            /* ================= LIQUID GLASS 2.0: OPTICAL REFRACTION & CAUSTIC SPECULAR RIM ================= */
             .liquid-glass-v2 {
               position: relative;
               background:
@@ -1053,8 +1029,6 @@ jobs:
               mask-composite: exclude;
               pointer-events: none;
             }
-
-            /* ================= STAGE 1: LIQUID GLASS HERO & METABALL MORPHING ================= */
             .liquid-hero-stage {
               position: relative;
               margin: 10px 14px 12px;
@@ -1078,7 +1052,6 @@ jobs:
               position: relative;
               z-index: 3;
             }
-            /* Logo "Bình Công Nghệ" (Technology Reactor Vessel) 3D Emblem */
             .reactor-emblem-box {
               width: 44px;
               height: 44px;
@@ -1110,8 +1083,6 @@ jobs:
               background: #10B981;
               box-shadow: 0 0 10px #10B981;
             }
-
-            /* Metaball Interactive Zone */
             .metaball-interactive-zone {
               position: relative;
               height: 108px;
@@ -1190,8 +1161,6 @@ jobs:
               text-align: center;
               margin-top: 2px;
             }
-
-            /* ================= MÀN HÌNH GHÉP NỐI 6 SỐ CHUẨN LIQUID GLASS 2.0 ================= */
             .pair-sheet-backdrop {
               position: fixed;
               inset: 0;
@@ -1204,19 +1173,12 @@ jobs:
               justify-content: center;
               padding: 14px;
             }
-            .pair-sheet-backdrop.open {
-              display: flex;
-            }
+            .pair-sheet-backdrop.open { display: flex; }
             .pair-glass-modal {
               width: 100%;
               max-width: 400px;
               border-radius: 30px;
               padding: 20px 18px 18px;
-              animation: sheetPop 240ms cubic-bezier(0.22, 1.2, 0.36, 1);
-            }
-            @keyframes sheetPop {
-              from { opacity: 0; transform: scale(0.92) translateY(16px); }
-              to { opacity: 1; transform: scale(1) translateY(0); }
             }
             .mdns-live-strip {
               background: rgba(16, 185, 129, 0.12);
@@ -1239,9 +1201,7 @@ jobs:
               font-weight: 800;
               font-size: 12px;
               color: #38BDF8;
-              font-variant-numeric: tabular-nums;
             }
-            /* 6 Ô Kính Lỏng Nhập Mã 6 Số (6 Liquid Glass Digit Capsules) */
             .six-digit-grid {
               display: grid;
               grid-template-columns: repeat(6, 1fr);
@@ -1260,8 +1220,7 @@ jobs:
               font-size: 21px;
               font-weight: 800;
               color: #FFFFFF;
-              font-variant-numeric: tabular-nums;
-              transition: all 140ms cubic-bezier(0.22, 1, 0.36, 1);
+              transition: all 140ms ease;
             }
             .digit-glass-slot.filled {
               background: radial-gradient(circle at 50% 20%, rgba(56, 189, 248, 0.32), rgba(16, 185, 129, 0.14));
@@ -1269,10 +1228,7 @@ jobs:
               box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.6), 0 0 14px rgba(56, 189, 248, 0.35);
               transform: translateY(-2px);
             }
-            .digit-glass-slot.active-cursor {
-              border-color: rgba(255, 255, 255, 0.65);
-            }
-            /* Bàn phím số Thủy Tinh Lỏng (iOS 27 Liquid Glass Tactile Keypad) */
+            .digit-glass-slot.active-cursor { border-color: rgba(255, 255, 255, 0.65); }
             .glass-numpad {
               display: grid;
               grid-template-columns: repeat(3, 1fr);
@@ -1291,14 +1247,11 @@ jobs:
               display: flex;
               align-items: center;
               justify-content: center;
-              transition: transform 70ms ease, background-color 70ms ease;
             }
             .numpad-key:active {
               transform: scale(0.92);
               background: rgba(56, 189, 248, 0.28);
             }
-
-            /* ================= BENTO CARDS & VIBECODING DASHBOARD ================= */
             .bento-glass-card {
               background: linear-gradient(175deg, rgba(255, 255, 255, 0.06) 0%, rgba(255, 255, 255, 0.015) 100%), var(--bg-card);
               backdrop-filter: blur(18px) saturate(180%);
@@ -1337,11 +1290,8 @@ jobs:
               font-size: 24px;
               font-weight: 800;
               letter-spacing: -0.03em;
-              font-variant-numeric: tabular-nums;
               line-height: 1.1;
             }
-
-            /* Sliding Pill Bar */
             .v14-pill-track {
               display: flex;
               background: rgba(12, 15, 22, 0.85);
@@ -1365,8 +1315,6 @@ jobs:
               background: #F8FAFC;
               box-shadow: 0 2px 10px rgba(255, 255, 255, 0.25);
             }
-
-            /* Vibecoding Mode List */
             .vibe-mode-list { display: flex; flex-direction: column; gap: 7px; }
             .vibe-mode-item {
               position: relative;
@@ -1394,8 +1342,6 @@ jobs:
               background: #38BDF8;
               box-shadow: 0 0 10px #38BDF8;
             }
-
-            /* Switch Cards */
             .tweak-item-v14 {
               background: rgba(255, 255, 255, 0.03);
               border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1421,8 +1367,6 @@ jobs:
             .verify-line.pending { color: var(--accent-cyan); }
             .verify-line.ok { color: var(--accent-emerald); }
             .verify-line.err { color: #FDA4AF; }
-
-            /* Switch Toggle */
             .v14-switch {
               width: 46px;
               height: 26px;
@@ -1450,8 +1394,6 @@ jobs:
             .v14-switch.on { background: var(--accent-warm); border-color: transparent; }
             .v14-switch.on.emerald { background: var(--accent-emerald); }
             .v14-switch.on::after { transform: translate3d(20px, 0, 0); }
-
-            /* ================= iOS 27 LIQUID GLASS BOTTOM NAVBAR & DRAGGABLE LENS ================= */
             .ios27-bottom-dock-wrap {
               position: fixed;
               bottom: 12px;
@@ -1524,8 +1466,6 @@ jobs:
               color: #FFFFFF;
               flex-shrink: 0;
             }
-
-            /* Helpers */
             .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
             .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
             .sec-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 11px; gap: 8px; }
@@ -1599,7 +1539,6 @@ jobs:
             }
             .tab-pane { display: none; }
             .tab-pane.active { display: block; }
-
             #toastPill {
               position: fixed;
               top: 14px;
@@ -1621,7 +1560,6 @@ jobs:
           </head>
           <body>
 
-          <!-- Bộ lọc SVG Metaball Gooey -->
           <svg width="0" height="0" style="position:absolute;">
             <defs>
               <filter id="liquid-metaball-goo">
@@ -1638,12 +1576,11 @@ jobs:
 
           <div id="toastPill" class="liquid-glass-v2">Hệ thống 2-in-1 đã sẵn sàng</div>
 
-          <!-- ================= MÀN HÌNH GHÉP NỐI 6 SỐ CHUẨN LIQUID GLASS 2.0 ================= -->
+          <!-- MÀN HÌNH GHÉP NỐI 6 SỐ CHUẨN LIQUID GLASS 2.0 -->
           <div id="pairSheetModal" class="pair-sheet-backdrop" onclick="closePairModal()">
             <div class="pair-glass-modal liquid-glass-v2" onclick="event.stopPropagation()">
               <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
                 <div style="display:flex; align-items:center; gap:9px;">
-                  <!-- Mini Reactor Icon -->
                   <div style="width:34px; height:34px; border-radius:10px; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.45); display:flex; align-items:center; justify-content:center;">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#38BDF8" stroke-width="2"><rect x="6" y="6" width="12" height="14" rx="2"/><path d="M9 3h6v3H9zM3 10h3M3 16h3M18 10h3M18 16h3"/><polygon points="13 9 10 13 12 13 11 17 14 13 12 13 13 9" fill="#10B981"/></svg>
                   </div>
@@ -1655,7 +1592,6 @@ jobs:
                 <button class="tag-pill tap-spring" style="padding:5px 10px;" onclick="closePairModal()">Đóng ✕</button>
               </div>
 
-              <!-- Thanh tự động dò cổng mDNS -->
               <div class="mdns-live-strip">
                 <div>
                   <div style="font-weight:700; color:#34D399;" id="mdnsStatusText">● Tự động dò cổng (_adb-tls-pairing)</div>
@@ -1664,7 +1600,6 @@ jobs:
                 <input id="inpPairPort" class="port-pill-input" type="number" value="37845" placeholder="Port" />
               </div>
 
-              <!-- 6 Ô Kính Lỏng Nhập Mã 6 Số -->
               <div class="six-digit-grid" id="sixDigitGrid">
                 <div class="digit-glass-slot active-cursor">-</div>
                 <div class="digit-glass-slot">-</div>
@@ -1674,7 +1609,6 @@ jobs:
                 <div class="digit-glass-slot">-</div>
               </div>
 
-              <!-- Bàn phím số Thủy Tinh Lỏng (Liquid Glass Tactile Keypad) -->
               <div class="glass-numpad">
                 <button class="numpad-key" onclick="pressDigit('1')">1</button>
                 <button class="numpad-key" onclick="pressDigit('2')">2</button>
@@ -1699,11 +1633,10 @@ jobs:
             </div>
           </div>
 
-          <!-- ================= HERO STAGE: LOGO "BÌNH CÔNG NGHỆ" & LIQUID GLASS METABALL ================= -->
+          <!-- HERO STAGE: LOGO "BÌNH CÔNG NGHỆ" & LIQUID GLASS METABALL -->
           <div class="liquid-hero-stage">
             <div class="top-reactor-header">
               <div style="display:flex; align-items:center; gap:10px;">
-                <!-- Biểu tượng Bình Công Nghệ (Technology Reactor Vessel) chuẩn mẫu thiết kế -->
                 <div class="reactor-emblem-box liquid-glass-v2 tap-spring" onclick="openPairModal()">
                   <svg width="28" height="28" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M11 14H7V24H11" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1718,19 +1651,17 @@ jobs:
                   </svg>
                 </div>
                 <div>
-                  <div style="font-size:16px; font-weight:800; letter-spacing:-0.02em;">BangOptimize <span style="font-size:10px; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.18); color:#38BDF8;">v10.0 2-in-1</span></div>
+                  <div style="font-size:16px; font-weight:800; letter-spacing:-0.02em;">BangOptimize <span style="font-size:10px; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.18); color:#38BDF8;">v10.1 2-in-1</span></div>
                   <div style="font-size:10.5px; color:var(--text-secondary);">Bang Technology · Tích hợp sẵn ADB Không Dây</div>
                 </div>
               </div>
 
-              <!-- Nút Mở Màn Hình Ghép Nối 6 Số -->
               <button class="adb-status-pill liquid-glass-v2 tap-spring" onclick="openPairModal()">
                 <span id="adbLed" class="status-led"></span>
                 <span id="adbTopStatusText">Ghép nối 6 số</span>
               </button>
             </div>
 
-            <!-- Sân khấu Tương tác Giọt Kính Lỏng Hòa Quyện (Metaball Morphing) -->
             <div id="metaballStage" class="metaball-interactive-zone">
               <div class="gooey-filter-layer">
                 <div class="goo-bar-proxy"></div>
@@ -1752,17 +1683,15 @@ jobs:
                 </div>
               </div>
 
-              <!-- Giọt Kính Kéo Tương Tác (Draggable Liquid Glass Orb) -->
               <div id="liquidOrb" class="liquid-draggable-orb liquid-glass-v2">
                 <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               </div>
             </div>
             <div class="liquid-hint-caption">
-              Kéo <b>Giọt kính lỏng (🔍)</b> để hòa quyện quang học & giải phóng RAM · Chạm nút góc phải để <b>Ghép nối 6 số</b>
+              Kéo <b>Giọt kính lỏng (🔍)</b> để hòa quyện quang học & giải phóng RAM · Chạm góc phải để <b>Ghép nối 6 số</b>
             </div>
           </div>
 
-          <!-- THANH SLIDING PILL SELECTOR -->
           <div class="v14-pill-track">
             <button class="v14-pill-btn active tap-spring" onclick="switchTab(0)">Overview</button>
             <button class="v14-pill-btn tap-spring" onclick="switchTab(1)">Tweaks (20)</button>
@@ -1770,9 +1699,8 @@ jobs:
             <button class="v14-pill-btn tap-spring" onclick="switchTab(3)">2-in-1 ADB</button>
           </div>
 
-          <!-- ================= TAB 0: OVERVIEW ================= -->
+          <!-- TAB 0: OVERVIEW -->
           <div id="tab-0" class="tab-pane active">
-
             <div style="padding: 0 14px; margin-bottom: 10px;" class="grid-2">
               <div class="amber-hero-card tap-spring" onclick="cleanRamNow()">
                 <div style="font-size:10px; font-weight:700; text-transform:uppercase; opacity:0.92;">Bộ nhớ trống khả dụng</div>
@@ -1791,7 +1719,6 @@ jobs:
               </div>
             </div>
 
-            <!-- Biểu đồ Sóng Đa Tầng (Multi-Spline Telemetry Wave) -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <div>
@@ -1823,7 +1750,6 @@ jobs:
               </div>
             </div>
 
-            <!-- Cấp độ tối ưu hóa -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <span class="sec-heading">Cấp độ tối ưu hóa (Tương thích mọi dòng máy)</span>
@@ -1854,7 +1780,6 @@ jobs:
               </div>
             </div>
 
-            <!-- Độ nhạy cảm ứng & Mở khóa giới hạn ROM -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <span class="sec-heading">Độ nhạy cảm ứng & Mở khóa giới hạn ROM</span>
@@ -1880,7 +1805,6 @@ jobs:
               </button>
             </div>
 
-            <!-- Độ phân giải & DPI -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <span class="sec-heading">Độ phân giải & Mật độ DPI</span>
@@ -1911,10 +1835,9 @@ jobs:
                 <button class="btn-glass-subtle tap-spring" style="margin:0; padding:10px 4px; font-size:11px; color:#FDA4AF;" onclick="resetResolution()">Về gốc</button>
               </div>
             </div>
-
           </div>
 
-          <!-- ================= TAB 1: TWEAKS (20 CÔNG TẮC AN TOÀN TUYỆT ĐỐI) ================= -->
+          <!-- TAB 1: TWEAKS -->
           <div id="tab-1" class="tab-pane">
             <div class="bento-glass-card">
               <div class="sec-row">
@@ -1938,7 +1861,7 @@ jobs:
             </div>
           </div>
 
-          <!-- ================= TAB 2: MEMORY & WHITELIST ================= -->
+          <!-- TAB 2: MEMORY -->
           <div id="tab-2" class="tab-pane">
             <div class="bento-glass-card">
               <div class="sec-row">
@@ -1969,7 +1892,7 @@ jobs:
             </div>
           </div>
 
-          <!-- ================= TAB 3: 2-IN-1 ADB ENGINE & TERMINAL ================= -->
+          <!-- TAB 3: 2-IN-1 ADB ENGINE -->
           <div id="tab-3" class="tab-pane">
             <div class="bento-glass-card">
               <div class="sec-row">
@@ -1977,7 +1900,7 @@ jobs:
                 <span class="tag-pill" id="tab3PairBadge">Chưa ghép nối</span>
               </div>
               <p style="font-size:11.5px; color:var(--text-secondary); line-height:1.45; margin-bottom:10px;">
-                BangOptimize v10.0 tự tích hợp sẵn giao thức <b>Wireless Debugging Loopback</b> ngay trong ứng dụng mà không cần cài Shizuku.
+                BangOptimize v10.1 tự tích hợp sẵn giao thức <b>Wireless Debugging Loopback</b> ngay trong ứng dụng mà không cần cài Shizuku.
               </p>
               <button class="btn-solid-white tap-spring" onclick="openPairModal()">
                 🔢 Mở Bàn Phím Ghép Nối 6 Số Liquid Glass
@@ -1996,7 +1919,7 @@ jobs:
                 <span class="tag-pill" id="cmdCountBadge">0 lệnh</span>
               </div>
               <div id="consoleBox" style="font-family:monospace; font-size:11px; background:#05070B; border:1px solid var(--border-hairline); border-radius:13px; padding:12px; color:#CBD5E1; max-height:220px; overflow-y:auto; line-height:1.55;">
-                [BangOptimize v10.0] Khởi tạo kiến trúc 2-in-1 Embedded Wireless ADB.<br>
+                [BangOptimize v10.1] Khởi tạo kiến trúc 2-in-1 Embedded Wireless ADB.<br>
                 [Safety Guard] Đã khóa bảo vệ chống lỗi khởi động trên mọi dòng máy.
               </div>
               <button class="btn-glass-subtle tap-spring" style="color:#FDA4AF;" onclick="restoreAllDefaults()">
@@ -2005,7 +1928,7 @@ jobs:
             </div>
           </div>
 
-          <!-- ================= iOS 27 LIQUID GLASS BOTTOM NAVBAR & DRAGGABLE LENS ================= -->
+          <!-- BOTTOM NAVBAR -->
           <div class="ios27-bottom-dock-wrap">
             <div id="glassNavBar" class="ios27-glass-navbar liquid-glass-v2">
               <div id="navLiquidLens" class="ios27-liquid-lens"></div>
@@ -2034,13 +1957,11 @@ jobs:
           </div>
 
           <script>
-            // Hiệu ứng xoay góc khúc xạ ánh sáng mặt kính theo thao tác vuốt/chạm
             window.addEventListener('pointermove', (e) => {
               const deg = Math.round((e.clientX / Math.max(1, window.innerWidth)) * 160 + 145);
               document.documentElement.style.setProperty('--light-angle', deg + 'deg');
             }, { passive: true });
 
-            // ================= MÀN HÌNH GHÉP NỐI 6 SỐ LIQUID GLASS =================
             let currentSixDigits = "";
 
             function openPairModal() {
@@ -2166,7 +2087,6 @@ jobs:
               updateAdbStatusUI(!!info.paired, info.mode);
             };
 
-            // ================= 20 CÔNG TẮC AN TOÀN TUYỆT ĐỐI =================
             const glToolItems = [
               { id: 'gl_zero_lag', name: 'Bang Zero Lag Scheduler', tag: 'Universal', desc: 'Tối ưu độ trễ phản hồi cửa sổ và điều phối khung hình chuẩn AOSP.', on: false, statusText: 'Chưa bật', statusType: 'idle', cmdOn: 'settings put global window_animation_scale 0.5', cmdOff: 'settings put global window_animation_scale 1.0', verifyCmd: 'settings get global window_animation_scale', expectVal: '0.5', minHz: 0 },
               { id: 'gl_ping', name: 'Bang Ping Booster 5GHz', tag: 'Network', desc: 'Tắt quét Wi-Fi nền gây nhảy ping và giữ kết nối mạng luôn thức.', on: false, statusText: 'Chưa bật', statusType: 'idle', cmdOn: 'settings put global wifi_scan_always_enabled 0 && settings put global wifi_sleep_policy 2', cmdOff: 'settings put global wifi_scan_always_enabled 1', verifyCmd: 'settings get global wifi_scan_always_enabled', expectVal: '0', minHz: 0 },
@@ -2248,15 +2168,14 @@ jobs:
               requestAnimationFrame(step);
             }
 
-            // ================= METABALL DROPLET PHYSICS =================
             (function initMetaballDroplet() {
               const stage = document.getElementById('metaballStage');
               const orb = document.getElementById('liquidOrb');
               const proxy = document.getElementById('gooDropProxy');
               if (!stage || !orb || !proxy) return;
 
-              let homeX = 0, homeY = 52;
-              let curX = 0, curY = 52;
+              let homeX = 0, homeY = 50;
+              let curX = 0, curY = 50;
               let dragging = false;
               let startPtrX = 0, startPtrY = 0;
               let grabStartX = 0, grabStartY = 0;
@@ -2317,7 +2236,6 @@ jobs:
               setTimeout(layoutHome, 60);
             })();
 
-            // ================= DRAGGABLE LIQUID GLASS NAVBAR LENS =================
             (function initGlassNavBarPhysics() {
               const bar = document.getElementById('glassNavBar');
               const lens = document.getElementById('navLiquidLens');
@@ -2371,7 +2289,6 @@ jobs:
               window.addEventListener('resize', () => updateLensPosition(currentTabIndex, 1.0));
             })();
 
-            // ================= KHỞI TẠO & CẬP NHẬT CÔNG TẮC =================
             function buildSwitchHTML(item) {
               return `
                 <div id="card_${item.id}" class="tweak-item-v14" data-search="${(item.name + ' ' + item.desc + ' ' + item.tag).toLowerCase()}">
@@ -2556,7 +2473,7 @@ jobs:
               const cmd = target
                 ? 'settings put secure long_press_timeout 150 && settings put secure multi_press_timeout 150 && settings put system pointer_speed 7'
                 : 'settings put secure long_press_timeout 400 && settings put system pointer_speed 0';
-              runCustomVerifiedCommand(cmd, '', '150ms', (ok, reason) => {
+              runCustomVerifiedCommand(cmd, '', '150ms', (ok) => {
                 const btn = document.getElementById('btnFlo');
                 const lbl = document.getElementById('floDelayText');
                 if (ok) {
@@ -2829,5 +2746,5 @@ jobs:
       - name: 6. Upload BangOptimize 2-in-1 APK
         uses: actions/upload-artifact@v4
         with:
-          name: BangOptimize-v10.0-2in1-LiquidGlass
+          name: BangOptimize-v10.1-2in1-LiquidGlass
           path: app/build/outputs/apk/debug/app-debug.apk
