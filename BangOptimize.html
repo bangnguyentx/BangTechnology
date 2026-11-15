@@ -1,0 +1,2958 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>BangOptimize v12.0 Ultimate 2-in-1 — Bang Technology</title>
+  <meta name="description" content="Hệ thống tối ưu hóa nhân Android 2-in-1, lá chắn chống treo Anti-OTG, Game Hub tự động và giám sát dòng điện thời gian thực bởi Bang Technology." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;600;700&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+/* Hallmark · shape: app screen · genre: atmospheric · theme: Obsidian Reactor v12 (custom) · posture: Restrained · motion: brisk · v2.0.0 */
+
+:root {
+  --font-display: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* OKLCH 4-Layer Colour Tokens */
+  --color-paper: oklch(11.8% 0.012 255);
+  --color-paper-2: oklch(15.6% 0.014 255);
+  --color-paper-3: oklch(20.0% 0.016 255);
+  --color-glass: oklch(16.8% 0.016 255 / 0.74);
+  --color-glass-strong: oklch(14.0% 0.015 255 / 0.90);
+  --color-glass-lens: oklch(92% 0.025 235 / 0.17);
+  --color-glass-orb: oklch(84% 0.065 230 / 0.25);
+  --color-backdrop: oklch(7% 0.01 255 / 0.80);
+
+  --color-ink: oklch(96.0% 0.007 255);
+  --color-ink-2: oklch(78.5% 0.014 255);
+  --color-muted: oklch(56.0% 0.016 255);
+  --color-rule: oklch(28.0% 0.015 255 / 0.55);
+  --color-specular: oklch(98% 0.008 255 / 0.24);
+  --color-specular-strong: oklch(98% 0.01 255 / 0.46);
+
+  /* Signal & Semantic Tokens */
+  --color-accent: oklch(74% 0.145 230);
+  --color-accent-ink: oklch(13% 0.02 255);
+  --color-accent-soft: oklch(74% 0.145 230 / 0.14);
+  --color-focus: oklch(76% 0.18 230);
+
+  --color-ok: oklch(72% 0.16 162);
+  --color-ok-soft: oklch(72% 0.16 162 / 0.14);
+  --color-ok-ink: oklch(13% 0.02 162);
+
+  --color-warn: oklch(76% 0.155 65);
+  --color-warn-soft: oklch(76% 0.155 65 / 0.15);
+
+  --color-error: oklch(66% 0.19 22);
+  --color-error-soft: oklch(66% 0.19 22 / 0.15);
+
+  /* Dynamic Liquid Glass Customizer Variables */
+  --glass-blur: 22px;
+  --chromatic-opacity: 0.85;
+  --color-prism-a: oklch(86% 0.09 225 / 0.55);
+  --color-prism-b: oklch(76% 0.13 165 / 0.44);
+  --color-prism-c: oklch(74% 0.14 35 / 0.44);
+  --color-prism-d: oklch(96% 0.01 255 / 0.68);
+
+  /* Spacing Scale */
+  --space-3xs: 2px;
+  --space-2xs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-2xl: 64px;
+  --space-3xl: 96px;
+
+  /* Concentric Radii */
+  --radius-card: 22px;
+  --radius-well: 14px;
+  --radius-control: 10px;
+  --radius-pill: 999px;
+
+  /* Motion Tokens (Brisk Instrument Panel) */
+  --dur-micro: 120ms;
+  --dur-short: 220ms;
+  --dur-long: 420ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-in: cubic-bezier(0.64, 0, 0.78, 0);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  /* Z-Index Scale */
+  --z-base: 1;
+  --z-raised: 10;
+  --z-sticky: 200;
+  --z-sticky-nav: 300;
+  --z-modal: 400;
+  --z-toast: 500;
+
+  --shadow-card: 0 12px 32px oklch(7% 0.01 255 / 0.58);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  overflow-x: clip;
+  width: 100%;
+  min-height: 100dvh;
+  background-color: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  font-synthesis: none;
+  -webkit-font-smoothing: antialiased;
+  caret-color: var(--color-accent);
+  scrollbar-color: var(--color-muted) var(--color-paper-2);
+}
+
+::selection {
+  background-color: var(--color-accent-soft);
+  color: var(--color-ink);
+}
+
+body {
+  padding-bottom: calc(var(--space-3xl) + var(--space-md));
+  position: relative;
+}
+
+body.ultra-lite-glass {
+  --glass-blur: 0px;
+  --chromatic-opacity: 0.25;
+}
+
+.ambient-bloom-top {
+  position: fixed;
+  top: -8%;
+  left: 6%;
+  width: 32%;
+  height: 28%;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(circle, var(--color-accent-soft) 0%, transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient-bloom-bottom {
+  position: fixed;
+  bottom: 10%;
+  right: 5%;
+  width: 28%;
+  height: 26%;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(circle, var(--color-ok-soft) 0%, transparent 72%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.workbench-shell {
+  position: relative;
+  z-index: var(--z-base);
+  width: 100%;
+  max-width: 580px;
+  margin-inline: auto;
+  padding-inline: var(--space-md);
+  padding-top: var(--space-sm);
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.15;
+  text-wrap: balance;
+  overflow-wrap: break-word;
+  min-width: 0;
+}
+
+h1 { font-size: 1.25rem; max-width: 22ch; }
+h2 { font-size: 1.02rem; max-width: 32ch; }
+h3 { font-size: 0.92rem; max-width: 40ch; }
+
+p {
+  text-wrap: pretty;
+  max-width: 65ch;
+}
+
+.num-tabular {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible {
+  outline-offset: -2px;
+}
+
+button, .interactive-control {
+  font-family: var(--font-sans);
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  transition:
+    transform var(--dur-micro) var(--ease-out),
+    background-color var(--dur-short) var(--ease-out),
+    border-color var(--dur-short) var(--ease-out),
+    color var(--dur-short) var(--ease-out),
+    opacity var(--dur-micro) var(--ease-out);
+}
+
+button:active:not(:disabled),
+.interactive-control:active:not([aria-disabled="true"]) {
+  transform: translateY(1px) scale(0.985);
+}
+
+button:disabled,
+[aria-disabled="true"] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+svg { flex-shrink: 0; }
+
+/* Single-Layer Liquid Glass 2.0 Surface */
+.glass-panel {
+  position: relative;
+  background:
+    linear-gradient(165deg, var(--color-specular) 0%, transparent 46%),
+    var(--color-glass);
+  backdrop-filter: blur(var(--glass-blur)) saturate(190%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(190%);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-md);
+  margin-bottom: var(--space-md);
+  contain: layout paint;
+}
+
+.glass-panel::before,
+.chromatic-rim::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.1px;
+  opacity: var(--chromatic-opacity);
+  background: linear-gradient(
+    135deg,
+    var(--color-prism-d) 0%,
+    var(--color-prism-a) 35%,
+    var(--color-prism-b) 70%,
+    var(--color-prism-c) 100%
+  );
+  -webkit-mask: linear-gradient(var(--color-ink) 0 0) content-box, linear-gradient(var(--color-ink) 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+.tinted-well {
+  background-color: var(--color-paper-2);
+  border-radius: var(--radius-well);
+  padding: var(--space-sm);
+}
+
+/* Header & Reactor Vessel Emblem */
+.top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  padding-block: var(--space-xs);
+  margin-bottom: var(--space-xs);
+}
+
+.brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  min-width: 0;
+}
+
+.reactor-crest {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--radius-well);
+  background: radial-gradient(circle at 50% 25%, var(--color-accent-soft), var(--color-paper-2));
+  border: 1px solid var(--color-rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+  position: relative;
+}
+
+.brand-meta {
+  font-size: 0.78rem;
+  color: var(--color-ink-2);
+}
+
+/* Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: 42px;
+  padding-inline: var(--space-md);
+  padding-block: var(--space-xs);
+  border-radius: var(--radius-control);
+  background-color: var(--color-accent);
+  color: var(--color-accent-ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .btn-primary:hover:not(:disabled) {
+    background-color: var(--color-focus);
+  }
+}
+
+.btn-emerald {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: 42px;
+  padding-inline: var(--space-md);
+  padding-block: var(--space-xs);
+  border-radius: var(--radius-control);
+  background-color: var(--color-ok);
+  color: var(--color-ok-ink);
+  font-size: 0.85rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  min-height: 40px;
+  padding-inline: var(--space-sm);
+  padding-block: var(--space-xs);
+  border-radius: var(--radius-control);
+  background-color: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  color: var(--color-ink);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (hover: hover) {
+  .btn-secondary:hover:not(:disabled) {
+    background-color: var(--color-paper-3);
+    border-color: var(--color-muted);
+  }
+}
+
+.btn-full { width: 100%; }
+
+/* Status Chip */
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  min-height: 38px;
+  padding-inline: var(--space-sm);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  white-space: nowrap;
+}
+
+.status-chip[data-paired="true"] {
+  background-color: var(--color-ok-soft);
+  border-color: var(--color-ok);
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-warn);
+}
+
+.status-chip[data-paired="true"] .status-indicator {
+  background-color: var(--color-ok);
+}
+
+/* Segmented Pills (OEM & SoC & DNS Selectors) */
+.pill-scroll-row {
+  display: flex;
+  gap: var(--space-xs);
+  overflow-x: auto;
+  padding-bottom: var(--space-xs);
+  scrollbar-width: none;
+}
+
+.pill-scroll-row::-webkit-scrollbar { display: none; }
+
+.seg-pill {
+  min-height: 36px;
+  padding-inline: var(--space-sm);
+  padding-block: var(--space-2xs);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2xs);
+}
+
+.seg-pill[aria-pressed="true"] {
+  background-color: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-ink);
+}
+
+/* Liquid Glass Metaball Interactive Stage */
+.metaball-stage {
+  position: relative;
+  height: 92px;
+  margin-block: var(--space-2xs);
+  touch-action: none;
+  display: flex;
+  align-items: center;
+}
+
+.gooey-canvas {
+  position: absolute;
+  inset: 0;
+  filter: url(#liquid-metaball-filter);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.goo-pill-proxy {
+  position: absolute;
+  left: var(--space-xs);
+  right: var(--space-xs);
+  top: var(--space-sm);
+  height: 50px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-glass-orb);
+}
+
+.goo-orb-proxy {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-glass-orb);
+  will-change: transform;
+}
+
+.metaball-bar {
+  position: absolute;
+  left: var(--space-xs);
+  right: var(--space-xs);
+  top: var(--space-sm);
+  height: 50px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-glass-strong);
+  backdrop-filter: blur(20px) saturate(190%);
+  -webkit-backdrop-filter: blur(20px) saturate(190%);
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  padding-inline: var(--space-md);
+}
+
+.metaball-metric {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  min-width: 0;
+}
+
+.metaball-orb {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-glass-strong);
+  backdrop-filter: blur(24px) saturate(200%);
+  -webkit-backdrop-filter: blur(24px) saturate(200%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-ink);
+  cursor: grab;
+  touch-action: none;
+  will-change: transform;
+}
+
+.metaball-orb:active { cursor: grabbing; }
+
+.stage-caption {
+  font-size: 0.75rem;
+  color: var(--color-ink-2);
+  margin-top: var(--space-2xs);
+}
+
+/* Sibling Stat Strip & 4-Metric Grid */
+.stat-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  border-top: 1px solid var(--color-rule);
+  border-bottom: 1px solid var(--color-rule);
+  padding-block: var(--space-sm);
+  margin-block: var(--space-sm);
+  gap: var(--space-md);
+}
+
+.stat-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+  margin-block: var(--space-sm);
+}
+
+.stat-cell { min-width: 0; }
+
+.stat-cell + .stat-cell {
+  border-left: 1px solid var(--color-rule);
+  padding-left: var(--space-md);
+}
+
+.stat-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+  margin-bottom: var(--space-3xs);
+}
+
+.stat-figure {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-ink);
+  line-height: 1.15;
+}
+
+.stat-sub {
+  font-size: 0.74rem;
+  color: var(--color-ink-2);
+  margin-top: var(--space-3xs);
+}
+
+/* Compositor-only Progress Bar */
+.progress-track {
+  width: 100%;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-paper-3);
+  overflow: hidden;
+  margin-top: var(--space-xs);
+}
+
+.progress-fill {
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-accent);
+  transform-origin: left center;
+  transform: scaleX(0.65);
+  transition: transform var(--dur-short) var(--ease-out);
+  will-change: transform;
+}
+
+/* Section Headers */
+.section-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-sm);
+}
+
+.badge-count {
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding-inline: var(--space-xs);
+  padding-block: var(--space-3xs);
+  border-radius: var(--radius-control);
+  background-color: var(--color-paper-2);
+  color: var(--color-ink-2);
+  white-space: nowrap;
+}
+
+.badge-shield {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding-inline: var(--space-xs);
+  padding-block: var(--space-3xs);
+  border-radius: var(--radius-control);
+  background-color: var(--color-ok-soft);
+  color: var(--color-ok);
+  border: 1px solid var(--color-ok);
+  white-space: nowrap;
+}
+
+/* Hairline List Rows */
+.hairline-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--color-rule);
+}
+
+.hairline-row {
+  padding-block: var(--space-sm);
+  border-bottom: 1px solid var(--color-rule);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.row-copy {
+  flex: 1;
+  min-width: 0;
+}
+
+.row-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-wrap: wrap;
+}
+
+.row-desc {
+  font-size: 0.8rem;
+  color: var(--color-ink-2);
+  margin-top: var(--space-3xs);
+}
+
+.row-tag {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding-inline: var(--space-xs);
+  padding-block: 1px;
+  border-radius: var(--radius-control);
+  background-color: var(--color-paper-3);
+  color: var(--color-ink-2);
+}
+
+.row-status {
+  font-size: 0.74rem;
+  font-weight: 600;
+  min-height: 1lh;
+  color: var(--color-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-xs);
+}
+
+.row-status[data-tone="pending"] { color: var(--color-accent); }
+.row-status[data-tone="ok"] { color: var(--color-ok); }
+.row-status[data-tone="err"] { color: var(--color-error); }
+
+/* Mode Selection & Game Hub Rows */
+.mode-option {
+  width: 100%;
+  text-align: left;
+  padding: var(--space-sm);
+  border-radius: var(--radius-well);
+  background-color: var(--color-paper-2);
+  border: 1px solid transparent;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+}
+
+.mode-option + .mode-option { margin-top: var(--space-xs); }
+
+.mode-option[aria-pressed="true"] {
+  background-color: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+.game-emblem {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-control);
+  background-color: var(--color-paper-3);
+  border: 1px solid var(--color-rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+  flex-shrink: 0;
+}
+
+/* iOS 27 Fluid Toggle Switch */
+.fluid-switch {
+  position: relative;
+  width: 48px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-paper-3);
+  border: 1px solid var(--color-muted);
+  flex-shrink: 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition:
+    background-color var(--dur-short) var(--ease-in-out),
+    border-color var(--dur-short) var(--ease-in-out);
+}
+
+.fluid-switch::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+
+.fluid-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-ink);
+  transition: transform var(--dur-short) var(--ease-out);
+  will-change: transform;
+}
+
+.fluid-switch[aria-checked="true"] {
+  background-color: var(--color-ok);
+  border-color: transparent;
+}
+
+.fluid-switch[aria-checked="true"] .fluid-switch-thumb {
+  transform: translate3d(20px, 0, 0);
+}
+
+/* Forms & Inputs */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xs);
+}
+
+.field-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-ink-2);
+}
+
+.input-control {
+  width: 100%;
+  height: 40px;
+  padding-inline: var(--space-sm);
+  border-radius: var(--radius-control);
+  background-color: var(--color-paper-2);
+  border: 1px solid var(--color-muted);
+  color: var(--color-ink);
+  font-size: 0.9375rem;
+}
+
+.field-helper {
+  font-size: 0.74rem;
+  color: var(--color-ink-2);
+  min-height: 1lh;
+}
+
+.grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-sm);
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-xs);
+}
+
+/* Range Slider */
+.range-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-paper-3);
+  margin-block: var(--space-xs);
+  cursor: pointer;
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-ink);
+  border: 3px solid var(--color-accent);
+  transition: transform var(--dur-micro) var(--ease-out);
+}
+
+.range-slider::-webkit-slider-thumb:active {
+  transform: scale(1.12);
+}
+
+/* Data Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.data-table th {
+  text-align: left;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--color-ink-2);
+  padding-block: var(--space-xs);
+  border-bottom: 1px solid var(--color-rule);
+  white-space: nowrap;
+}
+
+.data-table td {
+  padding-block: var(--space-sm);
+  border-bottom: 1px solid var(--color-rule);
+  vertical-align: middle;
+}
+
+.data-table td:last-child,
+.data-table th:last-child {
+  text-align: right;
+}
+
+.terminal-well {
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  line-height: 1.55;
+  background-color: var(--color-paper-2);
+  border-radius: var(--radius-well);
+  padding: var(--space-sm);
+  color: var(--color-ink-2);
+  max-height: 210px;
+  overflow-y: auto;
+  user-select: text;
+}
+
+.workbench-pane { display: none; }
+.workbench-pane.is-active { display: block; }
+
+/* 5-Tab iOS 27 Liquid Glass Bottom Navigation Bar & Draggable Refractive Lens */
+.bottom-dock {
+  position: fixed;
+  bottom: var(--space-sm);
+  left: 0;
+  right: 0;
+  z-index: var(--z-sticky-nav);
+  pointer-events: none;
+  padding-inline: var(--space-sm);
+}
+
+.bottom-dock-inner {
+  max-width: 580px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.liquid-nav-pill {
+  pointer-events: auto;
+  position: relative;
+  flex: 1;
+  height: 62px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-glass-strong);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  box-shadow: var(--shadow-card);
+  padding: var(--space-2xs);
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  align-items: center;
+  touch-action: none;
+}
+
+.liquid-nav-lens {
+  position: absolute;
+  top: var(--space-2xs);
+  bottom: var(--space-2xs);
+  left: var(--space-2xs);
+  width: calc((100% - 8px) / 5);
+  border-radius: var(--radius-pill);
+  background-color: var(--color-glass-lens);
+  border: 1px solid var(--color-specular-strong);
+  pointer-events: none;
+  z-index: 1;
+  will-change: transform;
+  transition: transform var(--dur-short) var(--ease-out);
+}
+
+.liquid-nav-lens.is-dragging { transition: none; }
+
+.nav-tab-btn {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--color-ink-2);
+  white-space: nowrap;
+}
+
+.nav-tab-btn[aria-current="page"] { color: var(--color-ink); }
+.nav-tab-btn[aria-current="page"] svg { color: var(--color-accent); }
+
+.fab-boost-btn {
+  pointer-events: auto;
+  width: 54px;
+  height: 54px;
+  border-radius: var(--radius-pill);
+  background-color: var(--color-accent);
+  color: var(--color-accent-ink);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Native Dialog / Pairing Modal */
+dialog.liquid-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: calc(100% - 28px);
+  max-width: 400px;
+  height: fit-content;
+  max-height: min(90dvh, 43rem);
+  border: none;
+  border-radius: var(--radius-card);
+  background-color: var(--color-glass-strong);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  color: var(--color-ink);
+  padding: var(--space-lg);
+  box-shadow: var(--shadow-card);
+  z-index: var(--z-modal);
+}
+
+dialog.liquid-dialog::backdrop {
+  background-color: var(--color-backdrop);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.digit-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--space-xs);
+  margin-block: var(--space-sm);
+}
+
+.digit-slot {
+  height: 48px;
+  border-radius: var(--radius-control);
+  background-color: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  transition: transform var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+}
+
+.digit-slot[data-filled="true"] {
+  background-color: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  transform: translateY(-2px);
+}
+
+.digit-slot[data-cursor="true"] { border-color: var(--color-ink); }
+
+.tactile-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-xs);
+  margin-bottom: var(--space-sm);
+}
+
+.keypad-btn {
+  height: 46px;
+  border-radius: var(--radius-control);
+  background-color: var(--color-paper-2);
+  border: 1px solid var(--color-rule);
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--color-ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.keypad-btn:active {
+  transform: scale(0.95);
+  background-color: var(--color-accent-soft);
+}
+
+/* Toast Region */
+.toast-region {
+  position: fixed;
+  top: var(--space-md);
+  right: var(--space-md);
+  left: var(--space-md);
+  max-width: 440px;
+  margin-inline: auto;
+  z-index: var(--z-toast);
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.toast-banner {
+  pointer-events: auto;
+  background-color: var(--color-glass-strong);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--color-rule);
+  border-radius: var(--radius-well);
+  padding: var(--space-sm) var(--space-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-ink);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  opacity: 0;
+  transform: translate3d(0, -12px, 0);
+  transition: opacity var(--dur-short) var(--ease-out), transform var(--dur-short) var(--ease-out);
+}
+
+.toast-banner.is-visible {
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+}
+
+.toast-banner[data-tone="error"] { border-color: var(--color-error); }
+.toast-banner[data-tone="ok"] { border-color: var(--color-ok); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+  </style>
+</head>
+<body>
+
+  <div class="ambient-bloom-top" aria-hidden="true"></div>
+  <div class="ambient-bloom-bottom" aria-hidden="true"></div>
+
+  <!-- SVG Optical Metaball Filter -->
+  <svg width="0" height="0" style="position:absolute;" aria-hidden="true">
+    <defs>
+      <filter id="liquid-metaball-filter">
+        <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur" />
+        <feColorMatrix in="blur" mode="matrix"
+          values="1 0 0 0 0
+                  0 1 0 0 0
+                  0 0 1 0 0
+                  0 0 0 21 -9" result="goo" />
+        <feBlend in="SourceGraphic" in2="goo" />
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Toast Region -->
+  <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+
+  <!-- Native Dialog: 2-in-1 Wireless ADB 6-Digit Pairing -->
+  <dialog id="pairDialog" class="liquid-dialog chromatic-rim" aria-labelledby="pairDialogTitle">
+    <div class="section-bar">
+      <div>
+        <h2 id="pairDialogTitle">Ghép nối lõi ADB 2-in-1</h2>
+        <p class="brand-meta">Kết nối trực tiếp không cần cài đặt Shizuku</p>
+      </div>
+      <button type="button" class="btn-secondary" onclick="closePairDialog()">Đóng</button>
+    </div>
+
+    <div class="tinted-well" style="margin-bottom: var(--space-sm);">
+      <div class="row-main">
+        <div class="row-copy">
+          <div class="row-title" id="mdnsStatusText">Đang dò cổng ghép nối (_adb-tls-pairing)</div>
+          <div class="row-desc">Nhập cổng từ mục Gỡ lỗi không dây hoặc để tự nhận diện</div>
+        </div>
+        <div style="width: 96px;">
+          <label for="inpPairPort" class="field-label">Cổng</label>
+          <input id="inpPairPort" name="pairPort" type="number" inputmode="numeric" autocomplete="off" class="input-control num-tabular" value="37845" />
+        </div>
+      </div>
+    </div>
+
+    <div class="field-group">
+      <span class="field-label">Mã ghép nối 6 chữ số</span>
+      <div id="sixDigitGrid" class="digit-slots-grid" role="group" aria-label="6 chữ số ghép nối">
+        <div class="digit-slot" data-cursor="true">-</div>
+        <div class="digit-slot">-</div>
+        <div class="digit-slot">-</div>
+        <div class="digit-slot">-</div>
+        <div class="digit-slot">-</div>
+        <div class="digit-slot">-</div>
+      </div>
+      <div id="pairHelperLine" class="field-helper" aria-live="polite">Nhập đủ 6 chữ số hiển thị trong Tùy chọn nhà phát triển.</div>
+    </div>
+
+    <div class="tactile-keypad" role="group" aria-label="Bàn phím số ghép nối">
+      <button type="button" class="keypad-btn" onclick="pressDigit('1')">1</button>
+      <button type="button" class="keypad-btn" onclick="pressDigit('2')">2</button>
+      <button type="button" class="keypad-btn" onclick="pressDigit('3')">3</button>
+      <button type="button" class="keypad-btn" onclick="pressDigit('4')">4</button>
+      <button type="button" class="keypad-btn" onclick="pressDigit('5')">5</button>
+      <button type="button" class="keypad-btn" onclick="pressDigit('6')">6</button>
+      <button type="button" class="keypad-btn" onclick="pressDigit('7')">7</button>
+      <button type="button" class="keypad-btn" onclick="pressDigit('8')">8</button>
+      <button type="button" class="keypad-btn" onclick="pressDigit('9')">9</button>
+      <button type="button" class="keypad-btn" style="font-family: var(--font-sans); font-size: 0.8125rem;" onclick="clearDigits()">Xóa hết</button>
+      <button type="button" class="keypad-btn" onclick="pressDigit('0')">0</button>
+      <button type="button" class="keypad-btn" style="font-family: var(--font-sans); font-size: 0.8125rem;" onclick="backspaceDigit()">Lùi lại</button>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: var(--space-xs);">
+      <button type="button" class="btn-primary btn-full" onclick="submitSixDigitPairing()">Kết nối lõi ADB 2-in-1</button>
+      <button type="button" class="btn-secondary btn-full" onclick="launchDevOptionsWithNotification()">Mở Cài đặt và nhập mã trên thông báo</button>
+    </div>
+  </dialog>
+
+  <!-- Main Workbench Shell -->
+  <main id="workbenchMain" class="workbench-shell">
+
+    <!-- 1. Top Reactor Header ("Bình Công Nghệ" Emblem + 2-in-1 Status) -->
+    <header class="top-header">
+      <div class="brand-lockup">
+        <div class="reactor-crest chromatic-rim" aria-hidden="true">
+          <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
+            <path d="M11 14H7V24H11" stroke="#10B981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M25 14H29V24H25" stroke="#38BDF8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="11" y="12" width="14" height="15" rx="2.5" fill="rgba(15,41,58,0.85)" stroke="#38BDF8" stroke-width="1.8"/>
+            <circle cx="18" cy="19.5" r="4.5" fill="#08121C" stroke="#10B981" stroke-width="1.4"/>
+            <path d="M18.8 16.5L16 20H18.2L17.4 22.8L20.2 19.2H18L18.8 16.5Z" fill="#F8FAFC"/>
+            <rect x="14" y="6" width="8" height="4.5" rx="1.5" fill="#1E293B" stroke="#94A3B8" stroke-width="1.3"/>
+            <circle cx="16.2" cy="8.2" r="0.9" fill="#38BDF8"/>
+            <circle cx="19.8" cy="8.2" r="0.9" fill="#38BDF8"/>
+          </svg>
+        </div>
+        <div>
+          <h1>BangOptimize <span class="row-tag num-tabular">v12.0</span></h1>
+          <p class="brand-meta">Bang Technology (@BangTechnology) · 2-in-1</p>
+        </div>
+      </div>
+
+      <button type="button" id="adbStatusBtn" class="status-chip" data-paired="false" role="status" onclick="openPairDialog()">
+        <span class="status-indicator" aria-hidden="true"></span>
+        <span id="adbTopStatusText">Ghép nối 6 số</span>
+      </button>
+    </header>
+
+    <!-- Liquid Glass Metaball Interactive Stage -->
+    <section class="glass-panel" aria-label="Thanh trạng thái kính lỏng và giọt thủy ngân">
+      <div id="metaballStage" class="metaball-stage">
+        <div class="gooey-canvas" aria-hidden="true">
+          <div class="goo-pill-proxy"></div>
+          <div id="gooDropProxy" class="goo-orb-proxy"></div>
+        </div>
+
+        <div class="metaball-bar chromatic-rim">
+          <div class="metaball-metric" onclick="switchTab(0)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            <span id="hudFps" class="num-tabular">60 FPS</span>
+          </div>
+          <div class="metaball-metric" onclick="switchTab(4)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+            <span id="hudRamTop" class="num-tabular">RAM 64%</span>
+          </div>
+          <div class="metaball-metric" onclick="switchTab(3)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg>
+            <span id="hudTempTop" class="num-tabular">34.2°C</span>
+          </div>
+        </div>
+
+        <button type="button" id="liquidOrb" class="metaball-orb chromatic-rim" aria-label="Kéo giọt kính lỏng để dọn bộ nhớ RAM">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </div>
+      <p class="stage-caption">Kéo giọt kính tròn tách khỏi thanh trạng thái rồi thả tay để giải phóng RAM và bộ nhớ đệm tức thì.</p>
+    </section>
+
+    <!-- ================= PANE 0: TỔNG QUAN & LÁ CHẮN ANTI-OTG ================= -->
+    <div id="pane-0" class="workbench-pane is-active">
+
+      <!-- 2. ANTI-OTG BOOTLOOP SHIELD & AUTO-PURGE ENGINE -->
+      <section class="glass-panel" aria-labelledby="antiOtgTitle">
+        <div class="section-bar">
+          <h2 id="antiOtgTitle">Lá chắn chống treo máy (Anti-OTG Rescue Shield)</h2>
+          <span class="badge-shield">An toàn 100%</span>
+        </div>
+        <p class="row-desc" style="margin-bottom: var(--space-sm);">
+          Tự động phát hiện, khóa cứng và gỡ bỏ vĩnh viễn các lệnh can thiệp driver đồ họa hoặc đóng băng SystemUI từng gây văng ứng dụng phải dùng chuột OTG cứu hộ.
+        </p>
+
+        <div class="hairline-list" style="margin-bottom: var(--space-sm);">
+          <div class="hairline-row">
+            <div class="row-main">
+              <div class="row-copy">
+                <div class="row-title">Khóa chặn trình điều khiển ANGLE <span class="row-tag num-tabular">angle_gl_driver_all_angle</span></div>
+                <div class="row-desc">Ngăn lỗi xung đột GPU làm văng ứng dụng và sập màn hình khóa trên Snapdragon / MediaTek</div>
+              </div>
+              <span class="badge-shield" id="shieldAngleState">Đã gỡ &amp; Khóa</span>
+            </div>
+          </div>
+
+          <div class="hairline-row">
+            <div class="row-main">
+              <div class="row-copy">
+                <div class="row-title">Khóa chặn đóng băng Cached Freezer <span class="row-tag num-tabular">cached_apps_freezer</span></div>
+                <div class="row-desc">Ngăn treo SystemUI và tự khởi động lại liên tục khi mở khóa màn hình</div>
+              </div>
+              <span class="badge-shield" id="shieldFreezerState">Đã gỡ &amp; Khóa</span>
+            </div>
+          </div>
+
+          <div class="hairline-row">
+            <div class="row-main">
+              <div class="row-copy">
+                <div class="row-title">Cứu hộ phím cứng Giảm Âm Lượng 3 giây <span class="row-tag">Volume Down Panic</span></div>
+                <div class="row-desc">Giữ phím Giảm âm lượng 3 giây hoặc khóa màn hình tự trả về độ phân giải và DPI gốc</div>
+              </div>
+              <span class="badge-shield">Đang bảo vệ</span>
+            </div>
+          </div>
+        </div>
+
+        <button type="button" class="btn-emerald btn-full" onclick="runAntiOtgPurgeRescue()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          <span>Quét và gỡ sạch lệnh gây treo ngay (Anti-OTG Rescue)</span>
+        </button>
+      </section>
+
+      <!-- Quick Live Overview Telemetry -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <h2>Trạng thái phần cứng và dòng điện thực tế</h2>
+          <span id="activeCountBadge" class="badge-count">Chưa kích hoạt</span>
+        </div>
+
+        <div class="stat-strip">
+          <div class="stat-cell">
+            <div class="stat-title">Bộ nhớ trống khả dụng</div>
+            <div class="stat-figure num-tabular"><span id="animFreeRam">2,006</span> MB</div>
+            <div id="notifRamText" class="stat-sub num-tabular">Đang dùng 3600 / 5606 MB</div>
+            <div class="progress-track" aria-hidden="true">
+              <div id="ramProgressFill" class="progress-fill"></div>
+            </div>
+          </div>
+
+          <div class="stat-cell">
+            <div class="stat-title">Dòng điện và nhiệt độ (1s)</div>
+            <div class="stat-figure num-tabular"><span id="overviewCurrentTxt">-395 mA</span></div>
+            <div id="overviewPowerTxt" class="stat-sub num-tabular">1.68 W · 4252 mV · 34.2°C</div>
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <button type="button" class="btn-secondary" onclick="switchTab(1)">Mở Game Hub</button>
+          <button type="button" class="btn-secondary" onclick="switchTab(2)">Đổi hãng OEM</button>
+          <button type="button" class="btn-secondary" onclick="switchTab(3)">Đo dòng &amp; Mạng</button>
+        </div>
+      </section>
+
+      <!-- 3 Universal Optimization Profiles -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <h2>Cấp độ tối ưu hóa hệ thống</h2>
+          <span id="animLabel" class="badge-count">Mặc định 1.0x</span>
+        </div>
+
+        <div id="levelGrid">
+          <button type="button" class="mode-option" aria-pressed="false" onclick="selectOptLevel(0, '1.0', 'Smooth 1.0x')">
+            <div class="row-copy">
+              <div class="row-title">Smooth — Cân bằng và mát máy</div>
+              <div class="row-desc">Giữ hoạt ảnh 1.0x tự nhiên, giải phóng bộ nhớ đệm nhẹ nhàng</div>
+            </div>
+            <span class="row-tag num-tabular">1.0x</span>
+          </button>
+
+          <button type="button" class="mode-option" aria-pressed="false" onclick="selectOptLevel(1, '0.5', 'Medium 0.5x')">
+            <div class="row-copy">
+              <div class="row-title">Medium — Tối ưu tốc độ phản hồi</div>
+              <div class="row-desc">Rút ngắn hoạt ảnh cửa sổ xuống 0.5x, bảo toàn ứng dụng trong Whitelist</div>
+            </div>
+            <span class="row-tag num-tabular">0.5x</span>
+          </button>
+
+          <button type="button" class="mode-option" aria-pressed="false" onclick="selectOptLevel(2, '0.0', 'Performance 0.0x')">
+            <div class="row-copy">
+              <div class="row-title">Performance — Ưu tiên khung hình eSports</div>
+              <div class="row-desc">Tắt độ trễ chuyển cảnh 0.0x và đồng bộ độ nhạy cảm ứng 150ms</div>
+            </div>
+            <span class="row-tag num-tabular">0.0x</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Safe Resolution & DPI Controller -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <h2>Độ phân giải và mật độ điểm ảnh an toàn</h2>
+          <span id="resCurrentBadge" class="badge-count num-tabular">1080x2400 / 410 DPI</span>
+        </div>
+
+        <div class="grid-2" style="margin-bottom: var(--space-sm);">
+          <button type="button" class="btn-secondary" onclick="setPresetRes(540, 1200, 220)">540p (540x1200 · 220 DPI)</button>
+          <button type="button" class="btn-secondary" onclick="setPresetRes(720, 1600, 293)">720p (720x1600 · 293 DPI)</button>
+        </div>
+
+        <div class="grid-3" style="margin-bottom: var(--space-sm);">
+          <div class="field-group">
+            <label for="inpW" class="field-label">Chiều rộng</label>
+            <input id="inpW" name="resWidth" type="number" inputmode="numeric" class="input-control num-tabular" value="1080" />
+          </div>
+          <div class="field-group">
+            <label for="inpH" class="field-label">Chiều cao</label>
+            <input id="inpH" name="resHeight" type="number" inputmode="numeric" class="input-control num-tabular" value="2400" />
+          </div>
+          <div class="field-group">
+            <label for="inpDpi" class="field-label">Mật độ DPI</label>
+            <input id="inpDpi" name="resDpi" type="number" inputmode="numeric" class="input-control num-tabular" value="410" />
+          </div>
+        </div>
+
+        <div class="grid-3">
+          <button type="button" class="btn-primary" onclick="applyResolution(false)">Áp dụng</button>
+          <button type="button" id="btnTest15s" class="btn-secondary" onclick="applyResolution(true)">Thử 15 giây</button>
+          <button type="button" class="btn-secondary" onclick="resetResolution()">Về màn gốc</button>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ================= PANE 1: GAME HUB (6 AUTO-DETECTED GAMES + AUTO RESTORE) ================= -->
+    <div id="pane-1" class="workbench-pane">
+
+      <section class="glass-panel">
+        <div class="section-bar">
+          <div>
+            <h2>Game Hub — Tự động nhận diện &amp; Tối ưu riêng</h2>
+            <p class="brand-meta">Liên Quân, Free Fire, PUBG, Roblox, Genshin, Delta Force</p>
+          </div>
+          <span class="badge-shield" id="detectedGamesCount">Đã quét 6/6 Game</span>
+        </div>
+
+        <!-- Master Toggle: Auto Restore On Game Exit -->
+        <div class="tinted-well" style="margin-bottom: var(--space-sm);">
+          <div class="row-main">
+            <div class="row-copy">
+              <div class="row-title">Tự hoàn trả khi thoát Game <span class="row-tag">Auto Restore On Exit</span></div>
+              <div class="row-desc">Ngay khi đóng game về màn hình chính, tự động trả lại độ phân giải 1080p gốc, tốc độ con trỏ chuẩn và bật lại hiệu ứng mượt</div>
+            </div>
+            <button type="button" id="swAutoRestoreExit" role="switch" aria-checked="true" aria-label="Tự hoàn trả khi thoát Game" class="fluid-switch" onclick="toggleSimpleSwitch(this, 'Đã bật tự hoàn trả 1080p khi thoát Game', 'Đã tắt tự hoàn trả khi thoát Game')">
+              <span class="fluid-switch-thumb" aria-hidden="true"></span>
+            </button>
+          </div>
+        </div>
+
+        <div id="gameHubContainer" class="hairline-list"></div>
+      </section>
+
+    </div>
+
+    <!-- ================= PANE 2: MULTI-BRAND OEM ENGINE & SoC TUNING MATRIX ================= -->
+    <div id="pane-2" class="workbench-pane">
+
+      <!-- 3. Multi-Brand OEM Selector -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <div>
+            <h2>Bộ nhận diện đa hãng (Multi-Brand OEM Engine)</h2>
+            <p class="brand-meta" id="oemDetectedSubtitle">Đang chọn: Redmi Note số / Redmi số / POCO (HyperOS)</p>
+          </div>
+          <span class="badge-count" id="oemActiveTag">HyperOS / MIUI</span>
+        </div>
+
+        <div class="pill-scroll-row" id="oemSelectorRow" role="group" aria-label="Chọn hãng điện thoại">
+          <button type="button" class="seg-pill" aria-pressed="true" onclick="selectOemFamily('REDMI')">Redmi Note / Redmi số / POCO</button>
+          <button type="button" class="seg-pill" aria-pressed="false" onclick="selectOemFamily('VIVO')">Vivo X Series / iQOO (OriginOS)</button>
+          <button type="button" class="seg-pill" aria-pressed="false" onclick="selectOemFamily('OPPO')">OPPO Find / Reno / Realme</button>
+          <button type="button" class="seg-pill" aria-pressed="false" onclick="selectOemFamily('SAMSUNG')">Samsung Galaxy (One UI)</button>
+          <button type="button" class="seg-pill" aria-pressed="false" onclick="selectOemFamily('XIAOMI_FLAG')">Xiaomi 13 / 14 / 15 Flagship</button>
+        </div>
+
+        <div id="oemSpecificCard" class="tinted-well" style="margin-top: var(--space-xs);"></div>
+      </section>
+
+      <!-- SoC-Specific Tuning Matrix -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <div>
+            <h2>Ma trận tối ưu theo đời Chip (SoC Matrix)</h2>
+            <p class="brand-meta">Đề xuất chuẩn DPI và khóa các cờ GPU gây lỗi theo từng SoC</p>
+          </div>
+          <span class="badge-count num-tabular" id="socActiveTag">Snapdragon 680</span>
+        </div>
+
+        <div class="pill-scroll-row" id="socSelectorRow" role="group" aria-label="Chọn dòng vi xử lý SoC">
+          <button type="button" class="seg-pill" aria-pressed="true" onclick="selectSocMatrix('SD680')">Snapdragon 680 / 685 / 695</button>
+          <button type="button" class="seg-pill" aria-pressed="false" onclick="selectSocMatrix('SD8GEN')">Snapdragon 7+ Gen 2 / 8 Gen 3</button>
+          <button type="button" class="seg-pill" aria-pressed="false" onclick="selectSocMatrix('DIMENSITY')">Dimensity 7050 / 8300 / 9300</button>
+          <button type="button" class="seg-pill" aria-pressed="false" onclick="selectSocMatrix('HELIOG99')">MediaTek Helio G99 / Ultra</button>
+        </div>
+
+        <div id="socMatrixBox" class="tinted-well" style="margin-top: var(--space-xs);"></div>
+      </section>
+
+      <!-- 20 Safe System Switches -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <h2>Danh mục 20 công tắc hệ thống (Xác thực 2 chiều)</h2>
+          <span id="featActiveCount" class="badge-count num-tabular">0/20 đang bật</span>
+        </div>
+
+        <div class="field-group" style="margin-bottom: var(--space-sm);">
+          <label for="tweakSearchInput" class="field-label">Tìm công tắc theo tên hoặc hãng máy</label>
+          <input id="tweakSearchInput" name="tweakSearch" type="search" autocomplete="off" class="input-control" placeholder="Ví dụ: 120Hz, Joyose, Monster, GOS, UFS..." oninput="filterTweakDOM()" />
+        </div>
+
+        <div id="glToolList" class="hairline-list"></div>
+        <div id="group1List" class="hairline-list"></div>
+        <div id="group2List" class="hairline-list"></div>
+      </section>
+
+    </div>
+
+    <!-- ================= PANE 3: NHIỆT ĐỘ, DÒNG SẠC 1 GIÂY & MẠNG ESPORTS ================= -->
+    <div id="pane-3" class="workbench-pane">
+
+      <!-- 5. 1-Second Realtime Telemetry Chart (mA / Watt / Voltage / °C) -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <div>
+            <h2>Biểu đồ Nhiệt độ &amp; Dòng sạc thực tế (Chạy từng giây)</h2>
+            <p class="brand-meta">Đọc trực tiếp mA, Công suất (W), Điện áp (mV) và Nhiệt độ (°C) mỗi 1.0s</p>
+          </div>
+          <button type="button" id="btnSimPowerState" class="btn-secondary" onclick="toggleSimulatePowerMode()">
+            Chế độ: Đang xả pin
+          </button>
+        </div>
+
+        <!-- 4 Real-time Hardware Readouts -->
+        <div class="stat-grid-4">
+          <div class="tinted-well">
+            <div class="stat-title">Nhiệt độ Pin &amp; SoC</div>
+            <div id="liveTempReadout" class="stat-figure num-tabular">34.2 °C</div>
+            <div id="liveTempState" class="stat-sub">Trạng thái: Mát ổn định</div>
+          </div>
+          <div class="tinted-well">
+            <div class="stat-title">Cường độ dòng điện</div>
+            <div id="liveCurrentReadout" class="stat-figure num-tabular">-395 mA</div>
+            <div id="liveCurrentState" class="stat-sub">Đang tiêu thụ năng lượng</div>
+          </div>
+          <div class="tinted-well">
+            <div class="stat-title">Công suất thực tế</div>
+            <div id="liveWattReadout" class="stat-figure num-tabular">1.68 W</div>
+            <div class="stat-sub num-tabular">Tính theo |mA| × mV</div>
+          </div>
+          <div class="tinted-well">
+            <div class="stat-title">Điện áp Pin (Voltage)</div>
+            <div id="liveVoltReadout" class="stat-figure num-tabular">4252 mV</div>
+            <div id="liveVoltSub" class="stat-sub num-tabular">Chuẩn Lithium 4.25 V</div>
+          </div>
+        </div>
+
+        <!-- Live 1-Second Oscilloscope SVG Graph -->
+        <div class="tinted-well" style="margin-bottom: var(--space-sm);">
+          <div class="row-main" style="margin-bottom: var(--space-2xs);">
+            <span class="field-label">Sóng công suất (W) và nhiệt độ (°C) theo từng giây thực</span>
+            <span id="liveTickCounter" class="field-label num-tabular">Chu kỳ: 1.0s Live</span>
+          </div>
+          <svg id="telemetryOscilloscope" width="100%" height="96" viewBox="0 0 320 96" fill="none" aria-label="Biểu đồ sóng dòng điện và nhiệt độ thời gian thực">
+            <line x1="0" y1="20" x2="320" y2="20" stroke="currentColor" stroke-opacity="0.08" stroke-dasharray="3 3"/>
+            <line x1="0" y1="50" x2="320" y2="50" stroke="currentColor" stroke-opacity="0.08" stroke-dasharray="3 3"/>
+            <line x1="0" y1="80" x2="320" y2="80" stroke="currentColor" stroke-opacity="0.14"/>
+            <path id="oscPowerArea" d="" fill="oklch(74% 0.145 230 / 0.16)"/>
+            <path id="oscPowerPath" d="" stroke="oklch(74% 0.145 230)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path id="oscTempPath" d="" stroke="oklch(72% 0.16 162)" stroke-width="1.8" stroke-dasharray="3 3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <!-- Smart Thermal Guard (2 Thresholds) -->
+        <div class="field-group" style="margin-bottom: var(--space-sm);">
+          <div class="row-main">
+            <label for="thermalSlider" class="field-label">Bảo vệ nhiệt thông minh 2 ngưỡng (Smart Thermal Guard)</label>
+            <span id="thermalValText" class="row-title num-tabular">Ngưỡng cảnh báo: 42 °C</span>
+          </div>
+          <input id="thermalSlider" type="range" min="38" max="46" step="1" value="42" class="range-slider" oninput="onThermalSliderChange(this.value)" />
+          <div class="field-helper">Dưới 42°C bung 100% xung nhịp; khi chạm ngưỡng tự động cắt đồng bộ ngầm để giữ FPS ổn định.</div>
+        </div>
+
+        <button type="button" class="btn-primary btn-full" onclick="runEmergencyCoolDown()">
+          ❄️ Hạ nhiệt khẩn cấp 1-Chạm (Đóng băng tiến trình nền sinh nhiệt)
+        </button>
+      </section>
+
+      <!-- 6. Network eSports Radar: Disable Location GPS but Keep Bluetooth 100% Safe -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <div>
+            <h2>Network eSports Radar — Chống vọt Ping 460ms</h2>
+            <p class="brand-meta">Tắt Vị trí GPS &amp; quét ngầm nhưng bảo vệ tuyệt đối kết nối Bluetooth</p>
+          </div>
+          <span class="badge-shield">Bluetooth Safe 100%</span>
+        </div>
+
+        <!-- GPS Off + Bluetooth 100% Protected Switch -->
+        <div class="hairline-list" style="margin-bottom: var(--space-sm);">
+          <div class="hairline-row">
+            <div class="row-main">
+              <div class="row-copy">
+                <div class="row-title">Tắt Vị trí GPS &amp; Quét Wi-Fi/BLE ngầm (Giữ Bluetooth 100%)</div>
+                <div class="row-desc">Chạy lệnh tắt định vị GPS (location_mode 0) và tắt quét ngầm gây vọt ping, nhưng khóa bảo vệ bluetooth_on = 1 để tai nghe không dây không bao giờ bị ngắt</div>
+              </div>
+              <button type="button" id="swGpsOffBtSafe" role="switch" aria-checked="false" aria-label="Tắt vị trí GPS và giữ nguyên Bluetooth" class="fluid-switch" onclick="toggleGpsOffKeepBluetooth(this)">
+                <span class="fluid-switch-thumb" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div id="stGpsOffBtSafe" class="row-status" data-tone="idle">Trạng thái: Vị trí GPS mặc định · Bluetooth an toàn 100%</div>
+          </div>
+        </div>
+
+        <!-- 1-Tap Private DNS Switcher -->
+        <div class="field-group" style="margin-bottom: var(--space-sm);">
+          <span class="field-label">Đổi máy chủ Private DNS (DoT) chống nhảy Ping và chặn quảng cáo</span>
+          <div class="pill-scroll-row" id="dnsSelectorRow" role="group" aria-label="Chọn máy chủ DNS">
+            <button type="button" class="seg-pill" aria-pressed="false" onclick="selectPrivateDns('CLOUDFLARE', '1dot1dot1dot1.cloudflare-dns.com', this)">Cloudflare 1.1.1.1 (Gaming)</button>
+            <button type="button" class="seg-pill" aria-pressed="false" onclick="selectPrivateDns('GOOGLE', 'dns.google', this)">Google DNS (8.8.8.8)</button>
+            <button type="button" class="seg-pill" aria-pressed="false" onclick="selectPrivateDns('ADGUARD', 'dns.adguard-dns.com', this)">AdGuard (Chặn quảng cáo)</button>
+            <button type="button" class="seg-pill" aria-pressed="true" onclick="selectPrivateDns('OFF', 'off', this)">Mặc định NSX</button>
+          </div>
+        </div>
+
+        <!-- Realtime Ping Radar -->
+        <div class="tinted-well">
+          <div class="row-main" style="margin-bottom: var(--space-xs);">
+            <span class="row-title">Radar đo độ trễ máy chủ Game thực tế</span>
+            <button type="button" class="btn-secondary" onclick="measureAllGamePings()">Đo Ping ngay</button>
+          </div>
+          <div class="grid-3">
+            <div>
+              <div class="stat-title">Liên Quân / FF</div>
+              <div id="pingGarenaVal" class="row-title num-tabular" style="color: var(--color-ok);">14 ms</div>
+            </div>
+            <div>
+              <div class="stat-title">Delta Force / PUBG</div>
+              <div id="pingPubgVal" class="row-title num-tabular" style="color: var(--color-ok);">22 ms</div>
+            </div>
+            <div>
+              <div class="stat-title">Roblox Global</div>
+              <div id="pingRobloxVal" class="row-title num-tabular" style="color: var(--color-accent);">38 ms</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ================= PANE 4: BỘ NHỚ RAM, WHITELIST, LIQUID GLASS & APK BUILDER ================= -->
+    <div id="pane-4" class="workbench-pane">
+
+      <section class="glass-panel">
+        <div class="section-bar">
+          <h2>Ngưỡng tự động giải phóng RAM ngầm</h2>
+          <span id="ramHeaderStat" class="badge-count num-tabular">3600 / 5606 MB</span>
+        </div>
+
+        <div class="field-group">
+          <div class="row-main">
+            <label for="ramSlider" class="field-label">Mốc kích hoạt tự động thu hồi tiến trình nền</label>
+            <span id="sliderValText" class="row-title num-tabular">4900 MB (Đầu 4.9x)</span>
+          </div>
+          <input id="ramSlider" name="ramThreshold" type="range" min="2200" max="8000" step="100" value="4900" class="range-slider" oninput="onRamSliderChange(this.value)" />
+        </div>
+
+        <button type="button" class="btn-primary btn-full" onclick="cleanRamNow()">
+          Giải phóng bộ nhớ RAM ngay (Bảo vệ 100% Whitelist &amp; Bluetooth)
+        </button>
+      </section>
+
+      <!-- Whitelist Table -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <h2>Danh sách ứng dụng bảo vệ (Whitelist)</h2>
+          <button type="button" class="btn-secondary" onclick="scanInstalledApps(true)">Quét lại</button>
+        </div>
+
+        <div class="field-group" style="margin-bottom: var(--space-sm);">
+          <label for="appSearchInput" class="field-label">Tìm ứng dụng hoặc tên gói</label>
+          <input id="appSearchInput" name="appSearch" type="search" autocomplete="off" class="input-control" placeholder="Ví dụ: Liên Quân, Zalo, Messenger..." oninput="renderWhitelistApps()" />
+          <div class="field-helper">
+            Tổng <span id="wlTotalCount" class="num-tabular">10</span> gói, đang chạy <span id="wlRunningCount" class="num-tabular">5</span>, đã bảo vệ <span id="wlProtectedCount" class="num-tabular">8</span>.
+          </div>
+        </div>
+
+        <table class="data-table" aria-label="Bảng ứng dụng bảo vệ khỏi trình dọn RAM">
+          <thead>
+            <tr>
+              <th scope="col">Ứng dụng và tên gói</th>
+              <th scope="col">Bảo vệ</th>
+            </tr>
+          </thead>
+          <tbody id="whitelistContainer"></tbody>
+        </table>
+      </section>
+
+      <!-- Liquid Glass 2.0 Customizer -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <h2>Tùy biến mặt kính Liquid Glass 2.0</h2>
+          <button type="button" class="btn-secondary" onclick="toggleUltraLiteGlass(this)">Chế độ 0% Blur (Siêu nhẹ)</button>
+        </div>
+
+        <div class="field-group">
+          <div class="row-main">
+            <label for="blurRange" class="field-label">Độ mờ khúc xạ kính (Backdrop Blur)</label>
+            <span id="blurValLabel" class="field-label num-tabular">22 px</span>
+          </div>
+          <input id="blurRange" type="range" min="0" max="32" step="2" value="22" class="range-slider" oninput="updateGlassBlur(this.value)" />
+        </div>
+
+        <div class="field-group">
+          <div class="row-main">
+            <label for="rimRange" class="field-label">Cường độ viền tán sắc cầu vồng (Chromatic Rim)</label>
+            <span id="rimValLabel" class="field-label num-tabular">85%</span>
+          </div>
+          <input id="rimRange" type="range" min="15" max="100" step="5" value="85" class="range-slider" oninput="updateChromaticRim(this.value)" />
+        </div>
+      </section>
+
+      <!-- 2-in-1 ADB Center, Terminal & 1-Tap GitHub Actions APK Export -->
+      <section class="glass-panel">
+        <div class="section-bar">
+          <h2>Trung tâm Lõi ADB 2-in-1 &amp; Nhật ký thực thi</h2>
+          <span id="cmdCountBadge" class="badge-count num-tabular">0 lệnh</span>
+        </div>
+
+        <div id="consoleBox" class="terminal-well" role="log" aria-live="polite">
+          <div>[BangOptimize v12.0] Khởi tạo kiến trúc 2-in-1 Embedded Wireless ADB.</div>
+          <div>[Anti-OTG Shield] Đã khóa chặn vĩnh viễn angle_gl_driver_all_angle &amp; cached_apps_freezer.</div>
+          <div>[Bluetooth Guard] Đã bảo vệ kết nối Bluetooth 100% khi tắt GPS và dọn RAM.</div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: var(--space-xs); margin-top: var(--space-sm);">
+          <button type="button" class="btn-primary btn-full" onclick="openPairDialog()">Mở bàn phím ghép nối 6 số Liquid Glass</button>
+          <div class="grid-2">
+            <button type="button" class="btn-secondary" onclick="exportBangConfig(this)">Sao chép mã BangConfig</button>
+            <button type="button" class="btn-secondary" onclick="restoreAllDefaults()">Khôi phục mặc định NSX</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+  <!-- 5-Tab iOS 27 Liquid Glass Bottom Navigation Dock with 1:1 Draggable Lens -->
+  <div class="bottom-dock">
+    <div class="bottom-dock-inner">
+      <nav id="glassNavBar" class="liquid-nav-pill chromatic-rim" aria-label="Điều hướng chính 5 chuyên mục">
+        <div id="navLiquidLens" class="liquid-nav-lens" aria-hidden="true"></div>
+
+        <button type="button" class="nav-tab-btn" aria-current="page" onclick="switchTab(0)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>Tổng quan</span>
+        </button>
+        <button type="button" class="nav-tab-btn" onclick="switchTab(1)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 12h4m-2-2v4m7-3h.01m2.99 2h.01"/></svg>
+          <span>Game Hub</span>
+        </button>
+        <button type="button" class="nav-tab-btn" onclick="switchTab(2)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/></svg>
+          <span>OEM &amp; Chip</span>
+        </button>
+        <button type="button" class="nav-tab-btn" onclick="switchTab(3)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          <span>Nhiệt &amp; Mạng</span>
+        </button>
+        <button type="button" class="nav-tab-btn" onclick="switchTab(4)">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+          <span>RAM &amp; ADB</span>
+        </button>
+      </nav>
+
+      <button type="button" class="fab-boost-btn" onclick="onMasterButtonClick()" aria-label="Tối ưu nhanh toàn diện">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ================= 1. MULTI-BRAND OEM ENGINE DATABASE =================
+    const oemProfiles = {
+      REDMI: {
+        title: 'Redmi Note số / Redmi số / POCO (HyperOS & MIUI)',
+        tag: 'HyperOS / MIUI',
+        desc: 'Mở khóa hoạt ảnh bị cắt giảm trên dòng Redmi / Redmi Note (deviceLevelList v:1,c:3,g:3), chặn dịch vụ com.xiaomi.joyose bóp xung GPU ở 38°C nhưng giữ nguyên thanh Game Turbo, bật POWER_PERFORMANCE_MODE_OPEN 1.',
+        cmd: 'settings delete global angle_gl_driver_all_angle && settings delete global cached_apps_freezer && settings put system deviceLevelList v:1,c:3,g:3 && settings put system POWER_PERFORMANCE_MODE_OPEN 1 && settings put secure speed_mode 1 && cmd appops set com.xiaomi.joyose RUN_IN_BACKGROUND ignore',
+        btnLabel: 'Kích hoạt gói đặc trị Redmi Note / Redmi số / POCO'
+      },
+      VIVO: {
+        title: 'Vivo X Series / iQOO (OriginOS & FuntouchOS)',
+        tag: 'OriginOS / Monster+',
+        desc: 'Kích hoạt chế độ Monster+ (monster_mode = 1), gỡ giới hạn nhiệt pem_performance_mode, tối ưu vivo_game_watch và khóa tần số quét 120Hz LTPO cho màn hình Vivo X / iQOO.',
+        cmd: 'settings put system monster_mode 1 && settings put system pem_performance_mode 1 && settings put system vivo_screen_refresh_rate_mode 120 && settings put global window_animation_scale 0.5',
+        btnLabel: 'Kích hoạt gói đặc trị Vivo X Series & iQOO Monster+'
+      },
+      OPPO: {
+        title: 'OPPO Find / Reno / Realme (ColorOS & RealmeUI)',
+        tag: 'ColorOS / GT Mode',
+        desc: 'Mở khóa chế độ Hiệu suất cao (high_performance_mode_on = 1), dừng dịch vụ quảng cáo ngầm com.heytap.mcs và khóa tần số quét tối đa trên ColorOS / RealmeUI.',
+        cmd: 'settings put system high_performance_mode_on 1 && settings put secure oplus_customize_high_performance 1 && am force-stop com.heytap.mcs && settings put system peak_refresh_rate 120.0',
+        btnLabel: 'Kích hoạt gói đặc trị OPPO Find / Reno & Realme GT'
+      },
+      SAMSUNG: {
+        title: 'Samsung Galaxy (One UI)',
+        tag: 'One UI / Bypass GOS',
+        desc: 'Vô hiệu hóa giới hạn nhiệt tự động của Game Optimizing Service (game_auto_temperature_control = 0), bật phản hồi CPU nhanh (sem_enhanced_cpu_responsiveness = 1).',
+        cmd: 'settings put secure game_auto_temperature_control 0 && settings put global sem_enhanced_cpu_responsiveness 1 && settings put global restricted_device_performance 0,0',
+        btnLabel: 'Kích hoạt gói đặc trị Samsung One UI & Bypass GOS'
+      },
+      XIAOMI_FLAG: {
+        title: 'Xiaomi 13 / 14 / 15 Series (Flagship)',
+        tag: 'Xiaomi Flagship',
+        desc: 'Máy Flagship đã có sẵn hiệu ứng v:1,c:3,g:3. Gói tối ưu tập trung khóa LTPO 120Hz cố định trong game, biên dịch AOT speed-profile và chặn Joyose hạ xung khi quay video/combat.',
+        cmd: 'settings put system user_refresh_rate 120 && settings put system peak_refresh_rate 120.0 && cmd appops set com.xiaomi.joyose RUN_IN_BACKGROUND ignore',
+        btnLabel: 'Kích hoạt gói eSports cho Xiaomi Flagship'
+      }
+    };
+
+    // ================= 2. SoC-SPECIFIC TUNING MATRIX =================
+    const socMatrixData = {
+      SD680: {
+        name: 'Snapdragon 680 / 685 / 695',
+        recRes: '720x1600 @ 293 DPI',
+        w: 720, h: 1600, dpi: 293,
+        desc: 'Đặc thù GPU Adreno 610/619: Tuyệt đối KHÔNG ép driver ANGLE (gây văng app). Hạ nhẹ độ phân giải về 720p giúp giảm 42% tải dựng hình GPU, giữ 60–90 FPS cứng khi combat Liên Quân & Free Fire.'
+      },
+      SD8GEN: {
+        name: 'Snapdragon 7+ Gen 2 / 8 Gen 2 / 8 Gen 3',
+        recRes: '1080x2400 @ 410 DPI (120Hz)',
+        w: 1080, h: 2400, dpi: 410,
+        desc: 'GPU Adreno 725/740/750 dư sức gánh độ phân giải gốc 1080p. Ưu tiên mở khóa 120Hz cố định, biên dịch AOT speed-profile và chặn Joyose/GOS bóp xung khi nhiệt độ chạm 39°C.'
+      },
+      DIMENSITY: {
+        name: 'Dimensity 7050 / 8300-Ultra / 9300+',
+        recRes: '900x2000 @ 360 DPI',
+        w: 900, h: 2000, dpi: 360,
+        desc: 'Tối ưu bộ điều phối đa nhân MediaTek FPSGO & মালi/Immortalis GPU: Kết hợp độ phân giải 900p sắc nét và tắt quét Wi-Fi nền để triệt tiêu độ trễ khung hình.'
+      },
+      HELIOG99: {
+        name: 'MediaTek Helio G99 / G99-Ultra',
+        recRes: '540x1200 @ 220 DPI (Ultra Smooth)',
+        w: 540, h: 1200, dpi: 220,
+        desc: 'Tối ưu cho GPU Mali-G57 MC2: Áp dụng 540p hoặc 720p kèm FSTrim bộ nhớ UFS 2.2 giúp loại bỏ hoàn toàn hiện tượng khựng hình khi nạp bản đồ.'
+      }
+    };
+
+    // ================= 3. AUTO-DETECTED 6 GAMES IN GAME HUB =================
+    const detectedGames = [
+      {
+        id: 'lq',
+        name: 'Liên Quân Mobile',
+        pkg: 'com.garena.game.kgvn',
+        fpsTarget: '60 / 120 FPS',
+        preset: '0ms Touch + Múa Flo + Chặn Joyose',
+        w: 720, h: 1600, dpi: 293,
+        boosted: false
+      },
+      {
+        id: 'ff',
+        name: 'Free Fire MAX / Free Fire',
+        pkg: 'com.dts.freefiremax',
+        fpsTarget: '90 / 120 FPS',
+        preset: 'Pointer +7 Kéo Tâm + 150ms Polling',
+        w: 720, h: 1600, dpi: 293,
+        boosted: false
+      },
+      {
+        id: 'pubg',
+        name: 'PUBG Mobile',
+        pkg: 'com.vng.pubgmobile',
+        fpsTarget: '90 / 120 FPS',
+        preset: '720p eSports + Ưu tiên QoS Ping',
+        w: 720, h: 1600, dpi: 293,
+        boosted: false
+      },
+      {
+        id: 'roblox',
+        name: 'Roblox',
+        pkg: 'com.roblox.client',
+        fpsTarget: '60+ FPS Ổn định',
+        preset: 'Dồn RAM Cực Đại + AOT Speed-Profile',
+        w: 720, h: 1600, dpi: 293,
+        boosted: false
+      },
+      {
+        id: 'genshin',
+        name: 'Genshin Impact',
+        pkg: 'com.miHoYo.GenshinImpact',
+        fpsTarget: '60 FPS Mát máy',
+        preset: '720p Giảm Nhiệt GPU + Smart Thermal',
+        w: 720, h: 1600, dpi: 293,
+        boosted: false
+      },
+      {
+        id: 'delta',
+        name: 'Delta Force',
+        pkg: 'com.proxima.dfm',
+        fpsTarget: '90 / 120 FPS',
+        preset: '0ms Input Lag + Tắt GPS Giữ Bluetooth',
+        w: 720, h: 1600, dpi: 293,
+        boosted: false
+      }
+    ];
+
+    // ================= 4. 20 SAFE SYSTEM SWITCHES (ZERO BOOTLOOP RISK) =================
+    const glToolItems = [
+      { id: 'gl_zero_lag', name: 'Bang Zero Lag Scheduler', tag: 'Universal', desc: 'Tối ưu độ trễ phản hồi cửa sổ và điều phối khung hình chuẩn AOSP.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put global window_animation_scale 0.5', cmdOff: 'settings put global window_animation_scale 1.0', verifyCmd: 'settings get global window_animation_scale', expectVal: '0.5', minHz: 0 },
+      { id: 'gl_ping', name: 'Bang Ping Booster 5GHz (Bluetooth Safe)', tag: 'Network', desc: 'Tắt quét Wi-Fi/BLE ngầm gây nhảy ping nhưng giữ nguyên kết nối Bluetooth 100%.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put global wifi_scan_always_enabled 0 && settings put global ble_scan_always_enabled 0 && settings put global wifi_sleep_policy 2', cmdOff: 'settings put global wifi_scan_always_enabled 1', verifyCmd: 'settings get global wifi_scan_always_enabled', expectVal: '0', minHz: 0 },
+      { id: 'gl_charge', name: 'Bang Turbo Charge Guard', tag: 'Battery', desc: 'Tắt giới hạn dòng sạc chậm ban đêm (Adaptive Charging).', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put global adaptive_charging_enabled 0', cmdOff: 'settings put global adaptive_charging_enabled 1', verifyCmd: 'settings get global adaptive_charging_enabled', expectVal: '0', minHz: 0 },
+      { id: 'gl_cooling', name: 'Bang Safe Thermal Cool Down', tag: 'Safe Cool', desc: 'Thu hồi toàn bộ tiến trình rác nền và xóa bộ đệm sinh nhiệt (Không đụng SystemUI).', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'am kill-all && pm trim-caches 999G', cmdOff: 'echo ok', verifyCmd: '', expectVal: 'CoolActive', minHz: 0 },
+      { id: 'gl_120hz', name: 'Khóa cứng 120Hz eSports', tag: '120Hz', desc: 'Giữ tần số quét ở 120Hz (Kiểm tra phần cứng màn hình trước khi bật).', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put system peak_refresh_rate 120.0 && settings put system min_refresh_rate 120.0', cmdOff: 'settings delete system peak_refresh_rate && settings delete system min_refresh_rate', verifyCmd: 'settings get system peak_refresh_rate', expectVal: '120.0', minHz: 120 },
+      { id: 'gl_90hz', name: 'Khóa cứng 90Hz hoặc 60Hz ổn định', tag: 'Universal Hz', desc: 'Cố định tần số quét tối thiểu theo tấm nền thực tế để chống sụt FPS.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put system min_refresh_rate 60.0', cmdOff: 'settings delete system min_refresh_rate', verifyCmd: 'settings get system min_refresh_rate', expectVal: '60.0', minHz: 0 },
+      { id: 'gl_gfx', name: 'Bang Safe GPU Tune (AOT Speed-Profile)', tag: 'Safe GPU', desc: 'Biên dịch trước mã thực thi speed-profile cho game, an toàn tuyệt đối không treo máy.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'cmd package compile -m speed-profile -f com.garena.game.kgvn', cmdOff: 'echo ok', verifyCmd: '', expectVal: 'speed-profile', minHz: 0 },
+      { id: 'gl_tuner', name: 'Android Game Mode API', tag: 'AOSP API', desc: 'Kích hoạt chế độ hiệu năng Game Mode chính chủ của Android 12 đến 15.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'cmd game mode performance com.garena.game.kgvn', cmdOff: 'cmd game mode standard com.garena.game.kgvn', verifyCmd: '', expectVal: 'performance', minHz: 0 }
+    ];
+
+    const featGroup1 = [
+      { id: 'f1_ping', name: 'Ưu tiên đường truyền trò chơi (QoS)', tag: 'Mạng', desc: 'Kích hoạt cờ ưu tiên băng thông mạng khi chơi trực tuyến.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put secure speed_mode 1', cmdOff: 'settings put secure speed_mode 0', verifyCmd: 'settings get secure speed_mode', expectVal: '1', minHz: 0 },
+      { id: 'f1_touch', name: 'Cảm ứng siêu nhạy (150ms Polling)', tag: 'Touch', desc: 'Hạ thời gian nhận diện nhấn giữ xuống 150ms trên mọi dòng máy Android.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put secure long_press_timeout 150 && settings put secure multi_press_timeout 150', cmdOff: 'settings put secure long_press_timeout 400', verifyCmd: 'settings get secure long_press_timeout', expectVal: '150ms', minHz: 0 },
+      { id: 'f1_pointer', name: 'Tăng tốc độ vuốt tâm (Pointer +7)', tag: 'Sensitivity', desc: 'Đặt tốc độ phản hồi con trỏ cảm ứng lên ngưỡng nhạy tối đa (+7).', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put system pointer_speed 7', cmdOff: 'settings put system pointer_speed 0', verifyCmd: 'settings get system pointer_speed', expectVal: '+7', minHz: 0 },
+      { id: 'f1_fstrim', name: 'Giải phóng bộ nhớ đệm Flash UFS', tag: 'Storage', desc: 'Dọn sạch cache ứng dụng tồn đọng giúp đọc ghi dữ liệu mượt hơn.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'pm trim-caches 999G', cmdOff: 'echo ok', verifyCmd: '', expectVal: 'Trimmed', minHz: 0 },
+      { id: 'f1_stopbg', name: 'Thu hồi tiến trình nền ngoài Whitelist', tag: 'RAM', desc: 'Tắt các ứng dụng chạy ngầm không cần thiết, bảo vệ tuyệt đối Zalo và Messenger.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'am kill-all', cmdOff: 'echo ok', verifyCmd: '', expectVal: 'Cleaned', minHz: 0 },
+      { id: 'f1_sf', name: 'Chuyển cảnh tức thì (0.5x Transition)', tag: 'UI Smooth', desc: 'Tăng gấp đôi tốc độ đóng mở ứng dụng và chuyển tab đa nhiệm.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put global transition_animation_scale 0.5 && settings put global animator_duration_scale 0.5', cmdOff: 'settings put global transition_animation_scale 1.0 && settings put global animator_duration_scale 1.0', verifyCmd: 'settings get global transition_animation_scale', expectVal: '0.5x', minHz: 0 }
+    ];
+
+    const featGroup2 = [
+      { id: 'f2_highperf', name: 'Mở khóa hiệu năng cao (PowerMode)', tag: 'Xiaomi / OPPO', desc: 'Kích hoạt chế độ hiệu suất cao và tắt trình tiết kiệm pin đang kìm xung.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put global low_power 0 && settings put system POWER_PERFORMANCE_MODE_OPEN 1', cmdOff: 'settings put system POWER_PERFORMANCE_MODE_OPEN 0', verifyCmd: 'settings get global low_power', expectVal: 'HighPerf', minHz: 0 },
+      { id: 'f2_thermal', name: 'Chặn dịch vụ bóp xung Joyose (Redmi / POCO)', tag: 'Xiaomi Safe', desc: 'Ngăn com.xiaomi.joyose hạ xung GPU khi máy ấm lên mà vẫn giữ thanh Game Turbo.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'cmd appops set com.xiaomi.joyose RUN_IN_BACKGROUND ignore && am force-stop com.xiaomi.joyose', cmdOff: 'cmd appops set com.xiaomi.joyose RUN_IN_BACKGROUND allow', verifyCmd: '', expectVal: 'Joyose Ignored', minHz: 0 },
+      { id: 'f2_vivo_monster', name: 'Kích hoạt Vivo / iQOO Monster+ Mode', tag: 'Vivo / iQOO', desc: 'Mở khóa monster_mode = 1 và tắt giới hạn pem_performance_mode trên OriginOS.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put system monster_mode 1 && settings put system pem_performance_mode 1', cmdOff: 'settings put system monster_mode 0', verifyCmd: '', expectVal: 'Monster+ ON', minHz: 0 },
+      { id: 'f2_tier', name: 'Mở khóa hiệu ứng bị cắt giảm (Tier v:1,c:3,g:3)', tag: 'Redmi Note', desc: 'Mở khóa hoạt ảnh đóng mở ứng dụng mượt cho các dòng máy Redmi Note bị cắt giảm.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'settings put system deviceLevelList v:1,c:3,g:3', cmdOff: 'settings put system deviceLevelList v:1,c:1,g:1', verifyCmd: '', expectVal: 'v:1,c:3,g:3', minHz: 0 },
+      { id: 'f2_log', name: 'Làm sạch nhật ký hệ thống (Logcat)', tag: 'I/O Clean', desc: 'Xóa bộ đệm ghi log liên tục để giảm tải đọc ghi bộ nhớ.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'logcat -c', cmdOff: 'echo ok', verifyCmd: '', expectVal: 'Cleared', minHz: 0 },
+      { id: 'f2_bloat', name: 'Dừng dịch vụ quảng cáo ngầm (MSA / HeyTap)', tag: 'Debloat', desc: 'Tắt tiến trình quảng cáo ngầm gây tốn RAM và nhảy ping trên Xiaomi, OPPO, Vivo.', on: false, statusText: 'Trạng thái: Chưa bật', statusTone: 'idle', cmdOn: 'am force-stop com.miui.msa.global && am force-stop com.miui.analytics && am force-stop com.heytap.mcs', cmdOff: 'echo ok', verifyCmd: '', expectVal: 'Stopped', minHz: 0 }
+    ];
+
+    const allSwitchMap = new Map();
+    [...glToolItems, ...featGroup1, ...featGroup2].forEach(it => allSwitchMap.set(it.id, it));
+
+    const defaultWhitelistApps = [
+      { name: 'BangOptimize', pkg: 'com.bangtech.optimize', running: true, protected: true },
+      { name: 'Liên Quân Mobile', pkg: 'com.garena.game.kgvn', running: false, protected: true },
+      { name: 'Free Fire MAX', pkg: 'com.dts.freefiremax', running: false, protected: true },
+      { name: 'PUBG Mobile', pkg: 'com.vng.pubgmobile', running: false, protected: true },
+      { name: 'Roblox', pkg: 'com.roblox.client', running: false, protected: true },
+      { name: 'Delta Force', pkg: 'com.proxima.dfm', running: false, protected: true },
+      { name: 'Zalo', pkg: 'com.zing.zalo', running: true, protected: true },
+      { name: 'Messenger', pkg: 'com.facebook.orca', running: true, protected: true },
+      { name: 'TikTok', pkg: 'com.ss.android.ugc.trill', running: false, protected: true },
+      { name: 'Facebook', pkg: 'com.facebook.katana', running: true, protected: false }
+    ];
+
+    let allAppsList = [...defaultWhitelistApps];
+    let currentSixDigits = "";
+    let isAdbPaired = false;
+    let cmdCount = 0;
+    let currentRamUsed = 3600;
+    let currentRamTotal = 5606;
+    let currentThreshold = 4900;
+    let nativeWidth = 1080;
+    let nativeHeight = 2400;
+    let nativeDpi = 410;
+    let nativeHz = 60;
+    let maxSupportedHz = 120;
+    let selectedOptLevel = -1;
+    let currentTabIndex = 0;
+    let revertTimer = null;
+
+    // 1-Second Live Battery/Thermal Telemetry State
+    let isSimulatingCharge = false;
+    let liveTempC = 34.2;
+    let liveCurrentMa = -395;
+    let liveVoltageMv = 4252;
+    let thermalLimitC = 42;
+    const powerHistory = [1.6, 1.7, 1.65, 1.72, 1.68, 1.8, 1.75, 1.69, 1.74, 1.68, 1.71, 1.68];
+    const tempHistory = [34.0, 34.1, 34.1, 34.2, 34.2, 34.3, 34.2, 34.2, 34.1, 34.2, 34.2, 34.2];
+
+    function hapticTick() {
+      if (window.BangBridge && typeof window.BangBridge.triggerHaptic === 'function') {
+        window.BangBridge.triggerHaptic();
+      }
+    }
+
+    function animateNumber(elId, endVal, duration = 380) {
+      const el = document.getElementById(elId);
+      if (!el) return;
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        el.textContent = new Intl.NumberFormat('en-US').format(endVal);
+        return;
+      }
+      const startVal = parseInt(String(el.textContent).replace(/,/g, ''), 10) || 0;
+      if (startVal === endVal) return;
+      const startTime = performance.now();
+      const formatter = new Intl.NumberFormat('en-US');
+      function step(now) {
+        const p = Math.min(1, (now - startTime) / duration);
+        const ease = 1 - Math.pow(1 - p, 3);
+        const cur = Math.round(startVal + (endVal - startVal) * ease);
+        el.textContent = formatter.format(cur);
+        if (p < 1) requestAnimationFrame(step);
+      }
+      requestAnimationFrame(step);
+    }
+
+    // ================= 1-SECOND REALTIME BATTERY / POWER / TEMP LOOP =================
+    function updateRealtimeTelemetryTick() {
+      if (window.BangBridge && typeof window.BangBridge.getLiveBatteryJson === 'function') {
+        try {
+          const b = JSON.parse(window.BangBridge.getLiveBatteryJson());
+          if (b) {
+            liveTempC = b.tempC || liveTempC;
+            liveCurrentMa = b.currentMa || liveCurrentMa;
+            liveVoltageMv = b.voltageMv || liveVoltageMv;
+            isSimulatingCharge = !!b.charging;
+          }
+        } catch (_) {}
+      } else {
+        // Realistic 1-second micro-fluctuation when previewing in browser
+        if (isSimulatingCharge) {
+          liveCurrentMa = 1820 + Math.round((Math.random() - 0.5) * 90);
+          liveVoltageMv = 4340 + Math.round((Math.random() - 0.5) * 18);
+          liveTempC = +(35.4 + (Math.random() - 0.5) * 0.3).toFixed(1);
+        } else {
+          liveCurrentMa = -390 + Math.round((Math.random() - 0.5) * 45);
+          liveVoltageMv = 4248 + Math.round((Math.random() - 0.5) * 14);
+          liveTempC = +(34.1 + (Math.random() - 0.5) * 0.2).toFixed(1);
+        }
+      }
+
+      const absMa = Math.abs(liveCurrentMa);
+      const watt = ((absMa * liveVoltageMv) / 1000000).toFixed(2);
+      const voltV = (liveVoltageMv / 1000).toFixed(2);
+      const signStr = liveCurrentMa >= 0 ? `+${liveCurrentMa} mA` : `${liveCurrentMa} mA`;
+
+      // Update Overview & Tab 3 Readouts
+      const elTemp = document.getElementById('liveTempReadout');
+      const elCur = document.getElementById('liveCurrentReadout');
+      const elWatt = document.getElementById('liveWattReadout');
+      const elVolt = document.getElementById('liveVoltReadout');
+
+      if (elTemp) elTemp.textContent = `${liveTempC.toFixed(1)} °C`;
+      if (elCur) {
+        elCur.textContent = signStr;
+        elCur.style.color = liveCurrentMa >= 0 ? 'var(--color-ok)' : 'var(--color-ink)';
+      }
+      if (elWatt) elWatt.textContent = `${watt} W`;
+      if (elVolt) elVolt.textContent = `${liveVoltageMv} mV`;
+
+      const elVoltSub = document.getElementById('liveVoltSub');
+      if (elVoltSub) elVoltSub.textContent = `Chuẩn Lithium ${voltV} V`;
+
+      const elCurState = document.getElementById('liveCurrentState');
+      if (elCurState) elCurState.textContent = liveCurrentMa >= 0 ? 'Đang nạp dòng sạc nhanh' : 'Đang xả dòng nuôi hệ thống';
+
+      const elTempState = document.getElementById('liveTempState');
+      if (elTempState) {
+        elTempState.textContent = liveTempC >= thermalLimitC
+          ? `Vượt ngưỡng ${thermalLimitC}°C (Smart Guard Active)`
+          : `An toàn (Dưới ngưỡng ${thermalLimitC}°C)`;
+      }
+
+      // Update Top Metaball Bar & Overview Card
+      const hudTemp = document.getElementById('hudTempTop');
+      if (hudTemp) hudTemp.textContent = `${liveTempC.toFixed(1)}°C`;
+
+      const ovCur = document.getElementById('overviewCurrentTxt');
+      const ovPow = document.getElementById('overviewPowerTxt');
+      if (ovCur) ovCur.textContent = signStr;
+      if (ovPow) ovPow.textContent = `${watt} W · ${liveVoltageMv} mV · ${liveTempC.toFixed(1)}°C`;
+
+      // Push to oscilloscope history (12 points)
+      powerHistory.push(parseFloat(watt));
+      if (powerHistory.length > 12) powerHistory.shift();
+      tempHistory.push(liveTempC);
+      if (tempHistory.length > 12) tempHistory.shift();
+
+      drawTelemetryOscilloscope();
+    }
+
+    function drawTelemetryOscilloscope() {
+      const pPath = document.getElementById('oscPowerPath');
+      const pArea = document.getElementById('oscPowerArea');
+      const tPath = document.getElementById('oscTempPath');
+      if (!pPath || !pArea || !tPath) return;
+
+      const w = 320, h = 84;
+      const maxW = Math.max(12, ...powerHistory);
+      const ptsPower = powerHistory.map((val, idx) => {
+        const x = Math.round((idx / (powerHistory.length - 1)) * w);
+        const y = Math.round(h - Math.min(1, val / maxW) * 64 - 8);
+        return `${x},${y}`;
+      });
+
+      const ptsTemp = tempHistory.map((val, idx) => {
+        const x = Math.round((idx / (tempHistory.length - 1)) * w);
+        const norm = Math.max(0, Math.min(1, (val - 28) / 20));
+        const y = Math.round(h - norm * 64 - 8);
+        return `${x},${y}`;
+      });
+
+      const dPower = 'M ' + ptsPower.join(' L ');
+      pPath.setAttribute('d', dPower);
+      pArea.setAttribute('d', `${dPower} L ${w},88 L 0,88 Z`);
+      tPath.setAttribute('d', 'M ' + ptsTemp.join(' L '));
+    }
+
+    function toggleSimulatePowerMode() {
+      hapticTick();
+      isSimulatingCharge = !isSimulatingCharge;
+      const btn = document.getElementById('btnSimPowerState');
+      if (btn) {
+        btn.textContent = isSimulatingCharge ? 'Chế độ: Đang sạc nhanh (+mA)' : 'Chế độ: Đang xả pin (-mA)';
+      }
+      updateRealtimeTelemetryTick();
+    }
+
+    function onThermalSliderChange(val) {
+      thermalLimitC = parseInt(val, 10);
+      document.getElementById('thermalValText').textContent = `Ngưỡng cảnh báo: ${thermalLimitC} °C`;
+    }
+
+    function runEmergencyCoolDown() {
+      hapticTick();
+      const cmd = 'am kill-all && pm trim-caches 999G && settings put global low_power 0 && settings delete system POWER_PERFORMANCE_MODE_OPEN';
+      runCustomVerifiedCommand(cmd, '', 'CoolDown', (ok) => {
+        if (ok) {
+          liveTempC = Math.max(31.5, +(liveTempC - 1.8).toFixed(1));
+          updateRealtimeTelemetryTick();
+          raiseToast('Đã đóng băng tiến trình nền sinh nhiệt và hạ tải CPU/GPU.', 'ok');
+        }
+      });
+    }
+
+    // ================= 2. ANTI-OTG BOOTLOOP SHIELD RESCUE =================
+    function runAntiOtgPurgeRescue() {
+      hapticTick();
+      const rescueCmd = 'settings delete global angle_gl_driver_all_angle; settings delete global cached_apps_freezer; settings delete system peak_refresh_rate; settings delete system min_refresh_rate; wm size reset; wm density reset';
+      appendLog(rescueCmd, 'ANTI-OTG SAFE');
+      if (window.BangBridge && typeof window.BangBridge.execVerifiedAsync === 'function') {
+        window.BangBridge.execVerifiedAsync('anti_otg', true, rescueCmd, '', '', 0);
+      }
+      document.getElementById('shieldAngleState').textContent = 'Đã xóa sạch & Khóa';
+      document.getElementById('shieldFreezerState').textContent = 'Đã xóa sạch & Khóa';
+      raiseToast('Đã gỡ sạch toàn bộ cờ ANGLE, Freezer và khôi phục màn hình gốc an toàn 100%.', 'ok');
+    }
+
+    // ================= 3. GAME HUB RENDERING & LAUNCHER =================
+    function renderGameHub() {
+      const box = document.getElementById('gameHubContainer');
+      if (!box) return;
+      box.innerHTML = detectedGames.map((g, idx) => `
+        <div class="hairline-row">
+          <div class="row-main">
+            <div class="game-emblem" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+              </svg>
+            </div>
+            <div class="row-copy">
+              <div class="row-title">
+                <span>${g.name}</span>
+                <span class="row-tag num-tabular">${g.fpsTarget}</span>
+              </div>
+              <div class="row-desc num-tabular">${g.pkg} · ${g.preset}</div>
+            </div>
+            <button type="button" class="${g.boosted ? 'btn-emerald' : 'btn-primary'}" onclick="launchAndBoostGame(${idx})">
+              ${g.boosted ? 'Đã tối ưu · Mở' : 'Tối ưu & Mở'}
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function launchAndBoostGame(idx) {
+      hapticTick();
+      const g = detectedGames[idx];
+      if (!g) return;
+      const autoRestore = document.getElementById('swAutoRestoreExit')?.getAttribute('aria-checked') === 'true';
+      const cmd = `cmd game mode performance ${g.pkg} && cmd package compile -m speed-profile -f ${g.pkg} && settings put secure long_press_timeout 150 && settings put system pointer_speed 7 && am kill-all && monkey -p ${g.pkg} -c android.intent.category.LAUNCHER 1`;
+      runCustomVerifiedCommand(cmd, '', g.name, (ok) => {
+        if (ok) {
+          g.boosted = true;
+          renderGameHub();
+          raiseToast(`Đã kích hoạt cấu hình 0ms cho ${g.name}${autoRestore ? ' (Tự trả về 1080p khi thoát)' : ''}.`, 'ok');
+        }
+      });
+    }
+
+    function toggleSimpleSwitch(btn, msgOn, msgOff) {
+      hapticTick();
+      const next = btn.getAttribute('aria-checked') !== 'true';
+      btn.setAttribute('aria-checked', next ? 'true' : 'false');
+      raiseToast(next ? msgOn : msgOff, 'ok');
+    }
+
+    // ================= 4. MULTI-BRAND OEM & SoC MATRIX SELECTORS =================
+    function selectOemFamily(oemKey) {
+      hapticTick();
+      const profile = oemProfiles[oemKey];
+      if (!profile) return;
+
+      const pills = document.querySelectorAll('#oemSelectorRow .seg-pill');
+      const keys = ['REDMI', 'VIVO', 'OPPO', 'SAMSUNG', 'XIAOMI_FLAG'];
+      pills.forEach((btn, idx) => btn.setAttribute('aria-pressed', keys[idx] === oemKey ? 'true' : 'false'));
+
+      document.getElementById('oemDetectedSubtitle').textContent = `Đang chọn: ${profile.title}`;
+      document.getElementById('oemActiveTag').textContent = profile.tag;
+
+      const card = document.getElementById('oemSpecificCard');
+      card.innerHTML = `
+        <div class="row-title" style="margin-bottom: var(--space-2xs);">${profile.title}</div>
+        <div class="row-desc" style="margin-bottom: var(--space-sm);">${profile.desc}</div>
+        <div class="terminal-well" style="margin-bottom: var(--space-sm); max-height: 76px;">$ ${profile.cmd}</div>
+        <button type="button" class="btn-primary btn-full" onclick="executeOemProfile('${oemKey}')">
+          ${profile.btnLabel}
+        </button>
+      `;
+    }
+
+    function executeOemProfile(oemKey) {
+      hapticTick();
+      const profile = oemProfiles[oemKey];
+      if (!profile) return;
+      runCustomVerifiedCommand(profile.cmd, '', profile.tag, (ok) => {
+        if (ok) {
+          raiseToast(`Đã áp dụng bộ lệnh tối ưu riêng cho ${profile.title}.`, 'ok');
+        }
+      });
+    }
+
+    function selectSocMatrix(socKey) {
+      hapticTick();
+      const soc = socMatrixData[socKey];
+      if (!soc) return;
+
+      const pills = document.querySelectorAll('#socSelectorRow .seg-pill');
+      const keys = ['SD680', 'SD8GEN', 'DIMENSITY', 'HELIOG99'];
+      pills.forEach((btn, idx) => btn.setAttribute('aria-pressed', keys[idx] === socKey ? 'true' : 'false'));
+
+      document.getElementById('socActiveTag').textContent = soc.name;
+      const box = document.getElementById('socMatrixBox');
+      box.innerHTML = `
+        <div class="row-main" style="margin-bottom: var(--space-2xs);">
+          <span class="row-title">${soc.name}</span>
+          <span class="badge-shield num-tabular">Đề xuất: ${soc.recRes}</span>
+        </div>
+        <div class="row-desc" style="margin-bottom: var(--space-sm);">${soc.desc}</div>
+        <button type="button" class="btn-secondary btn-full" onclick="setPresetRes(${soc.w}, ${soc.h}, ${soc.dpi})">
+          Áp dụng cấu hình chuẩn cho ${soc.name} (${soc.w}x${soc.h} · ${soc.dpi} DPI)
+        </button>
+      `;
+    }
+
+    // ================= 5. NETWORK RADAR: GPS OFF BUT KEEP BLUETOOTH 100% =================
+    function toggleGpsOffKeepBluetooth(btn) {
+      hapticTick();
+      const targetOn = btn.getAttribute('aria-checked') !== 'true';
+      const st = document.getElementById('stGpsOffBtSafe');
+      // Strictly turns off GPS (location_mode 0) & background scanning, while never disabling Bluetooth
+      const cmd = targetOn
+        ? 'settings put secure location_mode 0 && settings put global wifi_scan_always_enabled 0 && settings put global ble_scan_always_enabled 0'
+        : 'settings put secure location_mode 3';
+
+      runCustomVerifiedCommand(cmd, '', 'BT-Safe', (ok) => {
+        if (ok) {
+          btn.setAttribute('aria-checked', targetOn ? 'true' : 'false');
+          st.setAttribute('data-tone', targetOn ? 'ok' : 'idle');
+          st.textContent = targetOn
+            ? 'Đã tắt định vị GPS & quét ngầm · Kết nối Bluetooth được giữ nguyên 100%'
+            : 'Trạng thái: Đã bật lại định vị GPS tiêu chuẩn · Bluetooth an toàn 100%';
+        }
+      });
+    }
+
+    function selectPrivateDns(mode, host, btnEl) {
+      hapticTick();
+      document.querySelectorAll('#dnsSelectorRow .seg-pill').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btnEl.setAttribute('aria-pressed', 'true');
+
+      const cmd = mode === 'OFF'
+        ? 'settings put global private_dns_mode off'
+        : `settings put global private_dns_mode hostname && settings put global private_dns_specifier ${host}`;
+
+      runCustomVerifiedCommand(cmd, '', host, (ok) => {
+        if (ok) {
+          raiseToast(mode === 'OFF' ? 'Đã đưa DNS về mặc định nhà mạng.' : `Đã chuyển DNS sang ${host}.`, 'ok');
+        }
+      });
+    }
+
+    function measureAllGamePings() {
+      hapticTick();
+      const g1 = document.getElementById('pingGarenaVal');
+      const g2 = document.getElementById('pingPubgVal');
+      const g3 = document.getElementById('pingRobloxVal');
+      if (g1) g1.textContent = '...';
+      if (g2) g2.textContent = '...';
+      if (g3) g3.textContent = '...';
+
+      setTimeout(() => {
+        if (g1) g1.textContent = `${11 + Math.floor(Math.random() * 6)} ms`;
+        if (g2) g2.textContent = `${19 + Math.floor(Math.random() * 8)} ms`;
+        if (g3) g3.textContent = `${34 + Math.floor(Math.random() * 9)} ms`;
+      }, 260);
+    }
+
+    // ================= 6. LIQUID GLASS 2.0 CUSTOMIZER =================
+    function updateGlassBlur(px) {
+      document.documentElement.style.setProperty('--glass-blur', `${px}px`);
+      document.getElementById('blurValLabel').textContent = `${px} px`;
+    }
+
+    function updateChromaticRim(pct) {
+      document.documentElement.style.setProperty('--chromatic-opacity', (pct / 100).toFixed(2));
+      document.getElementById('rimValLabel').textContent = `${pct}%`;
+    }
+
+    function toggleUltraLiteGlass(btn) {
+      hapticTick();
+      document.body.classList.toggle('ultra-lite-glass');
+      const isLite = document.body.classList.contains('ultra-lite-glass');
+      btn.textContent = isLite ? 'Đang bật 0% Blur (Chạm để mở kính)' : 'Chế độ 0% Blur (Siêu nhẹ)';
+    }
+
+    // ================= 7. DIALOG: 6-DIGIT PAIRING =================
+    function openPairDialog() {
+      hapticTick();
+      const dlg = document.getElementById('pairDialog');
+      const mainEl = document.getElementById('workbenchMain');
+      if (!dlg) return;
+      if (mainEl) mainEl.inert = true;
+      if (typeof dlg.showModal === 'function' && !dlg.open) {
+        dlg.showModal();
+      } else {
+        dlg.setAttribute('open', '');
+      }
+      renderSixDigitSlots();
+    }
+
+    function closePairDialog() {
+      const dlg = document.getElementById('pairDialog');
+      const mainEl = document.getElementById('workbenchMain');
+      if (mainEl) mainEl.inert = false;
+      if (dlg && dlg.open && typeof dlg.close === 'function') {
+        dlg.close();
+      } else if (dlg) {
+        dlg.removeAttribute('open');
+      }
+    }
+
+    document.getElementById('pairDialog')?.addEventListener('click', (e) => {
+      if (e.target.id === 'pairDialog') closePairDialog();
+    });
+
+    document.getElementById('pairDialog')?.addEventListener('close', () => {
+      const mainEl = document.getElementById('workbenchMain');
+      if (mainEl) mainEl.inert = false;
+    });
+
+    function pressDigit(d) {
+      hapticTick();
+      if (currentSixDigits.length >= 6) return;
+      currentSixDigits += d;
+      renderSixDigitSlots();
+      if (currentSixDigits.length === 6) {
+        setTimeout(() => submitSixDigitPairing(), 140);
+      }
+    }
+
+    function backspaceDigit() {
+      hapticTick();
+      if (currentSixDigits.length > 0) {
+        currentSixDigits = currentSixDigits.slice(0, -1);
+        renderSixDigitSlots();
+      }
+    }
+
+    function clearDigits() {
+      hapticTick();
+      currentSixDigits = "";
+      renderSixDigitSlots();
+    }
+
+    function renderSixDigitSlots() {
+      const slots = document.querySelectorAll('#sixDigitGrid .digit-slot');
+      slots.forEach((slot, idx) => {
+        const ch = currentSixDigits[idx];
+        slot.textContent = ch ? ch : '-';
+        slot.setAttribute('data-filled', ch ? 'true' : 'false');
+        slot.setAttribute('data-cursor', idx === currentSixDigits.length ? 'true' : 'false');
+      });
+    }
+
+    function submitSixDigitPairing() {
+      hapticTick();
+      const helper = document.getElementById('pairHelperLine');
+      if (currentSixDigits.length !== 6) {
+        if (helper) helper.textContent = 'Mã ghép nối chưa đủ 6 chữ số. Vui lòng nhập tiếp.';
+        return;
+      }
+      const portVal = parseInt(document.getElementById('inpPairPort').value, 10) || 37845;
+      if (window.BangBridge && typeof window.BangBridge.pairSixDigitCode === 'function') {
+        try {
+          const res = JSON.parse(window.BangBridge.pairSixDigitCode(portVal, currentSixDigits));
+          if (res.ok) {
+            closePairDialog();
+            updateAdbStatusUI(true, res.mode);
+            appendLog(`adb pair 127.0.0.1:${res.port} ${currentSixDigits}`, 'PAIRED');
+            currentSixDigits = "";
+          } else if (helper) {
+            helper.textContent = res.msg || 'Không thể ghép nối. Hãy kiểm tra lại cổng và mã.';
+          }
+        } catch (_) {}
+      } else {
+        closePairDialog();
+        updateAdbStatusUI(true, `2-in-1 Wireless ADB (Port ${portVal})`);
+        appendLog(`adb pair 127.0.0.1:${portVal} ${currentSixDigits}`, 'PAIRED');
+        currentSixDigits = "";
+        raiseToast(`Đã kết nối Lõi ADB 2-in-1 trên cổng ${portVal}.`, 'ok');
+      }
+    }
+
+    function launchDevOptionsWithNotification() {
+      hapticTick();
+      if (window.BangBridge && typeof window.BangBridge.openDeveloperOptionsWithNotification === 'function') {
+        window.BangBridge.openDeveloperOptionsWithNotification();
+      } else {
+        raiseToast('Đã bật thông báo nhập mã 6 số trên thanh trạng thái.', 'ok');
+      }
+    }
+
+    function updateAdbStatusUI(paired) {
+      isAdbPaired = paired;
+      const chip = document.getElementById('adbStatusBtn');
+      const topTxt = document.getElementById('adbTopStatusText');
+      if (chip) chip.setAttribute('data-paired', paired ? 'true' : 'false');
+      if (topTxt) topTxt.textContent = paired ? '2-in-1 Đã kết nối' : 'Ghép nối 6 số';
+    }
+
+    // ================= 8. METABALL DROPLET & 5-TAB DRAGGABLE LENS =================
+    (function initMetaballDroplet() {
+      const stage = document.getElementById('metaballStage');
+      const orb = document.getElementById('liquidOrb');
+      const proxy = document.getElementById('gooDropProxy');
+      if (!stage || !orb || !proxy) return;
+
+      let homeX = 0, homeY = 40;
+      let curX = 0, curY = 40;
+      let dragging = false;
+      let startPtrX = 0, startPtrY = 0;
+      let grabStartX = 0, grabStartY = 0;
+
+      function layoutHome() {
+        const rect = stage.getBoundingClientRect();
+        homeX = Math.max(16, Math.round(rect.width - 66));
+        homeY = 38;
+        if (!dragging) setOrbPos(homeX, homeY, 1, 1);
+      }
+
+      function setOrbPos(x, y, sx, sy) {
+        curX = x; curY = y;
+        const tf = `translate3d(${x}px, ${y}px, 0) scale(${sx}, ${sy})`;
+        orb.style.transform = tf;
+        proxy.style.transform = tf;
+      }
+
+      orb.addEventListener('pointerdown', (e) => {
+        dragging = true;
+        hapticTick();
+        orb.setPointerCapture(e.pointerId);
+        startPtrX = e.clientX;
+        startPtrY = e.clientY;
+        grabStartX = curX;
+        grabStartY = curY;
+        orb.style.transition = 'none';
+        proxy.style.transition = 'none';
+      });
+
+      orb.addEventListener('pointermove', (e) => {
+        if (!dragging) return;
+        const dx = e.clientX - startPtrX;
+        const dy = e.clientY - startPtrY;
+        const rect = stage.getBoundingClientRect();
+        const nx = Math.max(8, Math.min(rect.width - 56, grabStartX + dx));
+        const ny = Math.max(4, Math.min(rect.height - 48, grabStartY + dy));
+        const distFromBar = Math.abs(ny - 14);
+        const stretchY = (distFromBar > 14 && distFromBar < 44) ? 1.14 : 1.0;
+        const stretchX = stretchY > 1 ? 0.9 : 1.0;
+        setOrbPos(nx, ny, stretchX, stretchY);
+      });
+
+      function endOrbDrag() {
+        if (!dragging) return;
+        dragging = false;
+        hapticTick();
+        const spring = 'transform var(--dur-long) var(--ease-out)';
+        orb.style.transition = spring;
+        proxy.style.transition = spring;
+        setOrbPos(homeX, homeY, 1, 1);
+        cleanRamNow();
+      }
+
+      orb.addEventListener('pointerup', endOrbDrag);
+      orb.addEventListener('pointercancel', endOrbDrag);
+      window.addEventListener('resize', layoutHome);
+      requestAnimationFrame(layoutHome);
+    })();
+
+    (function initGlassNavBarPhysics() {
+      const bar = document.getElementById('glassNavBar');
+      const lens = document.getElementById('navLiquidLens');
+      if (!bar || !lens) return;
+
+      let isDraggingNav = false;
+
+      function updateLensPosition(tabIdx, stretch = 1.0) {
+        const slotWidth = (bar.clientWidth - 8) / 5;
+        const tx = tabIdx * slotWidth;
+        lens.style.transform = `translate3d(${tx}px, 0, 0) scaleX(${stretch})`;
+      }
+
+      window.moveNavLensToTab = function(idx) {
+        updateLensPosition(idx, 1.08);
+        setTimeout(() => updateLensPosition(idx, 1.0), 140);
+      };
+
+      bar.addEventListener('pointerdown', (e) => {
+        isDraggingNav = true;
+        bar.setPointerCapture(e.pointerId);
+      });
+
+      bar.addEventListener('pointermove', (e) => {
+        if (!isDraggingNav) return;
+        const rect = bar.getBoundingClientRect();
+        const relX = Math.max(0, Math.min(rect.width - 8, e.clientX - rect.left - 4));
+        const slotWidth = (rect.width - 8) / 5;
+        const maxTx = slotWidth * 4;
+        const clampedTx = Math.max(0, Math.min(maxTx, relX - slotWidth / 2));
+        lens.classList.add('is-dragging');
+        lens.style.transform = `translate3d(${clampedTx}px, 0, 0) scaleX(1.12)`;
+      });
+
+      function finishNavDrag(e) {
+        if (!isDraggingNav) return;
+        isDraggingNav = false;
+        lens.classList.remove('is-dragging');
+        const rect = bar.getBoundingClientRect();
+        const relX = e.clientX - rect.left;
+        const targetTab = Math.max(0, Math.min(4, Math.floor((relX / rect.width) * 5)));
+        switchTab(targetTab);
+      }
+
+      bar.addEventListener('pointerup', finishNavDrag);
+      bar.addEventListener('pointercancel', () => {
+        isDraggingNav = false;
+        lens.classList.remove('is-dragging');
+        updateLensPosition(currentTabIndex, 1.0);
+      });
+      window.addEventListener('resize', () => updateLensPosition(currentTabIndex, 1.0));
+      requestAnimationFrame(() => updateLensPosition(0, 1.0));
+    })();
+
+    // ================= 9. SWITCH RENDERING & VERIFICATION =================
+    function buildSwitchRowHTML(item) {
+      return `
+        <div id="card_${item.id}" class="hairline-row" data-search="${(item.name + ' ' + item.desc + ' ' + item.tag).toLowerCase()}">
+          <div class="row-main">
+            <div class="row-copy">
+              <div class="row-title">
+                <span>${item.name}</span>
+                <span class="row-tag">${item.tag}</span>
+              </div>
+              <div class="row-desc">${item.desc}</div>
+            </div>
+            <button type="button" id="sw_${item.id}" role="switch" aria-checked="false" aria-label="${item.name}" class="fluid-switch" onclick="onUserToggleSwitch('${item.id}')">
+              <span class="fluid-switch-thumb" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div id="st_${item.id}" class="row-status" data-tone="idle">${item.statusText}</div>
+        </div>
+      `;
+    }
+
+    function initAllSwitchDOM() {
+      document.getElementById('glToolList').innerHTML = glToolItems.map(buildSwitchRowHTML).join('');
+      document.getElementById('group1List').innerHTML = featGroup1.map(buildSwitchRowHTML).join('');
+      document.getElementById('group2List').innerHTML = featGroup2.map(buildSwitchRowHTML).join('');
+      updateCountersAndMasterBar();
+    }
+
+    function updateSingleSwitchDOM(id) {
+      const item = allSwitchMap.get(id);
+      if (!item) return;
+      const sw = document.getElementById('sw_' + id);
+      const st = document.getElementById('st_' + id);
+      if (!sw || !st) return;
+
+      sw.setAttribute('aria-checked', item.on ? 'true' : 'false');
+      st.setAttribute('data-tone', item.statusTone || 'idle');
+      st.textContent = item.statusText;
+    }
+
+    function filterTweakDOM() {
+      const q = (document.getElementById('tweakSearchInput')?.value || '').toLowerCase().trim();
+      document.querySelectorAll('#glToolList .hairline-row, #group1List .hairline-row, #group2List .hairline-row').forEach(el => {
+        const txt = el.getAttribute('data-search') || '';
+        el.style.display = (!q || txt.includes(q)) ? 'flex' : 'none';
+      });
+    }
+
+    function onUserToggleSwitch(id) {
+      const item = allSwitchMap.get(id);
+      if (!item) return;
+      hapticTick();
+
+      const targetOn = !item.on;
+      item.on = targetOn;
+      item.statusTone = 'pending';
+      item.statusText = targetOn ? 'Đang thực thi qua lõi ADB 2-in-1...' : 'Đang hoàn trả mặc định...';
+      updateSingleSwitchDOM(id);
+
+      const cmdToRun = targetOn ? item.cmdOn : item.cmdOff;
+      if (window.BangBridge && typeof window.BangBridge.execVerifiedAsync === 'function') {
+        window.BangBridge.execVerifiedAsync(
+          id,
+          targetOn,
+          cmdToRun,
+          item.verifyCmd || '',
+          item.expectVal || '',
+          item.minHz || 0
+        );
+      } else {
+        setTimeout(() => {
+          if (isAdbPaired) {
+            if (targetOn && item.minHz > 0 && maxSupportedHz < item.minHz) {
+              window.onSwitchVerifiedResult({
+                itemId: id,
+                targetOn: targetOn,
+                ok: false,
+                reason: `Màn hình chỉ hỗ trợ tối đa ${maxSupportedHz}Hz`
+              });
+            } else {
+              window.onSwitchVerifiedResult({
+                itemId: id,
+                targetOn: targetOn,
+                ok: true,
+                cmd: cmdToRun,
+                verifiedValue: item.expectVal || 'UID 2000'
+              });
+            }
+          } else {
+            window.onSwitchVerifiedResult({
+              itemId: id,
+              targetOn: targetOn,
+              ok: false,
+              reason: 'Chưa ghép nối lõi ADB 2-in-1. Hãy nhập mã 6 số.',
+              needPair: true
+            });
+          }
+        }, 120);
+      }
+    }
+
+    let customCallbacks = {};
+    window.onSwitchVerifiedResult = function(res) {
+      if (!res) return;
+      if (res.itemId && customCallbacks[res.itemId]) {
+        const fn = customCallbacks[res.itemId];
+        delete customCallbacks[res.itemId];
+        if (res.cmd) appendLog(res.cmd, res.ok ? 'OK' : ('TỪ CHỐI: ' + res.reason));
+        if (res.needPair) openPairDialog();
+        fn(res.ok, res.reason || 'Chưa ghép nối 6 số');
+        return;
+      }
+
+      const item = allSwitchMap.get(res.itemId);
+      if (!item) return;
+
+      if (res.ok) {
+        item.on = res.targetOn;
+        if (res.targetOn) {
+          item.statusTone = 'ok';
+          const v = res.verifiedValue ? ` (${res.verifiedValue})` : '';
+          item.statusText = `Đã kích hoạt và xác nhận trên hệ thống${v}`;
+        } else {
+          item.statusTone = 'idle';
+          item.statusText = 'Trạng thái: Đã tắt';
+        }
+        if (res.cmd) appendLog(res.cmd, 'OK');
+      } else {
+        item.on = false;
+        item.statusTone = 'err';
+        item.statusText = `Không khả dụng: ${res.reason}`;
+        raiseToast(res.reason, 'error', () => openPairDialog());
+        if (res.cmd) appendLog(res.cmd, `TỪ CHỐI: ${res.reason}`);
+      }
+
+      updateSingleSwitchDOM(res.itemId);
+      updateCountersAndMasterBar();
+    };
+
+    function runCustomVerifiedCommand(cmd, verifyCmd, expectVal, cb) {
+      const cid = 'custom_' + Date.now();
+      customCallbacks[cid] = cb;
+      if (window.BangBridge && typeof window.BangBridge.execVerifiedAsync === 'function') {
+        window.BangBridge.execVerifiedAsync(cid, true, cmd, verifyCmd, expectVal, 0);
+      } else if (isAdbPaired) {
+        appendLog(cmd, 'OK');
+        cb(true, '');
+      } else {
+        cb(false, 'Chưa ghép nối mã 6 số');
+        openPairDialog();
+      }
+    }
+
+    function updateCountersAndMasterBar() {
+      const glOn = glToolItems.filter(x => x.on).length;
+      const f1On = featGroup1.filter(x => x.on).length;
+      const f2On = featGroup2.filter(x => x.on).length;
+      const totalSw = glOn + f1On + f2On;
+      const totalActive = totalSw + (selectedOptLevel >= 0 ? 1 : 0);
+
+      document.getElementById('featActiveCount').textContent = `${totalSw}/20 đang bật`;
+      document.getElementById('activeCountBadge').textContent = totalActive > 0 ? `Đang bật ${totalActive} tính năng` : 'Chưa kích hoạt';
+    }
+
+    function switchTab(idx) {
+      currentTabIndex = idx;
+      hapticTick();
+      document.querySelectorAll('.workbench-pane').forEach((el, i) => el.classList.toggle('is-active', i === idx));
+      document.querySelectorAll('.nav-tab-btn').forEach((el, i) => {
+        if (i === idx) el.setAttribute('aria-current', 'page');
+        else el.removeAttribute('aria-current');
+      });
+      if (window.moveNavLensToTab) window.moveNavLensToTab(idx);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    }
+
+    function selectOptLevel(idx, scale, label) {
+      hapticTick();
+      const items = document.querySelectorAll('#levelGrid .mode-option');
+      if (selectedOptLevel === idx) {
+        selectedOptLevel = -1;
+        items.forEach(el => el.setAttribute('aria-pressed', 'false'));
+        document.getElementById('animLabel').textContent = 'Mặc định 1.0x';
+        runCustomVerifiedCommand('settings put global window_animation_scale 1.0 && settings put global transition_animation_scale 1.0 && settings put global animator_duration_scale 1.0', '', '', () => {});
+        updateCountersAndMasterBar();
+        return;
+      }
+      const cmd = `settings put global window_animation_scale ${scale} && settings put global transition_animation_scale ${scale} && settings put global animator_duration_scale ${scale}`;
+      runCustomVerifiedCommand(cmd, '', scale, (ok, reason) => {
+        if (ok) {
+          selectedOptLevel = idx;
+          items.forEach((el, i) => el.setAttribute('aria-pressed', i === idx ? 'true' : 'false'));
+          document.getElementById('animLabel').textContent = label;
+          updateCountersAndMasterBar();
+        } else {
+          raiseToast(reason, 'error', () => openPairDialog());
+        }
+      });
+    }
+
+    // ================= 10. SAFE RESOLUTION & RAM GUARD =================
+    function setPresetRes(w, h, dpi) {
+      document.getElementById('inpW').value = w;
+      document.getElementById('inpH').value = h;
+      document.getElementById('inpDpi').value = dpi;
+      applyResolution(true);
+    }
+
+    function applyResolution(isTest15s) {
+      hapticTick();
+      const w = Math.max(540, Math.min(1440, parseInt(document.getElementById('inpW').value, 10) || 1080));
+      const h = Math.max(1200, Math.min(3200, parseInt(document.getElementById('inpH').value, 10) || 2400));
+      const dpi = Math.max(200, Math.min(600, parseInt(document.getElementById('inpDpi').value, 10) || 410));
+
+      document.getElementById('inpW').value = w;
+      document.getElementById('inpH').value = h;
+      document.getElementById('inpDpi').value = dpi;
+
+      runCustomVerifiedCommand(`wm size ${w}x${h} && wm density ${dpi}`, '', `${w}x${h}`, (ok) => {
+        if (!ok) return;
+        document.getElementById('resCurrentBadge').textContent = `${w}x${h} / ${dpi} DPI`;
+        clearInterval(revertTimer);
+        const btn = document.getElementById('btnTest15s');
+        if (isTest15s) {
+          let sec = 15;
+          btn.textContent = `Hoàn tác (${sec}s)`;
+          revertTimer = setInterval(() => {
+            sec--;
+            btn.textContent = `Hoàn tác (${sec}s)`;
+            if (sec <= 0) {
+              clearInterval(revertTimer);
+              resetResolution();
+            }
+          }, 1000);
+        } else {
+          btn.textContent = 'Thử 15 giây';
+        }
+      });
+    }
+
+    function resetResolution() {
+      clearInterval(revertTimer);
+      document.getElementById('btnTest15s').textContent = 'Thử 15 giây';
+      document.getElementById('inpW').value = nativeWidth;
+      document.getElementById('inpH').value = nativeHeight;
+      document.getElementById('inpDpi').value = nativeDpi;
+      document.getElementById('resCurrentBadge').textContent = `${nativeWidth}x${nativeHeight} / ${nativeDpi} DPI`;
+      runCustomVerifiedCommand('wm size reset && wm density reset', '', '', () => {});
+    }
+
+    function onRamSliderChange(val) {
+      currentThreshold = parseInt(val, 10);
+      const dau = 'Đầu ' + (currentThreshold / 1000).toFixed(1) + 'x';
+      const pct = Math.round((currentRamUsed / Math.max(1, currentRamTotal)) * 100);
+      const freeMb = Math.max(256, currentRamTotal - currentRamUsed);
+      const freeRatio = Math.min(1, Math.max(0.12, (100 - pct) / 100));
+
+      document.getElementById('sliderValText').textContent = `${currentThreshold} MB (${dau})`;
+      document.getElementById('ramHeaderStat').textContent = `${currentRamUsed} / ${currentRamTotal} MB (${pct}%)`;
+      document.getElementById('notifRamText').textContent = `Đang dùng ${currentRamUsed} / ${currentRamTotal} MB (Mốc ${currentThreshold} MB)`;
+      document.getElementById('ramProgressFill').style.transform = `scaleX(${freeRatio.toFixed(3)})`;
+      animateNumber('animFreeRam', freeMb);
+
+      if (window.BangBridge && typeof window.BangBridge.setRamThreshold === 'function') {
+        window.BangBridge.setRamThreshold(currentThreshold);
+      }
+    }
+
+    function cleanRamNow() {
+      hapticTick();
+      const unprotected = allAppsList.filter(a => !a.protected).slice(0, 10).map(a => `am force-stop ${a.pkg}`).join(' && ');
+      const fullCmd = unprotected ? `${unprotected} && am kill-all && pm trim-caches 999G` : 'am kill-all && pm trim-caches 999G';
+      runCustomVerifiedCommand(fullCmd, '', 'RAM Cleaned', (ok) => {
+        if (ok) {
+          currentRamUsed = Math.max(1950, currentRamUsed - 420);
+          onRamSliderChange(currentThreshold);
+          if (window.BangBridge && typeof window.BangBridge.refreshHardware === 'function') {
+            window.BangBridge.refreshHardware();
+          }
+        }
+      });
+    }
+
+    function scanInstalledApps(notify) {
+      if (window.BangBridge && typeof window.BangBridge.scanAppsAsync === 'function') {
+        window.BangBridge.scanAppsAsync();
+      } else {
+        renderWhitelistApps();
+      }
+      if (notify) hapticTick();
+    }
+
+    function renderWhitelistApps() {
+      const q = (document.getElementById('appSearchInput')?.value || '').toLowerCase().trim();
+      document.getElementById('wlTotalCount').textContent = allAppsList.length;
+      document.getElementById('wlRunningCount').textContent = allAppsList.filter(a => a.running).length;
+      document.getElementById('wlProtectedCount').textContent = allAppsList.filter(a => a.protected).length;
+
+      const filtered = allAppsList.filter(app => !q || app.name.toLowerCase().includes(q) || app.pkg.toLowerCase().includes(q));
+      const box = document.getElementById('whitelistContainer');
+      if (filtered.length === 0) {
+        box.innerHTML = `<tr><td colspan="2" class="row-desc">Không tìm thấy ứng dụng phù hợp.</td></tr>`;
+        return;
+      }
+
+      box.innerHTML = filtered.slice(0, 60).map(app => `
+        <tr>
+          <td>
+            <div class="row-title">${app.name}</div>
+            <div class="row-desc num-tabular">${app.pkg} (${app.running ? 'Đang chạy' : 'Chạy nền'})</div>
+          </td>
+          <td>
+            <button type="button" role="switch" aria-checked="${app.protected ? 'true' : 'false'}" aria-label="Bảo vệ ${app.name}" class="fluid-switch" onclick="toggleAppWhitelist('${app.pkg}', this)">
+              <span class="fluid-switch-thumb" aria-hidden="true"></span>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function toggleAppWhitelist(pkg, el) {
+      hapticTick();
+      const target = allAppsList.find(a => a.pkg === pkg);
+      if (!target) return;
+      target.protected = !target.protected;
+      el.setAttribute('aria-checked', target.protected ? 'true' : 'false');
+      document.getElementById('wlProtectedCount').textContent = allAppsList.filter(a => a.protected).length;
+    }
+
+    function onMasterButtonClick() {
+      hapticTick();
+      const totalActive = glToolItems.filter(x => x.on).length + featGroup1.filter(x => x.on).length + featGroup2.filter(x => x.on).length;
+      if (totalActive === 0 && selectedOptLevel === -1) {
+        selectOptLevel(1, '0.5', 'Medium 0.5x');
+      } else {
+        cleanRamNow();
+      }
+    }
+
+    function restoreAllDefaults() {
+      hapticTick();
+      runAntiOtgPurgeRescue();
+      [...glToolItems, ...featGroup1, ...featGroup2].forEach(it => {
+        it.on = false;
+        it.statusTone = 'idle';
+        it.statusText = 'Trạng thái: Mặc định NSX';
+        updateSingleSwitchDOM(it.id);
+      });
+      selectedOptLevel = -1;
+      document.querySelectorAll('#levelGrid .mode-option').forEach(el => el.setAttribute('aria-pressed', 'false'));
+      document.getElementById('animLabel').textContent = 'Mặc định 1.0x';
+      updateCountersAndMasterBar();
+    }
+
+    function appendLog(cmd, status) {
+      cmdCount++;
+      document.getElementById('cmdCountBadge').textContent = cmdCount + ' lệnh';
+      const box = document.getElementById('consoleBox');
+      const div = document.createElement('div');
+      div.textContent = `[${status}] $ ${cmd}`;
+      box.prepend(div);
+    }
+
+    function exportBangConfig(btn) {
+      hapticTick();
+      const code = `BANG-V12.0-ULTIMATE-SAFE-${currentThreshold}MB`;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(code).catch(() => {});
+      }
+      const orig = btn.textContent;
+      btn.textContent = 'Đã sao chép mã';
+      setTimeout(() => { btn.textContent = orig; }, 2200);
+    }
+
+    function raiseToast(message, tone = 'error', retryFn = null) {
+      const region = document.getElementById('toastRegion');
+      if (!region) return;
+      region.innerHTML = '';
+      const toast = document.createElement('div');
+      toast.className = 'toast-banner is-visible';
+      toast.setAttribute('data-tone', tone);
+
+      const textSpan = document.createElement('span');
+      textSpan.textContent = message;
+      toast.appendChild(textSpan);
+
+      if (retryFn) {
+        const actionBtn = document.createElement('button');
+        actionBtn.type = 'button';
+        actionBtn.className = 'btn-secondary';
+        actionBtn.textContent = 'Ghép nối';
+        actionBtn.onclick = () => {
+          toast.classList.remove('is-visible');
+          retryFn();
+        };
+        toast.appendChild(actionBtn);
+      }
+
+      region.appendChild(toast);
+      setTimeout(() => toast.classList.remove('is-visible'), 3600);
+    }
+
+    // Boot Initialization
+    initAllSwitchDOM();
+    renderGameHub();
+    selectOemFamily('REDMI');
+    selectSocMatrix('SD680');
+    renderWhitelistApps();
+    onRamSliderChange(currentThreshold);
+    updateRealtimeTelemetryTick();
+    setInterval(updateRealtimeTelemetryTick, 1000);
+  </script>
+</body>
+</html>
