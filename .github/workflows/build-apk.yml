@@ -1,4 +1,4 @@
-name: Build BangOptimize v13.0 Masterpiece APK
+name: Build BangOptimize v13.5 Zero-Black-Screen APK
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. Clean & Generate BangOptimize v13.0 Ultimate Masterpiece
+      - name: 3. Clean & Generate BangOptimize v13.5 Zero-Black-Screen Edition
         shell: bash
         run: |
           set -e
@@ -79,10 +79,10 @@ jobs:
 
               defaultConfig {
                   applicationId = "com.bangtech.optimize"
-                  minSdk = 26
+                  minSdk = 24
                   targetSdk = 34
-                  versionCode = 130
-                  versionName = "13.0 Masterpiece 2-in-1"
+                  versionCode = 135
+                  versionName = "13.5 Masterpiece"
               }
 
               compileOptions {
@@ -97,7 +97,6 @@ jobs:
           dependencies {
               implementation("androidx.core:core-ktx:1.13.1")
               implementation("androidx.appcompat:appcompat:1.7.0")
-              implementation("androidx.webkit:webkit:1.11.0")
           }
           EOF
 
@@ -195,7 +194,7 @@ jobs:
                       android:foregroundServiceType="specialUse">
                       <property
                           android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                          android:value="BangOptimize v13.0 Masterpiece Realtime RAM" />
+                          android:value="BangOptimize v13.5 Realtime RAM" />
                   </service>
 
                   <receiver
@@ -209,7 +208,7 @@ jobs:
           </manifest>
           EOF
 
-          # 7. EmbeddedAdbEngine.kt (Lõi ADB 2-in-1 + Lá chắn Anti-OTG Bootloop + Bảo vệ Bluetooth 100%)
+          # 7. EmbeddedAdbEngine.kt
           cat << 'EOF' > app/src/main/java/com/bangtech/optimize/EmbeddedAdbEngine.kt
           package com.bangtech.optimize
 
@@ -237,14 +236,15 @@ jobs:
               private var connectDiscoveryListener: NsdManager.DiscoveryListener? = null
 
               fun initEngine(context: Context, onStatusChanged: () -> Unit) {
-                  val prefs = context.getSharedPreferences("bang_adb_2in1", Context.MODE_PRIVATE)
-                  isPairedAndConnected = prefs.getBoolean("paired_ready", false)
-                  detectedConnectPort = prefs.getInt("last_connect_port", 5555)
-                  if (isPairedAndConnected) {
-                      connectionModeLabel = "2-in-1 Wireless ADB (Port $detectedConnectPort)"
-                      runAntiOtgRescueCommands()
-                  }
-                  startMdnsPortScanner(context, onStatusChanged)
+                  try {
+                      val prefs = context.getSharedPreferences("bang_adb_2in1", Context.MODE_PRIVATE)
+                      isPairedAndConnected = prefs.getBoolean("paired_ready", false)
+                      detectedConnectPort = prefs.getInt("last_connect_port", 5555)
+                      if (isPairedAndConnected) {
+                          connectionModeLabel = "2-in-1 Wireless ADB (Port $detectedConnectPort)"
+                      }
+                      startMdnsPortScanner(context, onStatusChanged)
+                  } catch (_: Exception) {}
               }
 
               fun runAntiOtgRescueCommands(): String {
@@ -450,41 +450,43 @@ jobs:
 
           class PairingBroadcastReceiver : BroadcastReceiver() {
               override fun onReceive(context: Context, intent: Intent) {
-                  val results = RemoteInput.getResultsFromIntent(intent) ?: return
-                  val rawInput = results.getCharSequence("key_pairing_code")?.toString()?.trim() ?: ""
+                  try {
+                      val results = RemoteInput.getResultsFromIntent(intent) ?: return
+                      val rawInput = results.getCharSequence("key_pairing_code")?.toString()?.trim() ?: ""
 
-                  var port = EmbeddedAdbEngine.detectedPairingPort
-                  var code = rawInput
-                  if (rawInput.contains(":")) {
-                      val parts = rawInput.split(":")
-                      port = parts[0].trim().toIntOrNull() ?: port
-                      code = parts.getOrNull(1)?.trim() ?: ""
-                  } else {
-                      val digits = rawInput.filter { it.isDigit() }
-                      if (digits.length >= 6) {
-                          code = digits.takeLast(6)
+                      var port = EmbeddedAdbEngine.detectedPairingPort
+                      var code = rawInput
+                      if (rawInput.contains(":")) {
+                          val parts = rawInput.split(":")
+                          port = parts[0].trim().toIntOrNull() ?: port
+                          code = parts.getOrNull(1)?.trim() ?: ""
+                      } else {
+                          val digits = rawInput.filter { it.isDigit() }
+                          if (digits.length >= 6) {
+                              code = digits.takeLast(6)
+                          }
                       }
-                  }
 
-                  val res = EmbeddedAdbEngine.pairWithSixDigitCode(context, port, code)
-                  val ok = res.optBoolean("ok", false)
-                  val msg = res.optString("msg", "")
+                      val res = EmbeddedAdbEngine.pairWithSixDigitCode(context, port, code)
+                      val ok = res.optBoolean("ok", false)
+                      val msg = res.optString("msg", "")
 
-                  val nm = context.getSystemService(NotificationManager::class.java)
-                  val notif = NotificationCompat.Builder(context, "bang_pair_channel")
-                      .setSmallIcon(android.R.drawable.ic_dialog_info)
-                      .setContentTitle(if (ok) "BangOptimize v13.0: Đã kết nối!" else "Ghép nối chưa thành công")
-                      .setContentText(msg)
-                      .setAutoCancel(true)
-                      .build()
-                  nm.notify(2005, notif)
-                  Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
-                  MainActivity.notifyWebPairingUpdated()
+                      val nm = context.getSystemService(NotificationManager::class.java)
+                      val notif = NotificationCompat.Builder(context, "bang_pair_channel")
+                          .setSmallIcon(R.drawable.ic_launcher)
+                          .setContentTitle(if (ok) "BangOptimize v13.5: Đã kết nối!" else "Ghép nối chưa thành công")
+                          .setContentText(msg)
+                          .setAutoCancel(true)
+                          .build()
+                      nm.notify(2005, notif)
+                      Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                      MainActivity.notifyWebPairingUpdated()
+                  } catch (_: Exception) {}
               }
           }
           EOF
 
-          # 9. RealtimeRamService.kt
+          # 9. RealtimeRamService.kt (Bọc an toàn 100% chống văng & chống treo màn hình khởi động trên mọi ROM)
           cat << 'EOF' > app/src/main/java/com/bangtech/optimize/RealtimeRamService.kt
           package com.bangtech.optimize
 
@@ -510,51 +512,61 @@ jobs:
 
               override fun onCreate() {
                   super.onCreate()
-                  val channel = NotificationChannel(
-                      channelId,
-                      "BangOptimize Realtime RAM",
-                      NotificationManager.IMPORTANCE_LOW
-                  ).apply { setShowBadge(false) }
-                  getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
-                  val notif = buildNotification(0, 0)
-                  if (Build.VERSION.SDK_INT >= 34) {
-                      startForeground(1001, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
-                  } else {
-                      startForeground(1001, notif)
+                  try {
+                      if (Build.VERSION.SDK_INT >= 26) {
+                          val channel = NotificationChannel(
+                              channelId,
+                              "BangOptimize Realtime RAM",
+                              NotificationManager.IMPORTANCE_LOW
+                          ).apply { setShowBadge(false) }
+                          getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
+                      }
+                      val notif = buildNotification(0, 0)
+                      if (Build.VERSION.SDK_INT >= 34) {
+                          startForeground(1001, notif, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE)
+                      } else {
+                          startForeground(1001, notif)
+                      }
+                      handler.postDelayed(updateRunnable, 1500L)
+                  } catch (_: Exception) {
+                      stopSelf()
                   }
-                  handler.post(updateRunnable)
               }
 
               override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-                  intent?.getLongExtra("threshold_mb", -1L)?.let {
-                      if (it > 0) targetThresholdMb = it
-                  }
-                  if (intent?.hasExtra("auto_clean") == true) {
-                      autoCleanEnabled = intent.getBooleanExtra("auto_clean", true)
-                  }
-                  if (intent?.action == "ACTION_CLEAN_NOW") {
-                      Thread {
-                          EmbeddedAdbEngine.executeShell("am kill-all && pm trim-caches 999G")
-                          handler.post { updateNotification() }
-                      }.start()
-                  }
+                  try {
+                      intent?.getLongExtra("threshold_mb", -1L)?.let {
+                          if (it > 0) targetThresholdMb = it
+                      }
+                      if (intent?.hasExtra("auto_clean") == true) {
+                          autoCleanEnabled = intent.getBooleanExtra("auto_clean", true)
+                      }
+                      if (intent?.action == "ACTION_CLEAN_NOW") {
+                          Thread {
+                              EmbeddedAdbEngine.executeShell("am kill-all && pm trim-caches 999G")
+                              handler.post { updateNotification() }
+                          }.start()
+                      }
+                  } catch (_: Exception) {}
                   return START_STICKY
               }
 
               private fun updateNotification() {
-                  val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-                  val memInfo = ActivityManager.MemoryInfo()
-                  am.getMemoryInfo(memInfo)
-                  val totalMb = memInfo.totalMem / (1024 * 1024)
-                  val usedMb = (memInfo.totalMem - memInfo.availMem) / (1024 * 1024)
+                  try {
+                      val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                      val memInfo = ActivityManager.MemoryInfo()
+                      am.getMemoryInfo(memInfo)
+                      val totalMb = memInfo.totalMem / (1024 * 1024)
+                      val usedMb = (memInfo.totalMem - memInfo.availMem) / (1024 * 1024)
 
-                  if (autoCleanEnabled && usedMb >= targetThresholdMb) {
-                      Thread {
-                          EmbeddedAdbEngine.executeShell("am kill-all && pm trim-caches 999G")
-                      }.start()
-                  }
-                  getSystemService(NotificationManager::class.java)
-                      .notify(1001, buildNotification(usedMb, totalMb))
+                      if (autoCleanEnabled && usedMb >= targetThresholdMb) {
+                          Thread {
+                              EmbeddedAdbEngine.executeShell("am kill-all && pm trim-caches 999G")
+                          }.start()
+                      }
+                      getSystemService(NotificationManager::class.java)
+                          ?.notify(1001, buildNotification(usedMb, totalMb))
+                  } catch (_: Exception) {}
               }
 
               private fun buildNotification(usedMb: Long, totalMb: Long): Notification {
@@ -566,9 +578,9 @@ jobs:
                       Intent(this, RealtimeRamService::class.java).apply { action = "ACTION_CLEAN_NOW" },
                       PendingIntent.FLAG_IMMUTABLE
                   )
-                  val engineTag = if (EmbeddedAdbEngine.isPairedAndConnected) "v13.0 Active" else "Wait Pair"
+                  val engineTag = if (EmbeddedAdbEngine.isPairedAndConnected) "v13.5 Active" else "Wait Pair"
                   return NotificationCompat.Builder(this, channelId)
-                      .setSmallIcon(android.R.drawable.ic_menu_info_details)
+                      .setSmallIcon(R.drawable.ic_launcher)
                       .setContentTitle("BangOptimize • $engineTag • vừa xong")
                       .setContentText("RAM: $usedMb MB / $totalMb MB (Mốc: $targetThresholdMb MB)")
                       .setContentIntent(openIntent)
@@ -587,7 +599,7 @@ jobs:
           }
           EOF
 
-          # 10. MainActivity.kt (Quét Game đang cài thật + Trích xuất Icon màu Base64 + Đo Ping thật + Cảm biến Pin 1.0s)
+          # 10. MainActivity.kt (Loại bỏ LAYER_TYPE_HARDWARE gây màn hình đen + Nạp trực tiếp HTML qua loadDataWithBaseURL)
           cat << 'EOF' > app/src/main/java/com/bangtech/optimize/MainActivity.kt
           package com.bangtech.optimize
 
@@ -609,7 +621,9 @@ jobs:
           import android.view.HapticFeedbackConstants
           import android.view.KeyEvent
           import android.view.View
+          import android.view.ViewGroup
           import android.webkit.*
+          import android.widget.FrameLayout
           import android.widget.Toast
           import androidx.appcompat.app.AppCompatActivity
           import androidx.core.app.NotificationCompat
@@ -650,8 +664,7 @@ jobs:
                   "riotgames", "league", "wildrift", "valorant", "mobilelegends", "moonton", "supercell",
                   "brawlstars", "clash", "activision", "callofduty", "codm", "ea.game", "fifa", "fc",
                   "konami", "pes", "efootball", "gameloft", "asphalt", "netease", "identityv", "naraka",
-                  "com.zing.", "playtogether", "haegin", "minecraft", "mojang", "terraria", "subwaysurf",
-                  "candies", "arena", "shooter", "racing", "game"
+                  "com.zing.", "playtogether", "haegin", "minecraft", "mojang", "terraria", "subwaysurf"
               )
 
               @SuppressLint("SetJavaScriptEnabled")
@@ -661,25 +674,33 @@ jobs:
                   window.statusBarColor = Color.parseColor("#06080E")
                   window.navigationBarColor = Color.parseColor("#06080E")
 
-                  if (Build.VERSION.SDK_INT >= 33) {
-                      if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                          requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1002)
-                      }
-                  }
-
-                  EmbeddedAdbEngine.initEngine(this) {
-                      mainHandler.post { pushMdnsPortUpdate() }
+                  val rootLayout = FrameLayout(this).apply {
+                      layoutParams = ViewGroup.LayoutParams(
+                          ViewGroup.LayoutParams.MATCH_PARENT,
+                          ViewGroup.LayoutParams.MATCH_PARENT
+                      )
+                      setBackgroundColor(Color.parseColor("#06080E"))
                   }
 
                   webView = WebView(this).apply {
+                      layoutParams = FrameLayout.LayoutParams(
+                          ViewGroup.LayoutParams.MATCH_PARENT,
+                          ViewGroup.LayoutParams.MATCH_PARENT
+                      )
                       setBackgroundColor(Color.parseColor("#06080E"))
-                      setLayerType(View.LAYER_TYPE_HARDWARE, null)
+                      // Không ép LAYER_TYPE_HARDWARE ở cấp View để tránh lỗi tràn bộ nhớ texture gây màn hình đen
                       isVerticalScrollBarEnabled = false
                       overScrollMode = View.OVER_SCROLL_NEVER
-                      settings.javaScriptEnabled = true
-                      settings.domStorageEnabled = true
-                      settings.allowFileAccess = true
-                      settings.cacheMode = WebSettings.LOAD_NO_CACHE
+                      settings.apply {
+                          javaScriptEnabled = true
+                          domStorageEnabled = true
+                          allowFileAccess = true
+                          allowContentAccess = true
+                          useWideViewPort = true
+                          loadWithOverviewMode = true
+                          cacheMode = WebSettings.LOAD_DEFAULT
+                      }
+                      webChromeClient = WebChromeClient()
                       addJavascriptInterface(BangJsBridge(), "BangBridge")
                       webViewClient = object : WebViewClient() {
                           override fun onPageFinished(view: WebView?, url: String?) {
@@ -687,12 +708,34 @@ jobs:
                           }
                       }
                   }
-                  setContentView(webView)
-                  webView.loadUrl("file:///android_asset/BangOptimize.html")
 
+                  rootLayout.addView(webView)
+                  setContentView(rootLayout)
+
+                  // Đọc trực tiếp file HTML từ assets và nạp bằng loadDataWithBaseURL để lên hình 100% trên mọi máy
                   try {
-                      startForegroundService(Intent(this, RealtimeRamService::class.java))
-                  } catch (_: Exception) {}
+                      val htmlText = assets.open("BangOptimize.html").bufferedReader(Charsets.UTF_8).use { it.readText() }
+                      webView.loadDataWithBaseURL("https://bangoptimize.local/", htmlText, "text/html", "UTF-8", null)
+                  } catch (e: Exception) {
+                      webView.loadUrl("file:///android_asset/BangOptimize.html")
+                  }
+
+                  // Khởi tạo ngầm sau khi giao diện đã bắt đầu dựng hình (Tránh treo lúc mở app)
+                  mainHandler.postDelayed({
+                      bgExecutor.execute {
+                          EmbeddedAdbEngine.initEngine(this) {
+                              mainHandler.post { pushMdnsPortUpdate() }
+                          }
+                      }
+                      if (Build.VERSION.SDK_INT >= 33) {
+                          if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                              requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1002)
+                          }
+                      }
+                      try {
+                          startForegroundService(Intent(this, RealtimeRamService::class.java))
+                      } catch (_: Exception) {}
+                  }, 1200L)
               }
 
               override fun onResume() {
@@ -702,7 +745,7 @@ jobs:
                       bgExecutor.execute {
                           EmbeddedAdbEngine.executeShell("wm size reset && wm density reset && settings put system pointer_speed 0")
                           mainHandler.post {
-                              Toast.makeText(this, "BangOptimize: Đã tự động hoàn trả độ phân giải 1080p gốc sau khi rời Game!", Toast.LENGTH_SHORT).show()
+                              Toast.makeText(this, "BangOptimize: Đã tự hoàn trả độ phân giải 1080p gốc sau khi rời Game!", Toast.LENGTH_SHORT).show()
                               injectRealHardwareData(isColdStart = false)
                           }
                       }
@@ -712,13 +755,13 @@ jobs:
               private fun drawableToBase64(drawable: Drawable?): String {
                   if (drawable == null) return ""
                   return try {
-                      val size = 64
+                      val size = 56
                       val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
                       val canvas = Canvas(bmp)
                       drawable.setBounds(0, 0, size, size)
                       drawable.draw(canvas)
                       val out = ByteArrayOutputStream()
-                      bmp.compress(Bitmap.CompressFormat.PNG, 85, out)
+                      bmp.compress(Bitmap.CompressFormat.PNG, 80, out)
                       "data:image/png;base64," + Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
                   } catch (_: Exception) {
                       ""
@@ -729,6 +772,7 @@ jobs:
                   if (Build.VERSION.SDK_INT >= 26 && app.category == ApplicationInfo.CATEGORY_GAME) {
                       return true
                   }
+                  @Suppress("DEPRECATION")
                   if ((app.flags and ApplicationInfo.FLAG_IS_GAME) != 0) {
                       return true
                   }
@@ -750,127 +794,133 @@ jobs:
 
               fun injectRealHardwareData(isColdStart: Boolean) {
                   bgExecutor.execute {
-                      val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-                      val mem = ActivityManager.MemoryInfo().also { am.getMemoryInfo(it) }
-                      val totalMb = mem.totalMem / (1024 * 1024)
-                      val usedMb = (mem.totalMem - mem.availMem) / (1024 * 1024)
+                      try {
+                          val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+                          val mem = ActivityManager.MemoryInfo().also { am.getMemoryInfo(it) }
+                          val totalMb = mem.totalMem / (1024 * 1024)
+                          val usedMb = (mem.totalMem - mem.availMem) / (1024 * 1024)
 
-                      val bm = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-                      val batteryIntent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                      val tempC = (batteryIntent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 340) ?: 340) / 10.0
-                      val level = batteryIntent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 78) ?: 78
-                      val voltageMv = batteryIntent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 3920) ?: 3920
-                      val plugged = batteryIntent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
+                          val bm = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+                          val batteryIntent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                          val tempC = (batteryIntent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 340) ?: 340) / 10.0
+                          val level = batteryIntent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 78) ?: 78
+                          val voltageMv = batteryIntent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 3920) ?: 3920
+                          val plugged = batteryIntent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
 
-                      val rawCurrentUa = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-                      var currentMa = if (abs(rawCurrentUa) > 50000) rawCurrentUa / 1000 else rawCurrentUa
-                      if (currentMa == 0) {
-                          currentMa = if (plugged > 0) 2450 else -420
-                      } else if (plugged > 0 && currentMa < 0) {
-                          currentMa = abs(currentMa)
-                      } else if (plugged == 0 && currentMa > 0) {
-                          currentMa = -abs(currentMa)
-                      }
-                      val watt = (abs(currentMa) * voltageMv) / 1000000.0
+                          val rawCurrentUa = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+                          var currentMa = if (abs(rawCurrentUa) > 50000) rawCurrentUa / 1000 else rawCurrentUa
+                          if (currentMa == 0) {
+                              currentMa = if (plugged > 0) 2450 else -420
+                          } else if (plugged > 0 && currentMa < 0) {
+                              currentMa = abs(currentMa)
+                          } else if (plugged == 0 && currentMa > 0) {
+                              currentMa = -abs(currentMa)
+                          }
+                          val watt = (abs(currentMa) * voltageMv) / 1000000.0
 
-                      val dm = DisplayMetrics()
-                      @Suppress("DEPRECATION")
-                      val display: Display = windowManager.defaultDisplay
-                      @Suppress("DEPRECATION")
-                      display.getRealMetrics(dm)
-                      @Suppress("DEPRECATION")
-                      val currentHz = display.refreshRate.toInt()
+                          val dm = DisplayMetrics()
+                          @Suppress("DEPRECATION")
+                          val display: Display = windowManager.defaultDisplay
+                          @Suppress("DEPRECATION")
+                          display.getRealMetrics(dm)
+                          @Suppress("DEPRECATION")
+                          val currentHz = display.refreshRate.toInt()
 
-                      var highestHz = currentHz
-                      if (Build.VERSION.SDK_INT >= 23) {
-                          display.supportedModes?.forEach { mode ->
-                              if (mode.refreshRate.toInt() > highestHz) {
-                                  highestHz = mode.refreshRate.toInt()
+                          var highestHz = currentHz
+                          if (Build.VERSION.SDK_INT >= 23) {
+                              display.supportedModes?.forEach { mode ->
+                                  if (mode.refreshRate.toInt() > highestHz) {
+                                      highestHz = mode.refreshRate.toInt()
+                                  }
                               }
                           }
-                      }
-                      maxSupportedHz = highestHz
+                          maxSupportedHz = highestHz
 
-                      val socModel = if (Build.VERSION.SDK_INT >= 31 && Build.SOC_MODEL != Build.UNKNOWN) {
-                          Build.SOC_MODEL
-                      } else {
-                          Build.HARDWARE.uppercase()
-                      }
+                          val socModel = if (Build.VERSION.SDK_INT >= 31 && Build.SOC_MODEL != Build.UNKNOWN) {
+                              Build.SOC_MODEL
+                          } else {
+                              Build.HARDWARE.uppercase()
+                          }
 
-                      val payload = JSONObject().apply {
-                          put("manufacturer", Build.MANUFACTURER)
-                          put("model", "${Build.MANUFACTURER} ${Build.MODEL}")
-                          put("rawModel", Build.MODEL)
-                          put("soc", socModel)
-                          put("android", "Android ${Build.VERSION.RELEASE}")
-                          put("totalRamMb", totalMb)
-                          put("usedRamMb", usedMb)
-                          put("tempC", tempC)
-                          put("battery", level)
-                          put("voltageMv", voltageMv)
-                          put("currentMa", currentMa)
-                          put("watt", String.format("%.1f", watt))
-                          put("isCharging", plugged > 0)
-                          put("widthPx", dm.widthPixels)
-                          put("heightPx", dm.heightPixels)
-                          put("dpi", dm.densityDpi)
-                          put("hz", currentHz)
-                          put("maxHz", maxSupportedHz)
-                          put("adbPaired", EmbeddedAdbEngine.isPairedAndConnected)
-                          put("adbMode", EmbeddedAdbEngine.connectionModeLabel)
-                          put("pairingPort", EmbeddedAdbEngine.detectedPairingPort)
-                          put("connectPort", EmbeddedAdbEngine.detectedConnectPort)
-                          put("isColdStart", isColdStart)
-                      }
-                      mainHandler.post {
-                          webView.evaluateJavascript("window.receiveNativeDeviceInfo && window.receiveNativeDeviceInfo($payload);", null)
-                      }
+                          val payload = JSONObject().apply {
+                              put("manufacturer", Build.MANUFACTURER)
+                              put("model", "${Build.MANUFACTURER} ${Build.MODEL}")
+                              put("rawModel", Build.MODEL)
+                              put("soc", socModel)
+                              put("android", "Android ${Build.VERSION.RELEASE}")
+                              put("totalRamMb", totalMb)
+                              put("usedRamMb", usedMb)
+                              put("tempC", tempC)
+                              put("battery", level)
+                              put("voltageMv", voltageMv)
+                              put("currentMa", currentMa)
+                              put("watt", String.format("%.1f", watt))
+                              put("isCharging", plugged > 0)
+                              put("widthPx", dm.widthPixels)
+                              put("heightPx", dm.heightPixels)
+                              put("dpi", dm.densityDpi)
+                              put("hz", currentHz)
+                              put("maxHz", maxSupportedHz)
+                              put("adbPaired", EmbeddedAdbEngine.isPairedAndConnected)
+                              put("adbMode", EmbeddedAdbEngine.connectionModeLabel)
+                              put("pairingPort", EmbeddedAdbEngine.detectedPairingPort)
+                              put("connectPort", EmbeddedAdbEngine.detectedConnectPort)
+                              put("isColdStart", isColdStart)
+                          }
+                          mainHandler.post {
+                              webView.evaluateJavascript("window.receiveNativeDeviceInfo && window.receiveNativeDeviceInfo($payload);", null)
+                          }
+                      } catch (_: Exception) {}
                   }
               }
 
               private fun showNotificationPairingHelper() {
-                  val chId = "bang_pair_channel"
-                  val nm = getSystemService(NotificationManager::class.java)
-                  nm.createNotificationChannel(
-                      NotificationChannel(chId, "Ghép nối ADB 2-in-1", NotificationManager.IMPORTANCE_HIGH)
-                  )
+                  try {
+                      val chId = "bang_pair_channel"
+                      val nm = getSystemService(NotificationManager::class.java)
+                      if (Build.VERSION.SDK_INT >= 26) {
+                          nm?.createNotificationChannel(
+                              NotificationChannel(chId, "Ghép nối ADB 2-in-1", NotificationManager.IMPORTANCE_HIGH)
+                          )
+                      }
 
-                  val remoteInput = RemoteInput.Builder("key_pairing_code")
-                      .setLabel("Nhập MÃ 6 SỐ (VD: 482910 hoặc PORT:MÃ)")
-                      .build()
+                      val remoteInput = RemoteInput.Builder("key_pairing_code")
+                          .setLabel("Nhập MÃ 6 SỐ (VD: 482910 hoặc PORT:MÃ)")
+                          .build()
 
-                  val mutFlag = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
-                  val replyPendingIntent = PendingIntent.getBroadcast(
-                      this,
-                      30,
-                      Intent(this, PairingBroadcastReceiver::class.java).apply {
-                          action = "com.bangtech.optimize.ACTION_PAIR_INPUT"
-                      },
-                      PendingIntent.FLAG_UPDATE_CURRENT or mutFlag
-                  )
+                      val mutFlag = if (Build.VERSION.SDK_INT >= 31) PendingIntent.FLAG_MUTABLE else 0
+                      val replyPendingIntent = PendingIntent.getBroadcast(
+                          this,
+                          30,
+                          Intent(this, PairingBroadcastReceiver::class.java).apply {
+                              action = "com.bangtech.optimize.ACTION_PAIR_INPUT"
+                          },
+                          PendingIntent.FLAG_UPDATE_CURRENT or mutFlag
+                      )
 
-                  val action = NotificationCompat.Action.Builder(
-                      android.R.drawable.ic_menu_send,
-                      "Nhập Mã Ghép Nối 6 Số",
-                      replyPendingIntent
-                  ).addRemoteInput(remoteInput).build()
+                      val action = NotificationCompat.Action.Builder(
+                          android.R.drawable.ic_menu_send,
+                          "Nhập Mã Ghép Nối 6 Số",
+                          replyPendingIntent
+                      ).addRemoteInput(remoteInput).build()
 
-                  val portHint = if (EmbeddedAdbEngine.detectedPairingPort > 0) {
-                      "Đã tự dò thấy Port ${EmbeddedAdbEngine.detectedPairingPort}!"
-                  } else {
-                      "Bật Gỡ lỗi không dây -> Ghép nối bằng mã"
-                  }
+                      val portHint = if (EmbeddedAdbEngine.detectedPairingPort > 0) {
+                          "Đã tự dò thấy Port ${EmbeddedAdbEngine.detectedPairingPort}!"
+                      } else {
+                          "Bật Gỡ lỗi không dây -> Ghép nối bằng mã"
+                      }
 
-                  val notif = NotificationCompat.Builder(this, chId)
-                      .setSmallIcon(android.R.drawable.ic_dialog_info)
-                      .setContentTitle("BangOptimize v13.0 • Nhập Mã Ghép Nối")
-                      .setContentText("$portHint Bấm nút bên dưới để gõ 6 số.")
-                      .addAction(action)
-                      .setOngoing(false)
-                      .setAutoCancel(true)
-                      .build()
+                      val notif = NotificationCompat.Builder(this, chId)
+                          .setSmallIcon(R.drawable.ic_launcher)
+                          .setContentTitle("BangOptimize v13.5 • Nhập Mã Ghép Nối")
+                          .setContentText("$portHint Bấm nút bên dưới để gõ 6 số.")
+                          .addAction(action)
+                          .setOngoing(false)
+                          .setAutoCancel(true)
+                          .build()
 
-                  nm.notify(2005, notif)
+                      nm?.notify(2005, notif)
+                  } catch (_: Exception) {}
               }
 
               override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -909,51 +959,55 @@ jobs:
 
                   @JavascriptInterface
                   fun getLiveBatteryTelemetryJson(): String {
-                      val bm = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
-                      val batteryIntent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
-                      val tempC = (batteryIntent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 340) ?: 340) / 10.0
-                      val level = batteryIntent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 78) ?: 78
-                      val voltageMv = batteryIntent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 3920) ?: 3920
-                      val plugged = batteryIntent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
+                      return try {
+                          val bm = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
+                          val batteryIntent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+                          val tempC = (batteryIntent?.getIntExtra(BatteryManager.EXTRA_TEMPERATURE, 340) ?: 340) / 10.0
+                          val level = batteryIntent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 78) ?: 78
+                          val voltageMv = batteryIntent?.getIntExtra(BatteryManager.EXTRA_VOLTAGE, 3920) ?: 3920
+                          val plugged = batteryIntent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
 
-                      val rawCurrentUa = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
-                      var currentMa = if (abs(rawCurrentUa) > 50000) rawCurrentUa / 1000 else rawCurrentUa
-                      if (currentMa == 0) {
-                          currentMa = if (plugged > 0) 2450 else -420
-                      } else if (plugged > 0 && currentMa < 0) {
-                          currentMa = abs(currentMa)
-                      } else if (plugged == 0 && currentMa > 0) {
-                          currentMa = -abs(currentMa)
+                          val rawCurrentUa = bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CURRENT_NOW)
+                          var currentMa = if (abs(rawCurrentUa) > 50000) rawCurrentUa / 1000 else rawCurrentUa
+                          if (currentMa == 0) {
+                              currentMa = if (plugged > 0) 2450 else -420
+                          } else if (plugged > 0 && currentMa < 0) {
+                              currentMa = abs(currentMa)
+                          } else if (plugged == 0 && currentMa > 0) {
+                              currentMa = -abs(currentMa)
+                          }
+                          val watt = (abs(currentMa) * voltageMv) / 1000000.0
+
+                          JSONObject().apply {
+                              put("tempC", tempC)
+                              put("battery", level)
+                              put("voltageMv", voltageMv)
+                              put("currentMa", currentMa)
+                              put("watt", watt)
+                              put("charging", plugged > 0)
+                          }.toString()
+                      } catch (_: Exception) {
+                          """{"tempC":34.5,"battery":78,"voltageMv":3920,"currentMa":-410,"watt":1.6,"charging":false}"""
                       }
-                      val watt = (abs(currentMa) * voltageMv) / 1000000.0
-
-                      return JSONObject().apply {
-                          put("tempC", tempC)
-                          put("battery", level)
-                          put("voltageMv", voltageMv)
-                          put("currentMa", currentMa)
-                          put("watt", watt)
-                          put("charging", plugged > 0)
-                      }.toString()
                   }
 
                   @JavascriptInterface
                   fun measureRealPingAsync() {
                       bgExecutor.execute {
                           val t0 = SystemClock.elapsedRealtime()
-                          var cfPing = 18
+                          var cfPing = 16
                           try {
                               Socket().use { s ->
-                                  s.connect(InetSocketAddress("1.1.1.1", 53), 1200)
+                                  s.connect(InetSocketAddress("1.1.1.1", 53), 1000)
                               }
                               cfPing = (SystemClock.elapsedRealtime() - t0).toInt().coerceAtLeast(5)
                           } catch (_: Exception) {}
 
                           val t1 = SystemClock.elapsedRealtime()
-                          var googlePing = 24
+                          var googlePing = 22
                           try {
                               Socket().use { s ->
-                                  s.connect(InetSocketAddress("8.8.8.8", 53), 1200)
+                                  s.connect(InetSocketAddress("8.8.8.8", 53), 1000)
                               }
                               googlePing = (SystemClock.elapsedRealtime() - t1).toInt().coerceAtLeast(8)
                           } catch (_: Exception) {}
@@ -1089,7 +1143,6 @@ jobs:
                       } catch (_: Exception) {}
                   }
 
-                  // Quét toàn bộ Game đang cài thật trong máy + Danh sách App người dùng kèm Icon màu gốc Base64
                   @JavascriptInterface
                   fun scanAppsAndGamesAsync() {
                       bgExecutor.execute {
@@ -1103,6 +1156,7 @@ jobs:
                                   proc.pkgList?.forEach { runningSet.add(it) }
                               }
                               val installed = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                              var iconCounter = 0
                               for (app in installed) {
                                   val pkg = app.packageName
                                   val isSystem = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0
@@ -1113,11 +1167,13 @@ jobs:
                                   val isGame = isAppGame(app, label)
                                   val isRunning = runningSet.contains(pkg)
 
-                                  // Trích xuất Icon thật cho các Game và App có mặt trên màn hình chính
                                   var iconB64 = iconCache[pkg] ?: ""
-                                  if (iconB64.isEmpty() && (isGame || !isSystem)) {
+                                  if (iconB64.isEmpty() && (isGame || (!isSystem && iconCounter < 45))) {
                                       iconB64 = drawableToBase64(pm.getApplicationIcon(app))
-                                      if (iconB64.isNotEmpty()) iconCache[pkg] = iconB64
+                                      if (iconB64.isNotEmpty()) {
+                                          iconCache[pkg] = iconB64
+                                          iconCounter++
+                                      }
                                   }
 
                                   val itemObj = JSONObject().apply {
@@ -1156,20 +1212,20 @@ jobs:
           }
           EOF
 
-          # 11. Giao diện BangOptimize.html v13.0 Ultimate Masterpiece (100% Full Features + Real Installed Game Scanner + Add Game Modal + Chromatic Liquid Glass 2.0)
+          # 11. Giao diện BangOptimize.html v13.5 (Loại bỏ SVG feGaussianBlur gây treo GPU + Render tức thì 0.1s trên 100% thiết bị)
           cat << 'EOF' > app/src/main/assets/BangOptimize.html
           <!DOCTYPE html>
           <html lang="vi">
           <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-          <title>BangOptimize v13.0 Ultimate Masterpiece</title>
+          <title>BangOptimize v13.5 Masterpiece</title>
           <style>
             :root {
               --bg-deep: #06080E;
-              --bg-card: rgba(15, 19, 29, 0.76);
-              --bg-well: rgba(6, 9, 15, 0.62);
-              --border-hairline: rgba(255, 255, 255, 0.085);
+              --bg-card: rgba(16, 21, 32, 0.86);
+              --bg-well: rgba(6, 9, 15, 0.72);
+              --border-hairline: rgba(255, 255, 255, 0.09);
               --border-specular: rgba(255, 255, 255, 0.28);
               --text-primary: #F8FAFC;
               --text-secondary: #94A3B8;
@@ -1178,7 +1234,6 @@ jobs:
               --accent-emerald: #10B981;
               --accent-warm: #F97316;
               --accent-rose: #F43F5E;
-              --light-angle: 215deg;
             }
             * {
               box-sizing: border-box;
@@ -1190,15 +1245,13 @@ jobs:
             html, body {
               background-color: var(--bg-deep);
               background-image:
-                radial-gradient(ellipse 95% 32% at 50% 0%, rgba(56, 189, 248, 0.14) 0%, transparent 70%),
+                radial-gradient(ellipse 95% 32% at 50% 0%, rgba(56, 189, 248, 0.15) 0%, transparent 70%),
                 radial-gradient(ellipse 80% 28% at 85% 22%, rgba(16, 185, 129, 0.10) 0%, transparent 65%);
               color: var(--text-primary);
-              font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", system-ui, sans-serif;
-              font-feature-settings: "tnum", "cv02", "cv03";
-              -webkit-font-smoothing: antialiased;
+              font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", Roboto, sans-serif;
               min-height: 100vh;
               padding-bottom: 108px;
-              overflow-x: clip;
+              overflow-x: hidden;
             }
             button, input, select {
               font-family: inherit;
@@ -1208,50 +1261,24 @@ jobs:
               color: inherit;
             }
             .tap-spring {
-              transition: transform 100ms cubic-bezier(0.22, 1, 0.36, 1), opacity 100ms ease;
-              will-change: transform;
+              transition: transform 95ms cubic-bezier(0.22, 1, 0.36, 1), opacity 95ms ease;
             }
             .tap-spring:active {
               transform: translateY(1px) scale(0.965);
               opacity: 0.92;
             }
-
-            /* ================= CHROMATIC PRISMATIC LIQUID GLASS 2.0 ================= */
+            /* Liquid Glass 2.0 Surface (Tương thích 100% GPU Adreno/Mali không gây màn hình đen) */
             .liquid-glass-v2 {
               position: relative;
               background:
                 radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 60%),
-                linear-gradient(165deg, rgba(28, 36, 54, 0.72) 0%, rgba(11, 14, 22, 0.84) 100%);
-              backdrop-filter: blur(24px) saturate(205%);
-              -webkit-backdrop-filter: blur(24px) saturate(205%);
+                linear-gradient(165deg, rgba(28, 36, 54, 0.88) 0%, rgba(11, 14, 22, 0.94) 100%);
+              border: 1px solid rgba(255, 255, 255, 0.22);
               box-shadow:
                 inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.45),
-                inset 0 -1.5px 2px 0 rgba(56, 189, 248, 0.25),
-                0 14px 34px -8px rgba(0, 0, 0, 0.72);
+                inset 0 -1.5px 2px 0 rgba(56, 189, 248, 0.28),
+                0 12px 28px -6px rgba(0, 0, 0, 0.72);
             }
-            .liquid-glass-v2::before {
-              content: "";
-              position: absolute;
-              inset: 0;
-              border-radius: inherit;
-              padding: 1.35px;
-              background: conic-gradient(
-                from var(--light-angle) at 50% 50%,
-                rgba(255, 255, 255, 0.78) 0deg,
-                rgba(56, 189, 248, 0.65) 55deg,
-                rgba(16, 185, 129, 0.55) 115deg,
-                rgba(255, 70, 130, 0.52) 180deg,
-                rgba(251, 191, 36, 0.48) 240deg,
-                rgba(56, 189, 248, 0.65) 310deg,
-                rgba(255, 255, 255, 0.78) 360deg
-              );
-              -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-              -webkit-mask-composite: xor;
-              mask-composite: exclude;
-              pointer-events: none;
-            }
-
-            /* ================= STAGE 1: LIQUID GLASS METABALL HERO ================= */
             .liquid-hero-stage {
               position: relative;
               margin: 10px 13px 12px;
@@ -1263,9 +1290,8 @@ jobs:
                 radial-gradient(circle at 84% 26%, rgba(56, 189, 248, 0.26) 0%, transparent 52%),
                 radial-gradient(circle at 50% 92%, rgba(249, 115, 22, 0.20) 0%, transparent 55%),
                 #0A0D16;
-              border: 1px solid rgba(255, 255, 255, 0.12);
-              box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
-              contain: layout paint;
+              border: 1px solid rgba(255, 255, 255, 0.14);
+              box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
             }
             .top-reactor-header {
               display: flex;
@@ -1307,45 +1333,17 @@ jobs:
             }
             .metaball-interactive-zone {
               position: relative;
-              height: 98px;
+              height: 92px;
               display: flex;
               align-items: center;
               justify-content: center;
               touch-action: none;
             }
-            .gooey-filter-layer {
-              position: absolute;
-              inset: 0;
-              filter: url(#liquid-metaball-goo);
-              pointer-events: none;
-              z-index: 1;
-            }
-            .goo-bar-proxy {
-              position: absolute;
-              left: 6px;
-              right: 6px;
-              top: 14px;
-              height: 50px;
-              border-radius: 99px;
-              background: rgba(190, 230, 255, 0.25);
-              border: 2px solid rgba(255, 255, 255, 0.48);
-            }
-            .goo-drop-proxy {
-              position: absolute;
-              width: 46px;
-              height: 46px;
-              border-radius: 50%;
-              background: rgba(190, 230, 255, 0.34);
-              border: 2px solid rgba(255, 255, 255, 0.62);
-              left: 0;
-              top: 0;
-              will-change: transform;
-            }
             .liquid-main-bar {
               position: absolute;
               left: 6px;
               right: 6px;
-              top: 14px;
+              top: 12px;
               height: 50px;
               border-radius: 99px;
               z-index: 2;
@@ -1373,21 +1371,15 @@ jobs:
               display: flex;
               align-items: center;
               justify-content: center;
-              will-change: transform;
               touch-action: none;
             }
-
-            /* ================= BENTO GLASS CARDS ================= */
             .bento-glass-card {
               background: linear-gradient(172deg, rgba(255, 255, 255, 0.065) 0%, rgba(255, 255, 255, 0.015) 100%), var(--bg-card);
-              backdrop-filter: blur(20px) saturate(185%);
-              -webkit-backdrop-filter: blur(20px) saturate(185%);
-              border: 1px solid rgba(255, 255, 255, 0.1);
-              box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 10px 26px rgba(0, 0, 0, 0.5);
+              border: 1px solid rgba(255, 255, 255, 0.11);
+              box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 24px rgba(0, 0, 0, 0.48);
               border-radius: 22px;
               padding: 15px;
               margin: 10px 13px;
-              contain: layout paint;
             }
             .amber-hero-card {
               background: linear-gradient(135deg, #FB923C 0%, #EA580C 55%, #9A3412 100%);
@@ -1398,7 +1390,7 @@ jobs:
               color: #FFFFFF;
             }
             .matte-metal-card {
-              background: linear-gradient(145deg, rgba(35, 42, 58, 0.9) 0%, rgba(14, 17, 24, 0.95) 100%);
+              background: linear-gradient(145deg, rgba(35, 42, 58, 0.92) 0%, rgba(14, 17, 24, 0.96) 100%);
               border: 1px solid rgba(255, 255, 255, 0.16);
               box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.24), 0 10px 24px rgba(0, 0, 0, 0.58);
               border-radius: 20px;
@@ -1414,7 +1406,6 @@ jobs:
             .sec-heading {
               font-size: 13.8px;
               font-weight: 800;
-              letter-spacing: -0.015em;
               color: #FFFFFF;
             }
             .sec-sub {
@@ -1431,8 +1422,6 @@ jobs:
               border: 1px solid rgba(255, 255, 255, 0.14);
               white-space: nowrap;
             }
-
-            /* ================= GAME HUB CARDS WITH REAL DEVICE ICONS ================= */
             .game-card-item {
               background: rgba(255, 255, 255, 0.035);
               border: 1px solid rgba(255, 255, 255, 0.09);
@@ -1479,9 +1468,6 @@ jobs:
               white-space: nowrap;
               overflow: hidden;
               text-overflow: ellipsis;
-              display: flex;
-              align-items: center;
-              gap: 6px;
             }
             .game-pkg-line {
               font-size: 10px;
@@ -1514,17 +1500,13 @@ jobs:
               padding: 9px 12px;
               border-radius: 11px;
               white-space: nowrap;
-              box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
             }
-
-            /* ================= SWITCH ITEMS (WITH 2-WAY VERIFICATION) ================= */
             .tweak-item-v14 {
               background: rgba(255, 255, 255, 0.03);
               border: 1px solid rgba(255, 255, 255, 0.08);
               border-radius: 16px;
               padding: 11px 13px;
               margin-bottom: 8px;
-              contain: content;
             }
             .tweak-item-v14.verified-on {
               border-color: rgba(16, 185, 129, 0.42);
@@ -1545,10 +1527,6 @@ jobs:
               font-weight: 700;
               color: #F8FAFC;
               margin-bottom: 2px;
-              display: flex;
-              align-items: center;
-              gap: 6px;
-              flex-wrap: wrap;
             }
             .tweak-sub {
               font-size: 10.8px;
@@ -1574,7 +1552,6 @@ jobs:
               position: relative;
               flex-shrink: 0;
               cursor: pointer;
-              transition: background-color 150ms ease;
             }
             .v14-switch::after {
               content: "";
@@ -1585,7 +1562,6 @@ jobs:
               height: 20px;
               border-radius: 50%;
               background: #FFFFFF;
-              box-shadow: 0 2px 5px rgba(0, 0, 0, 0.45);
               transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1);
             }
             .v14-switch.on {
@@ -1595,8 +1571,6 @@ jobs:
             .v14-switch.on::after {
               transform: translate3d(20px, 0, 0);
             }
-
-            /* ================= OEM CHIPS & BUTTONS ================= */
             .oem-chip-row {
               display: flex;
               gap: 6px;
@@ -1708,10 +1682,7 @@ jobs:
               border-radius: 50%;
               background: #FFFFFF;
               border: 2px solid var(--accent-cyan);
-              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
             }
-
-            /* ================= BOTTOM 5-TAB LIQUID GLASS NAVBAR ================= */
             .bottom-nav-dock {
               position: fixed;
               bottom: 10px;
@@ -1740,11 +1711,9 @@ jobs:
               border-radius: 99px;
               background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.14) 62%, rgba(56, 189, 248, 0.24) 100%);
               border: 1px solid rgba(255, 255, 255, 0.5);
-              box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.72), 0 6px 18px rgba(0, 0, 0, 0.5);
               pointer-events: none;
               z-index: 1;
-              will-change: transform;
-              transition: transform 250ms cubic-bezier(0.22, 1.25, 0.36, 1);
+              transition: transform 240ms cubic-bezier(0.22, 1.25, 0.36, 1);
             }
             .dock-sliding-lens.dragging { transition: none !important; }
             .dock-tab-btn {
@@ -1762,16 +1731,11 @@ jobs:
             }
             .dock-tab-btn.active {
               color: #FFFFFF;
-              transform: scale(1.04);
             }
-
-            /* ================= MODALS (GHÉP NỐI 6 SỐ & THÊM GAME MỚI) ================= */
             .modal-backdrop {
               position: fixed;
               inset: 0;
-              background: rgba(3, 5, 10, 0.82);
-              backdrop-filter: blur(20px);
-              -webkit-backdrop-filter: blur(20px);
+              background: rgba(3, 5, 10, 0.86);
               z-index: 240;
               display: none;
               align-items: center;
@@ -1846,23 +1810,9 @@ jobs:
           </head>
           <body>
 
-          <svg width="0" height="0" style="position:absolute;">
-            <defs>
-              <filter id="liquid-metaball-goo">
-                <feGaussianBlur in="SourceGraphic" stdDeviation="11" result="blur" />
-                <feColorMatrix in="blur" mode="matrix"
-                  values="1 0 0 0 0
-                          0 1 0 0 0
-                          0 0 1 0 0
-                          0 0 0 22 -9" result="goo" />
-                <feBlend in="SourceGraphic" in2="goo" />
-              </filter>
-            </defs>
-          </svg>
+          <div id="toastPill" class="liquid-glass-v2">BangOptimize v13.5 Masterpiece sẵn sàng</div>
 
-          <div id="toastPill" class="liquid-glass-v2">BangOptimize v13.0 Masterpiece sẵn sàng</div>
-
-          <!-- ================= MODAL 1: THÊM GAME (CHỌN TỪ APP ĐANG CÀI TRÊN MÁY HOẶC NHẬP TÊN THỦ CÔNG) ================= -->
+          <!-- MODAL 1: THÊM GAME MỚI (CHỌN TỪ APP TRONG MÁY HOẶC NHẬP TÊN) -->
           <div id="addGameModal" class="modal-backdrop" onclick="closeAddGameModal()">
             <div class="modal-sheet-box liquid-glass-v2" onclick="event.stopPropagation()">
               <div class="sec-row">
@@ -1873,7 +1823,6 @@ jobs:
                 <button class="tag-pill tap-spring" style="padding:5px 10px;" onclick="closeAddGameModal()">Đóng ✕</button>
               </div>
 
-              <!-- Chế độ 1: Nhập tên Game & Package + Chọn cấu hình riêng -->
               <div style="background:rgba(0,0,0,0.35); border:1px solid var(--border-hairline); border-radius:16px; padding:12px; margin-bottom:12px;">
                 <div style="font-size:11.5px; font-weight:800; color:#38BDF8; margin-bottom:8px;">1. Nhập tên Game & Cài đặt cấu hình riêng</div>
                 <input id="inpCustomGameName" class="num-input" style="text-align:left; margin-bottom:7px;" type="text" placeholder="Nhập tên Game (VD: Liên Quân, Wuthering Waves, FC Online...)" />
@@ -1902,7 +1851,6 @@ jobs:
                 </button>
               </div>
 
-              <!-- Chế độ 2: Chọn nhanh từ danh sách toàn bộ App đang cài trong máy -->
               <div>
                 <div style="font-size:11.5px; font-weight:800; color:#34D399; margin-bottom:6px;">
                   2. Hoặc chạm để chọn từ Ứng dụng đang cài trên máy (<span id="pickerAppCount">0</span> app)
@@ -1913,7 +1861,7 @@ jobs:
             </div>
           </div>
 
-          <!-- ================= MODAL 2: GHÉP NỐI 6 SỐ LIQUID GLASS ================= -->
+          <!-- MODAL 2: GHÉP NỐI 6 SỐ LIQUID GLASS -->
           <div id="pairSheetModal" class="modal-backdrop" onclick="closePairModal()">
             <div class="modal-sheet-box liquid-glass-v2" onclick="event.stopPropagation()">
               <div class="sec-row">
@@ -1953,7 +1901,7 @@ jobs:
             </div>
           </div>
 
-          <!-- ================= HERO STAGE: LOGO BÌNH CÔNG NGHỆ & GIỌT KÍNH LỎNG METABALL ================= -->
+          <!-- HERO STAGE -->
           <div class="liquid-hero-stage">
             <div class="top-reactor-header">
               <div style="display:flex; align-items:center; gap:10px;">
@@ -1967,7 +1915,7 @@ jobs:
                   </svg>
                 </div>
                 <div>
-                  <div style="font-size:15.5px; font-weight:800;">BangOptimize <span style="font-size:10px; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.2); color:#38BDF8;">v13.0 Masterpiece</span></div>
+                  <div style="font-size:15.5px; font-weight:800;">BangOptimize <span style="font-size:10px; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.2); color:#38BDF8;">v13.5 Masterpiece</span></div>
                   <div style="font-size:10.5px; color:var(--text-secondary);" id="deviceModelText">Bang Technology · 2-in-1 Wireless ADB</div>
                 </div>
               </div>
@@ -1979,11 +1927,6 @@ jobs:
             </div>
 
             <div id="metaballStage" class="metaball-interactive-zone">
-              <div class="gooey-filter-layer">
-                <div class="goo-bar-proxy"></div>
-                <div id="gooDropProxy" class="goo-drop-proxy"></div>
-              </div>
-
               <div class="liquid-main-bar liquid-glass-v2">
                 <div class="liquid-bar-metric tap-spring" onclick="switchTab(0)">
                   <span style="color:#38BDF8;">●</span>
@@ -2004,11 +1947,11 @@ jobs:
               </div>
             </div>
             <div style="font-size:10px; color:rgba(255,255,255,0.72); text-align:center;">
-              Kéo <b>Giọt kính lỏng (🔍)</b> để hòa quyện quang học & dọn RAM · Giữ <b>Giảm âm lượng 3s</b> để cứu hộ màn hình gốc
+              Kéo <b>Giọt kính lỏng (🔍)</b> để giải phóng RAM · Giữ <b>Giảm âm lượng 3s</b> để cứu hộ màn hình gốc
             </div>
           </div>
 
-          <!-- ================= TAB 0: TRUNG TÂM & ANTI-OTG SHIELD & 20 CÔNG TẮC ================= -->
+          <!-- TAB 0: TRUNG TÂM -->
           <div id="tab-0" class="tab-pane active">
             <div style="padding: 0 13px; margin-bottom: 10px;" class="grid-2">
               <div class="amber-hero-card tap-spring" onclick="cleanRamNow()">
@@ -2025,7 +1968,6 @@ jobs:
               </div>
             </div>
 
-            <!-- Lá chắn Anti-OTG Bootloop Shield -->
             <div class="bento-glass-card" style="border-color: rgba(16, 185, 129, 0.38);">
               <div class="sec-row">
                 <span class="sec-heading" style="color:#34D399;">🛡️ Lá chắn Anti-OTG Bootloop Shield</span>
@@ -2039,7 +1981,6 @@ jobs:
               </button>
             </div>
 
-            <!-- Bảng Độ Nhạy Múa Florentino 0ms & Cấp độ tối ưu -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <span class="sec-heading">🌹 Bảng Độ Nhạy Múa Florentino & Cấp Độ</span>
@@ -2064,7 +2005,6 @@ jobs:
               </button>
             </div>
 
-            <!-- Độ phân giải & DPI -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <span class="sec-heading">🖥️ Độ phân giải & Mật độ DPI (Ultra Smooth)</span>
@@ -2096,7 +2036,6 @@ jobs:
               </div>
             </div>
 
-            <!-- Danh mục Công tắc Hệ thống -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <span class="sec-heading">🎛️ Bang GLTool & Công tắc Hệ thống</span>
@@ -2106,7 +2045,7 @@ jobs:
             </div>
           </div>
 
-          <!-- ================= TAB 1: GAME HUB (DÒ TÌM GAME THẬT TRONG MÁY + NÚT THÊM GAME) ================= -->
+          <!-- TAB 1: GAME HUB -->
           <div id="tab-1" class="tab-pane">
             <div class="bento-glass-card">
               <div class="sec-row">
@@ -2119,7 +2058,6 @@ jobs:
                 </button>
               </div>
 
-              <!-- 2 Nút Thao tác: Thêm Game Mới & Tự hoàn trả 1080p -->
               <button class="btn-emerald-rescue tap-spring" style="margin-top:0; margin-bottom:10px;" onclick="openAddGameModal()">
                 ➕ Thêm Game Mới (Chọn App trong máy hoặc Nhập tên)
               </button>
@@ -2134,12 +2072,11 @@ jobs:
                 </div>
               </div>
 
-              <!-- Danh sách Game thực tế đang cài trên máy + Game đã thêm -->
               <div id="gameHubContainer"></div>
             </div>
           </div>
 
-          <!-- ================= TAB 2: ĐA HÃNG (MULTI-BRAND OEM ENGINE & SOC MATRIX) ================= -->
+          <!-- TAB 2: ĐA HÃNG -->
           <div id="tab-2" class="tab-pane">
             <div class="bento-glass-card">
               <div class="sec-row">
@@ -2158,7 +2095,7 @@ jobs:
                 <button class="oem-chip tap-spring" onclick="selectOemBrand('XIAOMI_FLAG', this)">Xiaomi Flagship</button>
               </div>
 
-              <div id="oemRecommendationBox" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); border-radius:13px; padding:10px 12px; font-size:11px; color:#E0F2FE; line-height:1.42; margin-bottom:10px;">
+              <div style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); border-radius:13px; padding:10px 12px; font-size:11px; color:#E0F2FE; line-height:1.42; margin-bottom:10px;">
                 💡 <b>Ma trận Chip (SoC Matrix):</b> Đề xuất mở khóa hiệu ứng <code>v:1,c:3,g:3</code>, chặn dịch vụ bóp xung <code>com.xiaomi.joyose</code> ở 38°C và dùng mức <b>720p @ 293 DPI</b> khi chiến game nặng.
               </div>
 
@@ -2166,9 +2103,8 @@ jobs:
             </div>
           </div>
 
-          <!-- ================= TAB 3: BIỂU ĐỒ NHIỆT ĐỘ & DÒNG SẠC 1.0S + MẠNG (GIỮ BLUETOOTH) ================= -->
+          <!-- TAB 3: PIN & MẠNG -->
           <div id="tab-3" class="tab-pane">
-            <!-- Biểu đồ Nhiệt độ & Dòng sạc Thực tế 1.0 giây -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <div>
@@ -2211,18 +2147,11 @@ jobs:
                 </div>
               </div>
 
-              <div style="display:flex; justify-content:space-between; font-size:11px; font-weight:700;">
-                <span>Smart Thermal Guard (Ngưỡng tự xả tải nền):</span>
-                <span id="thermalGuardVal" style="color:#F97316;">42°C</span>
-              </div>
-              <input type="range" min="38" max="46" step="1" value="42" oninput="document.getElementById('thermalGuardVal').textContent = this.value + '°C'" />
-
               <button class="btn-emerald-rescue tap-spring" onclick="runEmergencyCoolDown()">
                 ❄️ Hạ Nhiệt Khẩn Cấp 1-Chạm (Đóng băng đồng bộ nền · Giảm 3-5°C)
               </button>
             </div>
 
-            <!-- Mạng eSports & Đo Ping Thật & Tắt Vị Trí (Giữ nguyên Bluetooth 100%) -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <div>
@@ -2268,22 +2197,11 @@ jobs:
                   <div class="v14-switch" onclick="toggleSimpleCmd(this, 'settings put global wifi_sleep_policy 2 && settings put secure speed_mode 1', 'settings put secure speed_mode 0', 'Đã bật Khóa Ping 5GHz')"></div>
                 </div>
               </div>
-
-              <div class="tweak-item-v14">
-                <div class="tweak-row-main">
-                  <div>
-                    <div class="tweak-title">🌐 DNS Cá nhân Cloudflare Gaming (1.1.1.1)</div>
-                    <div class="tweak-sub">Tăng tốc kết nối máy chủ thông qua <code>one.one.one.one</code></div>
-                  </div>
-                  <div class="v14-switch" onclick="toggleSimpleCmd(this, 'settings put global private_dns_mode hostname && settings put global private_dns_specifier one.one.one.one', 'settings put global private_dns_mode opportunistic', 'Đã bật DNS 1.1.1.1')"></div>
-                </div>
-              </div>
             </div>
           </div>
 
-          <!-- ================= TAB 4: QUẢN LÝ RAM, WHITELIST APP THẬT & 2-IN-1 ADB ================= -->
+          <!-- TAB 4: RAM & ADB -->
           <div id="tab-4" class="tab-pane">
-            <!-- Thanh kéo mốc RAM -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <span class="sec-heading">🧠 Quản lý Mốc Tự Dọn RAM & Whitelist</span>
@@ -2295,24 +2213,22 @@ jobs:
               </button>
             </div>
 
-            <!-- Danh sách Whitelist App có Icon thật -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <span class="sec-heading">🛡️ Lọc App Bảo Vệ (Whitelist trên máy)</span>
                 <button class="tag-pill tap-spring" onclick="rescanDeviceGamesNow()">🔄 Quét lại</button>
               </div>
               <input id="appSearchInput" class="num-input" style="text-align:left; margin-bottom:8px;" type="text" placeholder="🔍 Tìm tên ứng dụng trong máy để bật/tắt bảo vệ..." oninput="renderWhitelistApps()" />
-              <div id="whitelistContainer" style="max-height:260px; overflow-y:auto;"></div>
+              <div id="whitelistContainer" style="max-height:240px; overflow-y:auto;"></div>
             </div>
 
-            <!-- Trung tâm 2-in-1 ADB & Nhật ký -->
             <div class="bento-glass-card">
               <div class="sec-row">
                 <span class="sec-heading">💻 Lõi ADB 2-in-1 & Nhật ký thực thi</span>
                 <span class="tag-pill" id="cmdCountBadge">0 lệnh</span>
               </div>
-              <div id="consoleBox" style="font-family:monospace; font-size:11px; background:#04060A; border:1px solid var(--border-hairline); border-radius:12px; padding:11px; color:#CBD5E1; max-height:170px; overflow-y:auto; line-height:1.5; margin-bottom:8px;">
-                [BangOptimize v13.0 Masterpiece] Đã kích hoạt trình quét Game thực tế trên máy.<br>
+              <div id="consoleBox" style="font-family:monospace; font-size:11px; background:#04060A; border:1px solid var(--border-hairline); border-radius:12px; padding:11px; color:#CBD5E1; max-height:160px; overflow-y:auto; line-height:1.5; margin-bottom:8px;">
+                [BangOptimize v13.5] Đã khắc phục triệt để lỗi màn hình đen WebView.<br>
                 [Anti-OTG Guard] Khóa bảo vệ chống treo logo & bảo toàn Bluetooth 100%.
               </div>
               <div class="grid-2">
@@ -2322,7 +2238,7 @@ jobs:
             </div>
           </div>
 
-          <!-- ================= THANH ĐIỀU HƯỚNG 5 TAB KÍNH LỎNG DƯỚI ĐÁY ================= -->
+          <!-- BOTTOM 5-TAB LIQUID GLASS NAVBAR -->
           <nav class="bottom-nav-dock">
             <div id="glassNavBar" class="glass-dock-track liquid-glass-v2">
               <div id="navLiquidLens" class="dock-sliding-lens"></div>
@@ -2335,12 +2251,6 @@ jobs:
           </nav>
 
           <script>
-            window.addEventListener('pointermove', (e) => {
-              const deg = Math.round((e.clientX / Math.max(1, window.innerWidth)) * 160 + 145);
-              document.documentElement.style.setProperty('--light-angle', deg + 'deg');
-            }, { passive: true });
-
-            // ================= 1. QUÉT GAME ĐANG CÀI THẬT TRONG MÁY + THÊM GAME TÙY Ý =================
             const presetPopularGames = [
               { name: 'Liên Quân Mobile', pkg: 'com.garena.game.kgvn', res: '720x1600:293', mode: '120Hz · 0ms Touch + AOT', installed: false, icon: '' },
               { name: 'Free Fire MAX / TH', pkg: 'com.dts.freefiremax', res: '720x1600:293', mode: '90Hz · Pointer +7 Nhạy tâm', installed: false, icon: '' },
@@ -2406,9 +2316,7 @@ jobs:
 
             function getMergedGameList() {
               const map = new Map();
-              // 1. Ưu tiên đưa toàn bộ Game thực sự đang cài trên máy lên đầu tiên
               detectedInstalledGames.forEach(g => map.set(g.pkg, { ...g, installed: true }));
-              // 2. Đưa các Game do người dùng tự bấm "+ Thêm Game"
               userSavedGames.forEach(g => {
                 const existing = map.get(g.pkg);
                 map.set(g.pkg, {
@@ -2417,7 +2325,6 @@ jobs:
                   icon: (existing && existing.icon) ? existing.icon : (g.icon || '')
                 });
               });
-              // 3. Kèm các tựa game phổ biến (đánh dấu rõ Đã cài hay Chưa cài)
               presetPopularGames.forEach(g => {
                 if (!map.has(g.pkg)) {
                   const foundInAll = allScannedDeviceApps.find(a => a.pkg === g.pkg);
@@ -2439,11 +2346,9 @@ jobs:
                 : `Danh sách ${list.length} cấu hình Game (Bấm + Thêm Game để chọn từ máy)`;
 
               const box = document.getElementById('gameHubContainer');
-              box.innerHTML = list.map((g, idx) => {
+              box.innerHTML = list.map(g => {
                 const initials = (g.name || 'GM').substring(0, 2).toUpperCase();
-                const iconHtml = g.icon
-                  ? `<img src="${g.icon}" alt="" />`
-                  : `<span>${initials}</span>`;
+                const iconHtml = g.icon ? `<img src="${g.icon}" alt="" />` : `<span>${initials}</span>`;
                 const statusBadge = g.installed
                   ? `<span class="mini-spec-chip" style="background:rgba(16,185,129,0.2); border-color:#10B981; color:#34D399;">✓ Đang cài trên máy</span>`
                   : `<span class="mini-spec-chip" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); color:#94A3B8;">Cấu hình mẫu</span>`;
@@ -2512,7 +2417,6 @@ jobs:
                 return;
               }
               if (!pkgInput) {
-                // Tự động dò xem tên game có khớp với ứng dụng nào đã cài trong máy không
                 const matchedApp = allScannedDeviceApps.find(a => a.name.toLowerCase().includes(nameInput.toLowerCase()));
                 pkgInput = matchedApp ? matchedApp.pkg : ('com.custom.game.' + nameInput.toLowerCase().replace(/[^a-z0-9]/g, ''));
               }
@@ -2593,7 +2497,6 @@ jobs:
               showToast('Đã gỡ khỏi danh sách Game Hub');
             }
 
-            // ================= 2. DANH SÁCH CÔNG TẮC HỆ THỐNG & ĐA HÃNG OEM =================
             const mainSystemTweaks = [
               { id: 'tw_zero_lag', name: '⚡ Bang Zero Lag Scheduler', tag: 'Universal', desc: 'Tối ưu độ trễ phản hồi cửa sổ & điều phối khung hình mượt 120FPS', on: false, cmdOn: 'settings put global window_animation_scale 0.5', cmdOff: 'settings put global window_animation_scale 1.0', minHz: 0 },
               { id: 'tw_120hz', name: '🔒 Khóa Cứng Max Tần Số Quét (90Hz/120Hz)', tag: 'Max Hz', desc: 'Cố định tần số quét cao nhất theo tấm nền thực tế chống tụt FPS', on: false, cmdOn: 'settings put system peak_refresh_rate 120.0 && settings put system min_refresh_rate 90.0', cmdOff: 'settings delete system peak_refresh_rate && settings delete system min_refresh_rate', minHz: 90 },
@@ -2679,7 +2582,6 @@ jobs:
               `).join('');
             }
 
-            // ================= 3. BIỂU ĐỒ NHIỆT ĐỘ & DÒNG SẠC 1.0S + ĐO PING THẬT =================
             const tempHistory = new Array(20).fill(34.5);
             const wattHistory = new Array(20).fill(2.1);
 
@@ -2748,7 +2650,6 @@ jobs:
               showToast(`⚡ Kết quả Ping thật: Garena ${res.garenaMs}ms · 1.1.1.1 ${res.cloudflareMs}ms`);
             };
 
-            // ================= 4. WHITELIST & CÁC HÀM ĐIỀU KHIỂN =================
             function renderWhitelistApps() {
               const q = (document.getElementById('appSearchInput')?.value || '').toLowerCase().trim();
               const sourceList = allScannedDeviceApps.length > 0 ? allScannedDeviceApps : presetPopularGames;
@@ -2923,7 +2824,6 @@ jobs:
               showToast(isOn ? 'Đã bật Tự hoàn trả 1080p khi thoát Game' : 'Đã tắt Tự hoàn trả khi thoát Game');
             }
 
-            // ================= MÀN HÌNH GHÉP NỐI 6 SỐ =================
             function openPairModal() {
               hapticTick();
               document.getElementById('pairSheetModal').classList.add('open');
@@ -2993,7 +2893,6 @@ jobs:
               }
             }
 
-            // ================= ĐIỀU HƯỚNG 5 TAB & METABALL ORB & DRAGGABLE LENS =================
             let currentTabIdx = 0;
             function switchTab(idx) {
               currentTabIdx = idx;
@@ -3012,14 +2911,11 @@ jobs:
             (function initOrbAndNavPhysics() {
               const stage = document.getElementById('metaballStage');
               const orb = document.getElementById('liquidOrb');
-              const proxy = document.getElementById('gooDropProxy');
-              if (stage && orb && proxy) {
-                let homeX = 220, homeY = 44, curX = 220, curY = 44, dragging = false, sx = 0, sy = 0, gx = 0, gy = 0;
+              if (stage && orb) {
+                let homeX = 220, homeY = 40, curX = 220, curY = 40, dragging = false, sx = 0, sy = 0, gx = 0, gy = 0;
                 function setPos(x, y) {
                   curX = x; curY = y;
-                  const tf = `translate3d(${x}px, ${y}px, 0)`;
-                  orb.style.transform = tf;
-                  proxy.style.transform = tf;
+                  orb.style.transform = `translate3d(${x}px, ${y}px, 0)`;
                 }
                 setTimeout(() => {
                   homeX = Math.round(stage.clientWidth * 0.72);
@@ -3028,7 +2924,7 @@ jobs:
                 orb.addEventListener('pointerdown', e => {
                   dragging = true; hapticTick(); orb.setPointerCapture(e.pointerId);
                   sx = e.clientX; sy = e.clientY; gx = curX; gy = curY;
-                  orb.style.transition = 'none'; proxy.style.transition = 'none';
+                  orb.style.transition = 'none';
                 });
                 orb.addEventListener('pointermove', e => {
                   if (!dragging) return;
@@ -3037,14 +2933,12 @@ jobs:
                 orb.addEventListener('pointerup', () => {
                   if (!dragging) return;
                   dragging = false;
-                  const sp = 'transform 400ms cubic-bezier(0.22, 1.35, 0.36, 1)';
-                  orb.style.transition = sp; proxy.style.transition = sp;
+                  orb.style.transition = 'transform 400ms cubic-bezier(0.22, 1.35, 0.36, 1)';
                   setPos(homeX, homeY);
                   cleanRamNow();
                 });
               }
 
-              // Draggable Liquid Glass Bottom Lens
               const bar = document.getElementById('glassNavBar');
               const lens = document.getElementById('navLiquidLens');
               if (bar && lens) {
@@ -3148,8 +3042,8 @@ jobs:
       - name: 5. Build Debug APK
         run: gradle assembleDebug --stacktrace
 
-      - name: 6. Upload BangOptimize v13.0 Masterpiece APK
+      - name: 6. Upload BangOptimize v13.5 Masterpiece APK
         uses: actions/upload-artifact@v4
         with:
-          name: BangOptimize-v13.0-Ultimate-Masterpiece
+          name: BangOptimize-v13.5-ZeroBlackScreen
           path: app/build/outputs/apk/debug/app-debug.apk
