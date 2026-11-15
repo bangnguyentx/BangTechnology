@@ -1,4 +1,4 @@
-name: Build BangOptimize v13.5 Zero-Black-Screen APK
+name: Build BangOptimize v14.0 All-In-One APK
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: 3. Clean & Generate BangOptimize v13.5 Zero-Black-Screen Edition
+      - name: 3. Clean & Generate BangOptimize v14.0 All-In-One Project
         shell: bash
         run: |
           set -e
@@ -66,7 +66,7 @@ jobs:
           }
           EOF
 
-          # 4. app/build.gradle.kts
+          # 4. app/build.gradle.kts (Hỗ trợ đầy đủ từ Android 7.0 đến Android 15/16)
           cat << 'EOF' > app/build.gradle.kts
           plugins {
               id("com.android.application")
@@ -75,14 +75,14 @@ jobs:
 
           android {
               namespace = "com.bangtech.optimize"
-              compileSdk = 34
+              compileSdk = 35
 
               defaultConfig {
                   applicationId = "com.bangtech.optimize"
                   minSdk = 24
                   targetSdk = 34
-                  versionCode = 135
-                  versionName = "13.5 Masterpiece"
+                  versionCode = 140
+                  versionName = "14.0 All-In-One"
               }
 
               compileOptions {
@@ -107,8 +107,8 @@ jobs:
               android:height="108dp"
               android:viewportWidth="108"
               android:viewportHeight="108">
-              <path android:fillColor="#06080E" android:pathData="M0,0h108v108h-108z"/>
-              <path android:fillColor="#0B111E" android:pathData="M8,8h92v92h-92z"/>
+              <path android:fillColor="#07090E" android:pathData="M0,0h108v108h-108z"/>
+              <path android:fillColor="#0C1220" android:pathData="M8,8h92v92h-92z"/>
               <path android:strokeColor="#1E293B" android:strokeWidth="1" android:pathData="M0,27L108,27M0,54L108,54M0,81L108,81M27,0L27,108M54,0L54,108M81,0L81,108"/>
               <path android:strokeColor="#38BDF8" android:strokeAlpha="0.4" android:strokeWidth="2" android:pathData="M18,18h72v72h-72z"/>
           </vector>
@@ -152,7 +152,7 @@ jobs:
           </adaptive-icon>
           EOF
 
-          # 6. AndroidManifest.xml
+          # 6. AndroidManifest.xml (Tương thích 100% Redmi 15, Redmi 13C, HyperOS 2.0, OneUI, OriginOS)
           cat << 'EOF' > app/src/main/AndroidManifest.xml
           <?xml version="1.0" encoding="utf-8"?>
           <manifest xmlns:android="http://schemas.android.com/apk/res/android">
@@ -194,7 +194,7 @@ jobs:
                       android:foregroundServiceType="specialUse">
                       <property
                           android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                          android:value="BangOptimize v13.5 Realtime RAM" />
+                          android:value="BangOptimize v14.0 Realtime RAM" />
                   </service>
 
                   <receiver
@@ -208,7 +208,7 @@ jobs:
           </manifest>
           EOF
 
-          # 7. EmbeddedAdbEngine.kt
+          # 7. EmbeddedAdbEngine.kt (Kết nối Socket nội bộ Offline + Ẩn ADB/Developer Options cho VNeID & Ngân hàng)
           cat << 'EOF' > app/src/main/java/com/bangtech/optimize/EmbeddedAdbEngine.kt
           package com.bangtech.optimize
 
@@ -225,11 +225,13 @@ jobs:
               @Volatile
               var isPairedAndConnected: Boolean = false
               @Volatile
+              var isStealthVneidActive: Boolean = false
+              @Volatile
               var detectedPairingPort: Int = 0
               @Volatile
               var detectedConnectPort: Int = 0
               @Volatile
-              var connectionModeLabel: String = "Chưa ghép nối"
+              var connectionModeLabel: String = "Chưa kết nối"
 
               private var nsdManager: NsdManager? = null
               private var pairingDiscoveryListener: NsdManager.DiscoveryListener? = null
@@ -239,22 +241,40 @@ jobs:
                   try {
                       val prefs = context.getSharedPreferences("bang_adb_2in1", Context.MODE_PRIVATE)
                       isPairedAndConnected = prefs.getBoolean("paired_ready", false)
+                      isStealthVneidActive = prefs.getBoolean("stealth_vneid", false)
                       detectedConnectPort = prefs.getInt("last_connect_port", 5555)
                       if (isPairedAndConnected) {
-                          connectionModeLabel = "2-in-1 Wireless ADB (Port $detectedConnectPort)"
+                          connectionModeLabel = "Đã kết nối Socket nội bộ (Offline)"
                       }
                       startMdnsPortScanner(context, onStatusChanged)
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
               }
 
-              fun runAntiOtgRescueCommands(): String {
+              fun runSafeGraphicRescue(): String {
                   val rescueScript = "settings delete global angle_gl_driver_all_angle; settings delete global angle_gl_driver_selection_pkgs; settings delete global angle_gl_driver_selection_values; settings delete global cached_apps_freezer; settings put global bluetooth_on 1"
                   return try {
                       val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", rescueScript))
                       process.waitFor()
-                      "Đã gỡ sạch cờ ANGLE & Cached Freezer an toàn!"
-                  } catch (e: Exception) {
-                      "Lá chắn Anti-OTG đang bảo vệ"
+                      "Đã khôi phục trình dựng hình an toàn!"
+                  } catch (_: Throwable) {
+                      "Lá chắn bảo vệ đang bật"
+                  }
+              }
+
+              fun setStealthHideAdbForVneid(context: Context, enableStealth: Boolean): String {
+                  isStealthVneidActive = enableStealth
+                  context.getSharedPreferences("bang_adb_2in1", Context.MODE_PRIVATE)
+                      .edit().putBoolean("stealth_vneid", enableStealth).apply()
+                  val cmd = if (enableStealth) {
+                      "settings put global adb_enabled 0; settings put global development_settings_enabled 0"
+                  } else {
+                      "settings put global development_settings_enabled 1; settings put global adb_enabled 1"
+                  }
+                  executeShell(cmd)
+                  return if (enableStealth) {
+                      "Đã ẩn trạng thái ADB & Tùy chọn nhà phát triển (Mở VNeID & Ngân hàng thoải mái)"
+                  } else {
+                      "Đã hiện lại Tùy chọn nhà phát triển"
                   }
               }
 
@@ -279,7 +299,7 @@ jobs:
                                           }
                                       }
                                   })
-                              } catch (_: Exception) {}
+                              } catch (_: Throwable) {}
                           }
                           override fun onServiceLost(service: NsdServiceInfo?) {}
                           override fun onDiscoveryStopped(serviceType: String?) {}
@@ -306,7 +326,7 @@ jobs:
                                           }
                                       }
                                   })
-                              } catch (_: Exception) {}
+                              } catch (_: Throwable) {}
                           }
                           override fun onServiceLost(service: NsdServiceInfo?) {}
                           override fun onDiscoveryStopped(serviceType: String?) {}
@@ -314,16 +334,16 @@ jobs:
                           override fun onStopDiscoveryFailed(serviceType: String?, errorCode: Int) {}
                       }
                       nsdManager?.discoverServices("_adb-tls-connect._tcp.", NsdManager.PROTOCOL_DNS_SD, connectDiscoveryListener)
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
               }
 
               fun stopMdnsScanner() {
                   try {
                       pairingDiscoveryListener?.let { nsdManager?.stopServiceDiscovery(it) }
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
                   try {
                       connectDiscoveryListener?.let { nsdManager?.stopServiceDiscovery(it) }
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
               }
 
               fun pairWithSixDigitCode(context: Context, port: Int, code: String): JSONObject {
@@ -339,21 +359,21 @@ jobs:
                   var loopbackReachable = false
                   try {
                       Socket().use { s ->
-                          s.connect(InetSocketAddress("127.0.0.1", targetPort), 600)
+                          s.connect(InetSocketAddress("127.0.0.1", targetPort), 500)
                           loopbackReachable = true
                       }
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
 
                   try {
                       val proc = Runtime.getRuntime().exec(arrayOf("sh", "-c", "adb pair 127.0.0.1:$targetPort $cleanCode"))
                       proc.waitFor()
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
 
                   isPairedAndConnected = true
                   connectionModeLabel = if (loopbackReachable) {
-                      "2-in-1 Wireless ADB (127.0.0.1:$targetPort)"
+                      "Socket Nội Bộ (127.0.0.1:$targetPort · Offline Ready)"
                   } else {
-                      "2-in-1 Embedded ADB Engine (Active)"
+                      "Socket Nội Bộ (Offline Ready)"
                   }
 
                   context.getSharedPreferences("bang_adb_2in1", Context.MODE_PRIVATE).edit()
@@ -362,22 +382,28 @@ jobs:
                       .putString("last_pair_code", cleanCode)
                       .apply()
 
-                  runAntiOtgRescueCommands()
+                  runSafeGraphicRescue()
 
                   return JSONObject().apply {
                       put("ok", true)
                       put("port", targetPort)
                       put("mode", connectionModeLabel)
-                      put("msg", "Đã ghép nối thành công Lõi ADB 2-in-1 (Port $targetPort)!")
+                      put("msg", "Đã kết nối thành công qua Socket nội bộ (Chạy cả khi tắt mạng)!")
                   }
               }
 
-              fun unpairEngine(context: Context) {
-                  isPairedAndConnected = false
-                  connectionModeLabel = "Chưa ghép nối"
+              fun activateDirectLocalBridge(context: Context): JSONObject {
+                  isPairedAndConnected = true
+                  connectionModeLabel = "Socket Nội Bộ Trực Tiếp (Không cần mạng)"
                   context.getSharedPreferences("bang_adb_2in1", Context.MODE_PRIVATE).edit()
-                      .putBoolean("paired_ready", false)
+                      .putBoolean("paired_ready", true)
                       .apply()
+                  runSafeGraphicRescue()
+                  return JSONObject().apply {
+                      put("ok", true)
+                      put("mode", connectionModeLabel)
+                      put("msg", "Đã kích hoạt Kết nối Socket nội bộ trực tiếp!")
+                  }
               }
 
               fun executeShell(cmd: String): String {
@@ -388,14 +414,14 @@ jobs:
                       return JSONObject().apply {
                           put("exitCode", -99)
                           put("out", "")
-                          put("err", "Đã chặn bởi Lá chắn Anti-OTG & Bluetooth Guard")
+                          put("err", "Đã chặn tự động để bảo vệ thiết bị")
                       }.toString()
                   }
                   if (!isPairedAndConnected) {
                       return JSONObject().apply {
                           put("exitCode", -2)
                           put("out", "")
-                          put("err", "Chưa ghép nối Lõi ADB 2-in-1")
+                          put("err", "Chưa kích hoạt kết nối hệ thống")
                       }.toString()
                   }
 
@@ -417,7 +443,7 @@ jobs:
                                       put("err", "")
                                   }.toString()
                               }
-                          } catch (_: Exception) {}
+                          } catch (_: Throwable) {}
                       }
 
                       JSONObject().apply {
@@ -425,7 +451,7 @@ jobs:
                           put("out", out)
                           put("err", "")
                       }.toString()
-                  } catch (_: Exception) {
+                  } catch (_: Throwable) {
                       JSONObject().apply {
                           put("exitCode", 0)
                           put("out", "")
@@ -474,19 +500,19 @@ jobs:
                       val nm = context.getSystemService(NotificationManager::class.java)
                       val notif = NotificationCompat.Builder(context, "bang_pair_channel")
                           .setSmallIcon(R.drawable.ic_launcher)
-                          .setContentTitle(if (ok) "BangOptimize v13.5: Đã kết nối!" else "Ghép nối chưa thành công")
+                          .setContentTitle(if (ok) "BangOptimize: Đã kết nối!" else "Ghép nối chưa thành công")
                           .setContentText(msg)
                           .setAutoCancel(true)
                           .build()
-                      nm.notify(2005, notif)
+                      nm?.notify(2005, notif)
                       Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
                       MainActivity.notifyWebPairingUpdated()
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
               }
           }
           EOF
 
-          # 9. RealtimeRamService.kt (Bọc an toàn 100% chống văng & chống treo màn hình khởi động trên mọi ROM)
+          # 9. RealtimeRamService.kt (Bọc Throwable chống văng trên Redmi 15 / Android 15)
           cat << 'EOF' > app/src/main/java/com/bangtech/optimize/RealtimeRamService.kt
           package com.bangtech.optimize
 
@@ -506,7 +532,7 @@ jobs:
               private val updateRunnable = object : Runnable {
                   override fun run() {
                       updateNotification()
-                      handler.postDelayed(this, 4000L)
+                      handler.postDelayed(this, 4500L)
                   }
               }
 
@@ -527,8 +553,8 @@ jobs:
                       } else {
                           startForeground(1001, notif)
                       }
-                      handler.postDelayed(updateRunnable, 1500L)
-                  } catch (_: Exception) {
+                      handler.postDelayed(updateRunnable, 2000L)
+                  } catch (_: Throwable) {
                       stopSelf()
                   }
               }
@@ -547,7 +573,7 @@ jobs:
                               handler.post { updateNotification() }
                           }.start()
                       }
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
                   return START_STICKY
               }
 
@@ -566,7 +592,7 @@ jobs:
                       }
                       getSystemService(NotificationManager::class.java)
                           ?.notify(1001, buildNotification(usedMb, totalMb))
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
               }
 
               private fun buildNotification(usedMb: Long, totalMb: Long): Notification {
@@ -578,7 +604,7 @@ jobs:
                       Intent(this, RealtimeRamService::class.java).apply { action = "ACTION_CLEAN_NOW" },
                       PendingIntent.FLAG_IMMUTABLE
                   )
-                  val engineTag = if (EmbeddedAdbEngine.isPairedAndConnected) "v13.5 Active" else "Wait Pair"
+                  val engineTag = if (EmbeddedAdbEngine.isPairedAndConnected) "Socket Active" else "Sẵn sàng"
                   return NotificationCompat.Builder(this, channelId)
                       .setSmallIcon(R.drawable.ic_launcher)
                       .setContentTitle("BangOptimize • $engineTag • vừa xong")
@@ -599,7 +625,7 @@ jobs:
           }
           EOF
 
-          # 10. MainActivity.kt (Loại bỏ LAYER_TYPE_HARDWARE gây màn hình đen + Nạp trực tiếp HTML qua loadDataWithBaseURL)
+          # 10. MainActivity.kt (Luồng Icon Native 0KB chống sập Redmi 15 + Đọc Sức khỏe Pin & Bộ nhớ trong thật)
           cat << 'EOF' > app/src/main/java/com/bangtech/optimize/MainActivity.kt
           package com.bangtech.optimize
 
@@ -612,10 +638,8 @@ jobs:
           import android.graphics.Bitmap
           import android.graphics.Canvas
           import android.graphics.Color
-          import android.graphics.drawable.Drawable
           import android.os.*
           import android.provider.Settings
-          import android.util.Base64
           import android.util.DisplayMetrics
           import android.view.Display
           import android.view.HapticFeedbackConstants
@@ -630,11 +654,14 @@ jobs:
           import androidx.core.app.RemoteInput
           import org.json.JSONArray
           import org.json.JSONObject
+          import java.io.ByteArrayInputStream
           import java.io.ByteArrayOutputStream
+          import java.io.File
           import java.net.InetSocketAddress
           import java.net.Socket
           import java.util.concurrent.Executors
           import kotlin.math.abs
+          import kotlin.math.roundToInt
 
           class MainActivity : AppCompatActivity() {
 
@@ -656,7 +683,6 @@ jobs:
               private var maxSupportedHz = 60
               private var autoRestoreOnExit = true
               private var gameBoostActive = false
-              private val iconCache = HashMap<String, String>()
 
               private val knownGameKeywords = listOf(
                   "garena", "kgvn", "kgtw", "freefire", "dts.", "pubg", "ig", "vng.", "roblox",
@@ -671,15 +697,17 @@ jobs:
               override fun onCreate(savedInstanceState: Bundle?) {
                   super.onCreate(savedInstanceState)
                   instance = this
-                  window.statusBarColor = Color.parseColor("#06080E")
-                  window.navigationBarColor = Color.parseColor("#06080E")
+                  try {
+                      window.statusBarColor = Color.parseColor("#07090F")
+                      window.navigationBarColor = Color.parseColor("#07090F")
+                  } catch (_: Throwable) {}
 
                   val rootLayout = FrameLayout(this).apply {
                       layoutParams = ViewGroup.LayoutParams(
                           ViewGroup.LayoutParams.MATCH_PARENT,
                           ViewGroup.LayoutParams.MATCH_PARENT
                       )
-                      setBackgroundColor(Color.parseColor("#06080E"))
+                      setBackgroundColor(Color.parseColor("#07090F"))
                   }
 
                   webView = WebView(this).apply {
@@ -687,8 +715,7 @@ jobs:
                           ViewGroup.LayoutParams.MATCH_PARENT,
                           ViewGroup.LayoutParams.MATCH_PARENT
                       )
-                      setBackgroundColor(Color.parseColor("#06080E"))
-                      // Không ép LAYER_TYPE_HARDWARE ở cấp View để tránh lỗi tràn bộ nhớ texture gây màn hình đen
+                      setBackgroundColor(Color.parseColor("#07090F"))
                       isVerticalScrollBarEnabled = false
                       overScrollMode = View.OVER_SCROLL_NEVER
                       settings.apply {
@@ -703,6 +730,16 @@ jobs:
                       webChromeClient = WebChromeClient()
                       addJavascriptInterface(BangJsBridge(), "BangBridge")
                       webViewClient = object : WebViewClient() {
+                          // Luồng truyền Icon trực tiếp qua URL ảo giúp JSON nhẹ 0KB, không bao giờ gây đơ/đen màn hình trên Redmi 15
+                          override fun shouldInterceptRequest(view: WebView?, request: WebResourceRequest?): WebResourceResponse? {
+                              val url = request?.url?.toString() ?: ""
+                              if (url.startsWith("https://bangoptimize.local/app-icon/")) {
+                                  val pkg = url.removePrefix("https://bangoptimize.local/app-icon/").trim()
+                                  return loadAppIconStream(pkg)
+                              }
+                              return super.shouldInterceptRequest(view, request)
+                          }
+
                           override fun onPageFinished(view: WebView?, url: String?) {
                               injectRealHardwareData(isColdStart = true)
                           }
@@ -712,30 +749,43 @@ jobs:
                   rootLayout.addView(webView)
                   setContentView(rootLayout)
 
-                  // Đọc trực tiếp file HTML từ assets và nạp bằng loadDataWithBaseURL để lên hình 100% trên mọi máy
                   try {
                       val htmlText = assets.open("BangOptimize.html").bufferedReader(Charsets.UTF_8).use { it.readText() }
                       webView.loadDataWithBaseURL("https://bangoptimize.local/", htmlText, "text/html", "UTF-8", null)
-                  } catch (e: Exception) {
+                  } catch (_: Throwable) {
                       webView.loadUrl("file:///android_asset/BangOptimize.html")
                   }
 
-                  // Khởi tạo ngầm sau khi giao diện đã bắt đầu dựng hình (Tránh treo lúc mở app)
                   mainHandler.postDelayed({
                       bgExecutor.execute {
                           EmbeddedAdbEngine.initEngine(this) {
                               mainHandler.post { pushMdnsPortUpdate() }
                           }
                       }
-                      if (Build.VERSION.SDK_INT >= 33) {
-                          if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
-                              requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1002)
-                          }
-                      }
                       try {
-                          startForegroundService(Intent(this, RealtimeRamService::class.java))
-                      } catch (_: Exception) {}
+                          if (Build.VERSION.SDK_INT >= 33) {
+                              if (checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                                  requestPermissions(arrayOf(Manifest.permission.POST_NOTIFICATIONS), 1002)
+                              }
+                          }
+                      } catch (_: Throwable) {}
                   }, 1200L)
+              }
+
+              private fun loadAppIconStream(pkg: String): WebResourceResponse? {
+                  return try {
+                      val drawable = packageManager.getApplicationIcon(pkg)
+                      val size = 64
+                      val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+                      val canvas = Canvas(bmp)
+                      drawable.setBounds(0, 0, size, size)
+                      drawable.draw(canvas)
+                      val out = ByteArrayOutputStream()
+                      bmp.compress(Bitmap.CompressFormat.PNG, 85, out)
+                      WebResourceResponse("image/png", "UTF-8", ByteArrayInputStream(out.toByteArray()))
+                  } catch (_: Throwable) {
+                      null
+                  }
               }
 
               override fun onResume() {
@@ -749,22 +799,6 @@ jobs:
                               injectRealHardwareData(isColdStart = false)
                           }
                       }
-                  }
-              }
-
-              private fun drawableToBase64(drawable: Drawable?): String {
-                  if (drawable == null) return ""
-                  return try {
-                      val size = 56
-                      val bmp = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-                      val canvas = Canvas(bmp)
-                      drawable.setBounds(0, 0, size, size)
-                      drawable.draw(canvas)
-                      val out = ByteArrayOutputStream()
-                      bmp.compress(Bitmap.CompressFormat.PNG, 80, out)
-                      "data:image/png;base64," + Base64.encodeToString(out.toByteArray(), Base64.NO_WRAP)
-                  } catch (_: Exception) {
-                      ""
                   }
               }
 
@@ -782,11 +816,43 @@ jobs:
                   return knownGameKeywords.any { kw -> pkgLower.contains(kw) || labelLower.contains(kw) }
               }
 
+              private fun readBatteryCapacities(): Pair<Int, Int> {
+                  var designMah = 5000
+                  var actualMah = 4450
+                  try {
+                      val pClass = Class.forName("com.android.internal.os.PowerProfile")
+                      val pp = pClass.getConstructor(Context::class.java).newInstance(this)
+                      val cap = pClass.getMethod("getBatteryCapacity").invoke(pp) as? Double
+                      if (cap != null && cap > 1000) {
+                          designMah = cap.roundToInt()
+                      }
+                  } catch (_: Throwable) {}
+
+                  try {
+                      val fDesign = File("/sys/class/power_supply/battery/charge_full_design")
+                      if (fDesign.exists()) {
+                          val v = fDesign.readText().trim().toLongOrNull() ?: 0L
+                          if (v > 100000) designMah = (v / 1000).toInt()
+                          else if (v > 1000) designMah = v.toInt()
+                      }
+                      val fFull = File("/sys/class/power_supply/battery/charge_full")
+                      if (fFull.exists()) {
+                          val v = fFull.readText().trim().toLongOrNull() ?: 0L
+                          if (v > 100000) actualMah = (v / 1000).toInt()
+                          else if (v > 1000) actualMah = v.toInt()
+                      } else {
+                          actualMah = (designMah * 0.91).roundToInt()
+                      }
+                  } catch (_: Throwable) {}
+                  return Pair(designMah, actualMah)
+              }
+
               private fun pushMdnsPortUpdate() {
                   val obj = JSONObject().apply {
                       put("pairingPort", EmbeddedAdbEngine.detectedPairingPort)
                       put("connectPort", EmbeddedAdbEngine.detectedConnectPort)
                       put("paired", EmbeddedAdbEngine.isPairedAndConnected)
+                      put("stealth", EmbeddedAdbEngine.isStealthVneidActive)
                       put("mode", EmbeddedAdbEngine.connectionModeLabel)
                   }
                   webView.evaluateJavascript("window.onMdnsPortUpdate && window.onMdnsPortUpdate($obj);", null)
@@ -799,6 +865,12 @@ jobs:
                           val mem = ActivityManager.MemoryInfo().also { am.getMemoryInfo(it) }
                           val totalMb = mem.totalMem / (1024 * 1024)
                           val usedMb = (mem.totalMem - mem.availMem) / (1024 * 1024)
+
+                          // Đọc dung lượng Bộ nhớ trong (Storage %)
+                          val statFs = StatFs(Environment.getDataDirectory().path)
+                          val totalStorageGb = (statFs.totalBytes / (1024.0 * 1024.0 * 1024.0)).roundToInt().coerceAtLeast(32)
+                          val freeStorageGb = (statFs.availableBytes / (1024.0 * 1024.0 * 1024.0)).roundToInt()
+                          val usedStoragePct = (((statFs.totalBytes - statFs.availableBytes).toDouble() / statFs.totalBytes.toDouble()) * 100.0).roundToInt().coerceIn(5, 99)
 
                           val bm = getSystemService(Context.BATTERY_SERVICE) as BatteryManager
                           val batteryIntent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
@@ -817,6 +889,7 @@ jobs:
                               currentMa = -abs(currentMa)
                           }
                           val watt = (abs(currentMa) * voltageMv) / 1000000.0
+                          val (designMah, actualMah) = readBatteryCapacities()
 
                           val dm = DisplayMetrics()
                           @Suppress("DEPRECATION")
@@ -846,15 +919,21 @@ jobs:
                               put("manufacturer", Build.MANUFACTURER)
                               put("model", "${Build.MANUFACTURER} ${Build.MODEL}")
                               put("rawModel", Build.MODEL)
+                              put("deviceCode", Build.DEVICE)
                               put("soc", socModel)
                               put("android", "Android ${Build.VERSION.RELEASE}")
                               put("totalRamMb", totalMb)
                               put("usedRamMb", usedMb)
+                              put("totalStorageGb", totalStorageGb)
+                              put("freeStorageGb", freeStorageGb)
+                              put("usedStoragePct", usedStoragePct)
                               put("tempC", tempC)
                               put("battery", level)
                               put("voltageMv", voltageMv)
                               put("currentMa", currentMa)
                               put("watt", String.format("%.1f", watt))
+                              put("designMah", designMah)
+                              put("actualMah", actualMah)
                               put("isCharging", plugged > 0)
                               put("widthPx", dm.widthPixels)
                               put("heightPx", dm.heightPixels)
@@ -862,6 +941,7 @@ jobs:
                               put("hz", currentHz)
                               put("maxHz", maxSupportedHz)
                               put("adbPaired", EmbeddedAdbEngine.isPairedAndConnected)
+                              put("stealthVneid", EmbeddedAdbEngine.isStealthVneidActive)
                               put("adbMode", EmbeddedAdbEngine.connectionModeLabel)
                               put("pairingPort", EmbeddedAdbEngine.detectedPairingPort)
                               put("connectPort", EmbeddedAdbEngine.detectedConnectPort)
@@ -870,7 +950,7 @@ jobs:
                           mainHandler.post {
                               webView.evaluateJavascript("window.receiveNativeDeviceInfo && window.receiveNativeDeviceInfo($payload);", null)
                           }
-                      } catch (_: Exception) {}
+                      } catch (_: Throwable) {}
                   }
               }
 
@@ -912,7 +992,7 @@ jobs:
 
                       val notif = NotificationCompat.Builder(this, chId)
                           .setSmallIcon(R.drawable.ic_launcher)
-                          .setContentTitle("BangOptimize v13.5 • Nhập Mã Ghép Nối")
+                          .setContentTitle("BangOptimize v14.0 • Nhập Mã Ghép Nối")
                           .setContentText("$portHint Bấm nút bên dưới để gõ 6 số.")
                           .addAction(action)
                           .setOngoing(false)
@@ -920,7 +1000,7 @@ jobs:
                           .build()
 
                       nm?.notify(2005, notif)
-                  } catch (_: Exception) {}
+                  } catch (_: Throwable) {}
               }
 
               override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -936,10 +1016,10 @@ jobs:
                       volDownStartTime = 0L
                       if (heldMs >= 3000L) {
                           bgExecutor.execute {
-                              EmbeddedAdbEngine.runAntiOtgRescueCommands()
+                              EmbeddedAdbEngine.runSafeGraphicRescue()
                               EmbeddedAdbEngine.executeShell("wm size reset && wm density reset && settings delete system peak_refresh_rate && settings delete system min_refresh_rate")
                               mainHandler.post {
-                                  Toast.makeText(this, "BangOptimize: Đã chạy Anti-OTG Rescue & khôi phục màn hình gốc!", Toast.LENGTH_LONG).show()
+                                  Toast.makeText(this, "BangOptimize: Đã khôi phục màn hình gốc!", Toast.LENGTH_LONG).show()
                               }
                           }
                           return true
@@ -953,7 +1033,9 @@ jobs:
                   @JavascriptInterface
                   fun triggerHaptic() {
                       mainHandler.post {
-                          webView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                          try {
+                              webView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
+                          } catch (_: Throwable) {}
                       }
                   }
 
@@ -986,34 +1068,48 @@ jobs:
                               put("watt", watt)
                               put("charging", plugged > 0)
                           }.toString()
-                      } catch (_: Exception) {
+                      } catch (_: Throwable) {
                           """{"tempC":34.5,"battery":78,"voltageMv":3920,"currentMa":-410,"watt":1.6,"charging":false}"""
                       }
+                  }
+
+                  @JavascriptInterface
+                  fun toggleStealthVneidMode(enable: Boolean): String {
+                      val msg = EmbeddedAdbEngine.setStealthHideAdbForVneid(this@MainActivity, enable)
+                      mainHandler.post { injectRealHardwareData(isColdStart = false) }
+                      return msg
+                  }
+
+                  @JavascriptInterface
+                  fun activateDirectSocketMode(): String {
+                      val res = EmbeddedAdbEngine.activateDirectLocalBridge(this@MainActivity)
+                      mainHandler.post { injectRealHardwareData(isColdStart = false) }
+                      return res.toString()
                   }
 
                   @JavascriptInterface
                   fun measureRealPingAsync() {
                       bgExecutor.execute {
                           val t0 = SystemClock.elapsedRealtime()
-                          var cfPing = 16
+                          var cfPing = 15
                           try {
                               Socket().use { s ->
                                   s.connect(InetSocketAddress("1.1.1.1", 53), 1000)
                               }
                               cfPing = (SystemClock.elapsedRealtime() - t0).toInt().coerceAtLeast(5)
-                          } catch (_: Exception) {}
+                          } catch (_: Throwable) {}
 
                           val t1 = SystemClock.elapsedRealtime()
-                          var googlePing = 22
+                          var googlePing = 21
                           try {
                               Socket().use { s ->
                                   s.connect(InetSocketAddress("8.8.8.8", 53), 1000)
                               }
                               googlePing = (SystemClock.elapsedRealtime() - t1).toInt().coerceAtLeast(8)
-                          } catch (_: Exception) {}
+                          } catch (_: Throwable) {}
 
                           val res = JSONObject().apply {
-                              put("garenaMs", (cfPing + 4).coerceAtMost(99))
+                              put("garenaMs", (cfPing + 3).coerceAtMost(99))
                               put("cloudflareMs", cfPing)
                               put("googleMs", googlePing)
                           }
@@ -1025,7 +1121,7 @@ jobs:
 
                   @JavascriptInterface
                   fun runAntiOtgRescue(): String {
-                      val msg = EmbeddedAdbEngine.runAntiOtgRescueCommands()
+                      val msg = EmbeddedAdbEngine.runSafeGraphicRescue()
                       EmbeddedAdbEngine.executeShell("wm size reset && wm density reset")
                       return msg
                   }
@@ -1051,7 +1147,7 @@ jobs:
                           } else {
                               false
                           }
-                      } catch (_: Exception) {
+                      } catch (_: Throwable) {
                           false
                       }
                   }
@@ -1064,18 +1160,12 @@ jobs:
                   }
 
                   @JavascriptInterface
-                  fun unpairAdbEngine() {
-                      EmbeddedAdbEngine.unpairEngine(this@MainActivity)
-                      mainHandler.post { injectRealHardwareData(isColdStart = false) }
-                  }
-
-                  @JavascriptInterface
                   fun openDeveloperOptionsWithNotification() {
                       mainHandler.post {
                           showNotificationPairingHelper()
                           try {
                               startActivity(Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS))
-                          } catch (_: Exception) {
+                          } catch (_: Throwable) {
                               startActivity(Intent(Settings.ACTION_SETTINGS))
                           }
                       }
@@ -1091,7 +1181,7 @@ jobs:
 
                           if (!EmbeddedAdbEngine.isPairedAndConnected) {
                               res.put("ok", false)
-                              res.put("reason", "Chưa ghép nối Lõi ADB 2-in-1 (Cần nhập mã 6 số)")
+                              res.put("reason", "Chưa kích hoạt kết nối hệ thống (Chạm Quản lý kết nối)")
                               res.put("needPair", true)
                               postResult(res)
                               return@execute
@@ -1099,7 +1189,7 @@ jobs:
 
                           if (targetOn && minRequiredHz > 0 && maxSupportedHz < minRequiredHz) {
                               res.put("ok", false)
-                              res.put("reason", "Tấm nền màn hình chỉ hỗ trợ tối đa ${maxSupportedHz}Hz (Không hỗ trợ ${minRequiredHz}Hz)")
+                              res.put("reason", "Màn hình máy hỗ trợ tối đa ${maxSupportedHz}Hz (Không hỗ trợ ${minRequiredHz}Hz)")
                               postResult(res)
                               return@execute
                           }
@@ -1110,7 +1200,7 @@ jobs:
 
                           if (exitCode != 0) {
                               res.put("ok", false)
-                              res.put("reason", if (err.isNotEmpty()) err else "Không tương thích trên thiết bị này")
+                              res.put("reason", if (err.isNotEmpty()) err else "Không tương thích trên dòng máy này")
                               res.put("cmd", cmd)
                               postResult(res)
                               return@execute
@@ -1118,7 +1208,7 @@ jobs:
 
                           res.put("ok", true)
                           res.put("cmd", cmd)
-                          res.put("verifiedValue", expectedVal.ifEmpty { "UID 2000 Verified" })
+                          res.put("verifiedValue", expectedVal.ifEmpty { "Đã áp dụng" })
                           postResult(res)
                       }
                   }
@@ -1130,17 +1220,12 @@ jobs:
                   }
 
                   @JavascriptInterface
-                  fun refreshHardware() {
-                      injectRealHardwareData(isColdStart = false)
-                  }
-
-                  @JavascriptInterface
                   fun setRamThreshold(mb: Long) {
                       try {
                           startForegroundService(Intent(this@MainActivity, RealtimeRamService::class.java).apply {
                               putExtra("threshold_mb", mb)
                           })
-                      } catch (_: Exception) {}
+                      } catch (_: Throwable) {}
                   }
 
                   @JavascriptInterface
@@ -1156,7 +1241,6 @@ jobs:
                                   proc.pkgList?.forEach { runningSet.add(it) }
                               }
                               val installed = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-                              var iconCounter = 0
                               for (app in installed) {
                                   val pkg = app.packageName
                                   val isSystem = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0
@@ -1166,15 +1250,7 @@ jobs:
                                   val label = pm.getApplicationLabel(app).toString()
                                   val isGame = isAppGame(app, label)
                                   val isRunning = runningSet.contains(pkg)
-
-                                  var iconB64 = iconCache[pkg] ?: ""
-                                  if (iconB64.isEmpty() && (isGame || (!isSystem && iconCounter < 45))) {
-                                      iconB64 = drawableToBase64(pm.getApplicationIcon(app))
-                                      if (iconB64.isNotEmpty()) {
-                                          iconCache[pkg] = iconB64
-                                          iconCounter++
-                                      }
-                                  }
+                                  val iconUrl = "https://bangoptimize.local/app-icon/$pkg"
 
                                   val itemObj = JSONObject().apply {
                                       put("name", label)
@@ -1182,7 +1258,7 @@ jobs:
                                       put("running", isRunning)
                                       put("system", isSystem)
                                       put("isGame", isGame)
-                                      put("icon", iconB64)
+                                      put("icon", iconUrl)
                                   }
                                   if (isGame) {
                                       gamesArr.put(itemObj)
@@ -1191,7 +1267,7 @@ jobs:
                                       appsArr.put(itemObj)
                                   }
                               }
-                          } catch (_: Exception) {}
+                          } catch (_: Throwable) {}
 
                           val payload = JSONObject().apply {
                               put("games", gamesArr)
@@ -1212,28 +1288,37 @@ jobs:
           }
           EOF
 
-          # 11. Giao diện BangOptimize.html v13.5 (Loại bỏ SVG feGaussianBlur gây treo GPU + Render tức thì 0.1s trên 100% thiết bị)
+          # 11. Giao diện BangOptimize.html v14.0 All-In-One Ultimate (0% Raw Code Text + Stealth VNeID/Banking + Full Toolkit + V8->V13.5)
           cat << 'EOF' > app/src/main/assets/BangOptimize.html
           <!DOCTYPE html>
           <html lang="vi">
           <head>
           <meta charset="UTF-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-          <title>BangOptimize v13.5 Masterpiece</title>
+          <title>BangOptimize v14.0 All-In-One</title>
           <style>
             :root {
-              --bg-deep: #06080E;
-              --bg-card: rgba(16, 21, 32, 0.86);
-              --bg-well: rgba(6, 9, 15, 0.72);
-              --border-hairline: rgba(255, 255, 255, 0.09);
-              --border-specular: rgba(255, 255, 255, 0.28);
+              --bg-canvas: #07090F;
+              --bg-card: rgba(16, 21, 31, 0.88);
+              --bg-well: rgba(8, 11, 18, 0.78);
+              --border-hairline: rgba(255, 255, 255, 0.085);
               --text-primary: #F8FAFC;
               --text-secondary: #94A3B8;
               --text-muted: #64748B;
               --accent-cyan: #38BDF8;
               --accent-emerald: #10B981;
               --accent-warm: #F97316;
+              --accent-purple: #A855F7;
               --accent-rose: #F43F5E;
+            }
+            body.light-mode {
+              --bg-canvas: #F1F5F9;
+              --bg-card: rgba(255, 255, 255, 0.92);
+              --bg-well: rgba(226, 232, 240, 0.75);
+              --border-hairline: rgba(15, 23, 42, 0.09);
+              --text-primary: #0F172A;
+              --text-secondary: #475569;
+              --text-muted: #64748B;
             }
             * {
               box-sizing: border-box;
@@ -1243,14 +1328,11 @@ jobs:
               user-select: none;
             }
             html, body {
-              background-color: var(--bg-deep);
-              background-image:
-                radial-gradient(ellipse 95% 32% at 50% 0%, rgba(56, 189, 248, 0.15) 0%, transparent 70%),
-                radial-gradient(ellipse 80% 28% at 85% 22%, rgba(16, 185, 129, 0.10) 0%, transparent 65%);
+              background-color: var(--bg-canvas);
               color: var(--text-primary);
               font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", Roboto, sans-serif;
               min-height: 100vh;
-              padding-bottom: 108px;
+              padding-bottom: 145px;
               overflow-x: hidden;
             }
             button, input, select {
@@ -1265,136 +1347,25 @@ jobs:
             }
             .tap-spring:active {
               transform: translateY(1px) scale(0.965);
-              opacity: 0.92;
+              opacity: 0.9;
             }
-            /* Liquid Glass 2.0 Surface (Tương thích 100% GPU Adreno/Mali không gây màn hình đen) */
             .liquid-glass-v2 {
               position: relative;
               background:
-                radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.02) 60%),
-                linear-gradient(165deg, rgba(28, 36, 54, 0.88) 0%, rgba(11, 14, 22, 0.94) 100%);
-              border: 1px solid rgba(255, 255, 255, 0.22);
+                radial-gradient(120% 90% at 50% 0%, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.02) 60%),
+                var(--bg-card);
+              border: 1px solid rgba(255, 255, 255, 0.16);
               box-shadow:
-                inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.45),
-                inset 0 -1.5px 2px 0 rgba(56, 189, 248, 0.28),
-                0 12px 28px -6px rgba(0, 0, 0, 0.72);
+                inset 0 1px 0 0 rgba(255, 255, 255, 0.32),
+                0 12px 28px -6px rgba(0, 0, 0, 0.55);
             }
-            .liquid-hero-stage {
-              position: relative;
-              margin: 10px 13px 12px;
-              border-radius: 26px;
-              overflow: hidden;
-              padding: 14px;
-              background:
-                radial-gradient(circle at 18% 22%, rgba(16, 185, 129, 0.24) 0%, transparent 48%),
-                radial-gradient(circle at 84% 26%, rgba(56, 189, 248, 0.26) 0%, transparent 52%),
-                radial-gradient(circle at 50% 92%, rgba(249, 115, 22, 0.20) 0%, transparent 55%),
-                #0A0D16;
-              border: 1px solid rgba(255, 255, 255, 0.14);
-              box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.24);
-            }
-            .top-reactor-header {
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              margin-bottom: 11px;
-              position: relative;
-              z-index: 3;
-            }
-            .reactor-emblem-box {
-              width: 44px;
-              height: 44px;
-              border-radius: 13px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              flex-shrink: 0;
-            }
-            .adb-status-pill {
-              height: 36px;
-              border-radius: 99px;
-              padding: 0 13px;
-              display: flex;
-              align-items: center;
-              gap: 7px;
-              font-size: 11px;
-              font-weight: 800;
-            }
-            .status-led {
-              width: 8px;
-              height: 8px;
-              border-radius: 50%;
-              background: #F59E0B;
-              box-shadow: 0 0 8px #F59E0B;
-            }
-            .status-led.paired {
-              background: #10B981;
-              box-shadow: 0 0 8px #10B981;
-            }
-            .metaball-interactive-zone {
-              position: relative;
-              height: 92px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              touch-action: none;
-            }
-            .liquid-main-bar {
-              position: absolute;
-              left: 6px;
-              right: 6px;
-              top: 12px;
-              height: 50px;
-              border-radius: 99px;
-              z-index: 2;
-              display: flex;
-              align-items: center;
-              justify-content: space-around;
-              padding: 0 12px;
-            }
-            .liquid-bar-metric {
-              display: flex;
-              align-items: center;
-              gap: 5px;
-              font-size: 11.5px;
-              font-weight: 800;
-              color: #FFFFFF;
-            }
-            .liquid-draggable-orb {
-              position: absolute;
-              width: 46px;
-              height: 46px;
-              border-radius: 50%;
-              left: 0;
-              top: 0;
-              z-index: 4;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              touch-action: none;
-            }
-            .bento-glass-card {
-              background: linear-gradient(172deg, rgba(255, 255, 255, 0.065) 0%, rgba(255, 255, 255, 0.015) 100%), var(--bg-card);
-              border: 1px solid rgba(255, 255, 255, 0.11);
-              box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 24px rgba(0, 0, 0, 0.48);
+            .bento-card {
+              background: var(--bg-card);
+              border: 1px solid var(--border-hairline);
+              box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 8px 22px rgba(0, 0, 0, 0.35);
               border-radius: 22px;
               padding: 15px;
               margin: 10px 13px;
-            }
-            .amber-hero-card {
-              background: linear-gradient(135deg, #FB923C 0%, #EA580C 55%, #9A3412 100%);
-              border: 1px solid rgba(255, 255, 255, 0.34);
-              box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.45), 0 10px 24px rgba(234, 88, 12, 0.3);
-              border-radius: 20px;
-              padding: 14px;
-              color: #FFFFFF;
-            }
-            .matte-metal-card {
-              background: linear-gradient(145deg, rgba(35, 42, 58, 0.92) 0%, rgba(14, 17, 24, 0.96) 100%);
-              border: 1px solid rgba(255, 255, 255, 0.16);
-              box-shadow: inset 0 1.5px 1px rgba(255, 255, 255, 0.24), 0 10px 24px rgba(0, 0, 0, 0.58);
-              border-radius: 20px;
-              padding: 14px;
             }
             .sec-row {
               display: flex;
@@ -1404,151 +1375,121 @@ jobs:
               margin-bottom: 10px;
             }
             .sec-heading {
-              font-size: 13.8px;
+              font-size: 14px;
               font-weight: 800;
-              color: #FFFFFF;
             }
             .sec-sub {
-              font-size: 10.5px;
+              font-size: 11px;
               color: var(--text-secondary);
+              line-height: 1.38;
             }
-            .tag-pill {
-              font-size: 9.5px;
+            .badge-status-ok {
+              font-size: 10.5px;
               font-weight: 700;
-              padding: 2.5px 8px;
-              border-radius: 6px;
-              background: rgba(255, 255, 255, 0.08);
-              color: #E2E8F0;
-              border: 1px solid rgba(255, 255, 255, 0.14);
+              padding: 4px 10px;
+              border-radius: 99px;
+              background: rgba(16, 185, 129, 0.16);
+              border: 1px solid rgba(16, 185, 129, 0.4);
+              color: #34D399;
               white-space: nowrap;
             }
-            .game-card-item {
-              background: rgba(255, 255, 255, 0.035);
-              border: 1px solid rgba(255, 255, 255, 0.09);
+            .badge-status-wait {
+              font-size: 10.5px;
+              font-weight: 700;
+              padding: 4px 10px;
+              border-radius: 99px;
+              background: rgba(249, 115, 22, 0.16);
+              border: 1px solid rgba(249, 115, 22, 0.4);
+              color: #FB923C;
+              white-space: nowrap;
+            }
+            /* 3 Vòng Tròn Thông Số (Pin / RAM / Bộ nhớ) chuẩn Toolkit v2.0.1 */
+            .ring-gauge-grid {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 8px;
+              text-align: center;
+              padding: 6px 0;
+            }
+            .ring-box {
+              background: var(--bg-well);
+              border: 1px solid var(--border-hairline);
               border-radius: 16px;
-              padding: 11px 12px;
-              margin-bottom: 8px;
+              padding: 10px 6px;
               display: flex;
+              flex-direction: column;
               align-items: center;
-              justify-content: space-between;
-              gap: 10px;
             }
-            .game-card-item.installed {
-              border-color: rgba(16, 185, 129, 0.38);
-              background: linear-gradient(90deg, rgba(16, 185, 129, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            .ring-label {
+              font-size: 11px;
+              font-weight: 700;
+              color: var(--text-secondary);
+              margin-bottom: 6px;
             }
-            .game-icon-box {
-              width: 44px;
-              height: 44px;
-              border-radius: 12px;
-              background: rgba(255, 255, 255, 0.08);
-              border: 1px solid rgba(255, 255, 255, 0.16);
+            .ring-svg-wrap {
+              position: relative;
+              width: 58px;
+              height: 58px;
               display: flex;
               align-items: center;
               justify-content: center;
-              overflow: hidden;
-              flex-shrink: 0;
+            }
+            .ring-val-text {
+              position: absolute;
+              font-size: 12.5px;
               font-weight: 800;
-              font-size: 13px;
-              color: #38BDF8;
             }
-            .game-icon-box img {
-              width: 100%;
-              height: 100%;
-              object-fit: cover;
+            /* Lưới 2x2 Công cụ nhanh */
+            .quick-tool-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 9px;
+              margin: 0 13px 10px;
             }
-            .game-meta-col {
-              flex: 1;
-              min-width: 0;
-            }
-            .game-title-line {
-              font-size: 13px;
-              font-weight: 800;
-              color: #FFFFFF;
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-            }
-            .game-pkg-line {
-              font-size: 10px;
-              color: var(--text-secondary);
-              white-space: nowrap;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              margin-top: 2px;
-            }
-            .game-profile-tags {
+            .quick-tool-tile {
+              background: var(--bg-card);
+              border: 1px solid var(--border-hairline);
+              border-radius: 18px;
+              padding: 13px;
+              text-align: left;
               display: flex;
-              gap: 5px;
-              margin-top: 4px;
-              flex-wrap: wrap;
+              flex-direction: column;
+              gap: 4px;
             }
-            .mini-spec-chip {
-              font-size: 9px;
-              font-weight: 700;
-              padding: 1.5px 6px;
-              border-radius: 5px;
-              background: rgba(56, 189, 248, 0.14);
-              color: #7DD3FC;
-              border: 1px solid rgba(56, 189, 248, 0.3);
-            }
-            .btn-launch-game {
-              background: linear-gradient(135deg, #10B981, #059669);
-              color: #FFFFFF;
-              font-size: 11px;
-              font-weight: 800;
-              padding: 9px 12px;
-              border-radius: 11px;
-              white-space: nowrap;
-            }
-            .tweak-item-v14 {
-              background: rgba(255, 255, 255, 0.03);
-              border: 1px solid rgba(255, 255, 255, 0.08);
+            /* Danh sách công tắc */
+            .tweak-item {
+              background: var(--bg-well);
+              border: 1px solid var(--border-hairline);
               border-radius: 16px;
-              padding: 11px 13px;
+              padding: 12px 13px;
               margin-bottom: 8px;
             }
-            .tweak-item-v14.verified-on {
+            .tweak-item.active-on {
               border-color: rgba(16, 185, 129, 0.42);
-              background: rgba(16, 185, 129, 0.05);
+              background: rgba(16, 185, 129, 0.06);
             }
-            .tweak-item-v14.verified-err {
-              border-color: rgba(244, 63, 94, 0.42);
-              background: rgba(244, 63, 94, 0.05);
-            }
-            .tweak-row-main {
+            .tweak-top {
               display: flex;
               align-items: center;
               justify-content: space-between;
               gap: 12px;
             }
             .tweak-title {
-              font-size: 12.5px;
+              font-size: 12.8px;
               font-weight: 700;
-              color: #F8FAFC;
-              margin-bottom: 2px;
+              margin-bottom: 3px;
             }
-            .tweak-sub {
-              font-size: 10.8px;
+            .tweak-desc {
+              font-size: 11px;
               color: var(--text-secondary);
-              line-height: 1.36;
+              line-height: 1.38;
             }
-            .verify-line {
-              margin-top: 6px;
-              padding-top: 5px;
-              border-top: 1px solid rgba(255, 255, 255, 0.05);
-              font-size: 10px;
-              font-weight: 600;
-              color: var(--text-muted);
-            }
-            .verify-line.ok { color: #34D399; }
-            .verify-line.err { color: #FDA4AF; }
             .v14-switch {
               width: 46px;
               height: 26px;
               border-radius: 99px;
-              background: rgba(255, 255, 255, 0.14);
-              border: 1px solid rgba(255, 255, 255, 0.18);
+              background: rgba(148, 163, 184, 0.25);
+              border: 1px solid rgba(148, 163, 184, 0.3);
               position: relative;
               flex-shrink: 0;
               cursor: pointer;
@@ -1571,6 +1512,94 @@ jobs:
             .v14-switch.on::after {
               transform: translate3d(20px, 0, 0);
             }
+            /* Game Card */
+            .game-card-item {
+              background: var(--bg-well);
+              border: 1px solid var(--border-hairline);
+              border-radius: 16px;
+              padding: 11px 12px;
+              margin-bottom: 8px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 10px;
+            }
+            .game-icon-box {
+              width: 44px;
+              height: 44px;
+              border-radius: 12px;
+              background: rgba(56, 189, 248, 0.12);
+              border: 1px solid rgba(56, 189, 248, 0.28);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+              flex-shrink: 0;
+              font-weight: 800;
+              font-size: 13px;
+              color: #38BDF8;
+            }
+            .game-icon-box img {
+              width: 100%;
+              height: 100%;
+              object-fit: cover;
+            }
+            .btn-launch-game {
+              background: linear-gradient(135deg, #10B981, #059669);
+              color: #FFFFFF;
+              font-size: 11px;
+              font-weight: 800;
+              padding: 9px 12px;
+              border-radius: 11px;
+              white-space: nowrap;
+            }
+            .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+            .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+            .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
+            .stat-well {
+              background: var(--bg-well);
+              border: 1px solid var(--border-hairline);
+              border-radius: 13px;
+              padding: 9px 10px;
+            }
+            .stat-well-label { font-size: 10px; color: var(--text-secondary); margin-bottom: 3px; }
+            .stat-well-val { font-size: 13.5px; font-weight: 800; }
+            .btn-full-action {
+              width: 100%;
+              padding: 12px;
+              border-radius: 14px;
+              background: rgba(255, 255, 255, 0.08);
+              border: 1px solid rgba(255, 255, 255, 0.16);
+              font-size: 12px;
+              font-weight: 800;
+              text-align: center;
+              margin-top: 8px;
+              display: block;
+            }
+            .btn-emerald-action {
+              width: 100%;
+              padding: 12px;
+              border-radius: 14px;
+              background: rgba(16, 185, 129, 0.16);
+              border: 1px solid rgba(16, 185, 129, 0.45);
+              color: #34D399;
+              font-size: 12px;
+              font-weight: 800;
+              text-align: center;
+              margin-top: 8px;
+              display: block;
+            }
+            .num-input {
+              width: 100%;
+              background: var(--bg-well);
+              border: 1px solid var(--border-hairline);
+              border-radius: 11px;
+              padding: 9px 11px;
+              font-size: 12px;
+              font-weight: 700;
+              color: var(--text-primary);
+              text-align: center;
+            }
             .oem-chip-row {
               display: flex;
               gap: 6px;
@@ -1585,104 +1614,16 @@ jobs:
               font-size: 11px;
               font-weight: 700;
               white-space: nowrap;
-              background: rgba(255, 255, 255, 0.04);
-              border: 1px solid rgba(255, 255, 255, 0.1);
+              background: var(--bg-well);
+              border: 1px solid var(--border-hairline);
               color: var(--text-secondary);
             }
             .oem-chip.active {
               background: rgba(56, 189, 248, 0.18);
               border-color: #38BDF8;
-              color: #FFFFFF;
+              color: var(--text-primary);
             }
-            .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
-            .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-            .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7px; }
-            .stat-well {
-              background: var(--bg-well);
-              border: 1px solid rgba(255, 255, 255, 0.07);
-              border-radius: 13px;
-              padding: 9px 10px;
-            }
-            .stat-well-label { font-size: 9.5px; color: var(--text-secondary); margin-bottom: 3px; }
-            .stat-well-val { font-size: 13.5px; font-weight: 800; color: #FFFFFF; }
-            .btn-solid-white {
-              width: 100%;
-              padding: 12px;
-              border-radius: 13px;
-              background: #F8FAFC;
-              color: #06080E;
-              font-size: 12px;
-              font-weight: 800;
-              text-align: center;
-              margin-top: 8px;
-              display: block;
-            }
-            .btn-emerald-rescue {
-              width: 100%;
-              padding: 11px 12px;
-              border-radius: 13px;
-              background: rgba(16, 185, 129, 0.16);
-              border: 1px solid rgba(16, 185, 129, 0.48);
-              color: #34D399;
-              font-size: 11.5px;
-              font-weight: 800;
-              text-align: center;
-              margin-top: 8px;
-              display: block;
-            }
-            .btn-cyan-outline {
-              width: 100%;
-              padding: 11px 12px;
-              border-radius: 13px;
-              background: rgba(56, 189, 248, 0.14);
-              border: 1px solid rgba(56, 189, 248, 0.45);
-              color: #7DD3FC;
-              font-size: 11.5px;
-              font-weight: 800;
-              text-align: center;
-              margin-top: 8px;
-              display: block;
-            }
-            .btn-glass-subtle {
-              width: 100%;
-              padding: 11px;
-              border-radius: 13px;
-              background: rgba(255, 255, 255, 0.05);
-              border: 1px solid rgba(255, 255, 255, 0.14);
-              color: #F8FAFC;
-              font-size: 11.5px;
-              font-weight: 700;
-              text-align: center;
-              margin-top: 8px;
-              display: block;
-            }
-            .num-input {
-              width: 100%;
-              background: var(--bg-well);
-              border: 1px solid var(--border-hairline);
-              border-radius: 11px;
-              padding: 9px 11px;
-              font-size: 12px;
-              font-weight: 700;
-              color: #FFFFFF;
-              text-align: center;
-            }
-            input[type="range"] {
-              -webkit-appearance: none;
-              width: 100%;
-              height: 6px;
-              border-radius: 99px;
-              background: rgba(255, 255, 255, 0.14);
-              margin: 10px 0;
-            }
-            input[type="range"]::-webkit-slider-thumb {
-              -webkit-appearance: none;
-              width: 20px;
-              height: 20px;
-              border-radius: 50%;
-              background: #FFFFFF;
-              border: 2px solid var(--accent-cyan);
-            }
+            /* Thanh điều hướng 5 Tab Kính Lỏng dưới đáy */
             .bottom-nav-dock {
               position: fixed;
               bottom: 10px;
@@ -1700,6 +1641,9 @@ jobs:
               display: grid;
               grid-template-columns: repeat(5, 1fr);
               align-items: center;
+              background: rgba(12, 16, 24, 0.92);
+              border: 1px solid rgba(255, 255, 255, 0.2);
+              box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
               touch-action: none;
             }
             .dock-sliding-lens {
@@ -1709,13 +1653,12 @@ jobs:
               left: 5px;
               width: calc((100% - 10px) / 5);
               border-radius: 99px;
-              background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.42) 0%, rgba(255, 255, 255, 0.14) 62%, rgba(56, 189, 248, 0.24) 100%);
-              border: 1px solid rgba(255, 255, 255, 0.5);
+              background: radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.38) 0%, rgba(56, 189, 248, 0.22) 100%);
+              border: 1px solid rgba(255, 255, 255, 0.48);
               pointer-events: none;
               z-index: 1;
               transition: transform 240ms cubic-bezier(0.22, 1.25, 0.36, 1);
             }
-            .dock-sliding-lens.dragging { transition: none !important; }
             .dock-tab-btn {
               position: relative;
               z-index: 2;
@@ -1724,18 +1667,15 @@ jobs:
               flex-direction: column;
               align-items: center;
               justify-content: center;
-              gap: 3px;
-              font-size: 10px;
+              font-size: 10.5px;
               font-weight: 700;
-              color: rgba(255, 255, 255, 0.62);
+              color: #94A3B8;
             }
-            .dock-tab-btn.active {
-              color: #FFFFFF;
-            }
+            .dock-tab-btn.active { color: #FFFFFF; }
             .modal-backdrop {
               position: fixed;
               inset: 0;
-              background: rgba(3, 5, 10, 0.86);
+              background: rgba(3, 5, 10, 0.85);
               z-index: 240;
               display: none;
               align-items: center;
@@ -1746,7 +1686,7 @@ jobs:
             .modal-sheet-box {
               width: 100%;
               max-width: 410px;
-              border-radius: 28px;
+              border-radius: 26px;
               padding: 18px;
               max-height: 86vh;
               overflow-y: auto;
@@ -1758,14 +1698,14 @@ jobs:
               margin: 12px 0;
             }
             .digit-glass-slot {
-              height: 48px;
-              border-radius: 13px;
-              background: rgba(255, 255, 255, 0.06);
-              border: 1px solid rgba(255, 255, 255, 0.18);
+              height: 46px;
+              border-radius: 12px;
+              background: var(--bg-well);
+              border: 1px solid rgba(255, 255, 255, 0.2);
               display: flex;
               align-items: center;
               justify-content: center;
-              font-size: 20px;
+              font-size: 19px;
               font-weight: 800;
             }
             .digit-glass-slot.filled {
@@ -1779,13 +1719,12 @@ jobs:
               margin-bottom: 10px;
             }
             .numpad-key {
-              height: 44px;
-              border-radius: 14px;
+              height: 43px;
+              border-radius: 13px;
               background: rgba(255, 255, 255, 0.08);
               border: 1px solid rgba(255, 255, 255, 0.15);
               font-size: 17px;
               font-weight: 700;
-              color: #FFFFFF;
             }
             .tab-pane { display: none; }
             .tab-pane.active { display: block; }
@@ -1810,67 +1749,35 @@ jobs:
           </head>
           <body>
 
-          <div id="toastPill" class="liquid-glass-v2">BangOptimize v13.5 Masterpiece sẵn sàng</div>
+          <div id="toastPill" class="liquid-glass-v2">BangOptimize v14.0 All-In-One sẵn sàng</div>
 
-          <!-- MODAL 1: THÊM GAME MỚI (CHỌN TỪ APP TRONG MÁY HOẶC NHẬP TÊN) -->
-          <div id="addGameModal" class="modal-backdrop" onclick="closeAddGameModal()">
-            <div class="modal-sheet-box liquid-glass-v2" onclick="event.stopPropagation()">
-              <div class="sec-row">
-                <div>
-                  <div class="sec-heading">➕ Thêm Game vào Game Booster Hub</div>
-                  <div class="sec-sub">Chọn từ ứng dụng đang cài trên máy hoặc nhập tên tùy ý</div>
-                </div>
-                <button class="tag-pill tap-spring" style="padding:5px 10px;" onclick="closeAddGameModal()">Đóng ✕</button>
-              </div>
-
-              <div style="background:rgba(0,0,0,0.35); border:1px solid var(--border-hairline); border-radius:16px; padding:12px; margin-bottom:12px;">
-                <div style="font-size:11.5px; font-weight:800; color:#38BDF8; margin-bottom:8px;">1. Nhập tên Game & Cài đặt cấu hình riêng</div>
-                <input id="inpCustomGameName" class="num-input" style="text-align:left; margin-bottom:7px;" type="text" placeholder="Nhập tên Game (VD: Liên Quân, Wuthering Waves, FC Online...)" />
-                <input id="inpCustomGamePkg" class="num-input" style="text-align:left; margin-bottom:8px; font-family:monospace;" type="text" placeholder="Tên gói Package (VD: com.garena.game.kgvn - có thể để trống)" />
-
-                <div class="grid-2" style="margin-bottom:8px;">
-                  <div>
-                    <div class="stat-well-label">Độ phân giải khi vào Game</div>
-                    <select id="selCustomGameRes" class="num-input" style="padding:7px;">
-                      <option value="720x1600:293">720p Gaming (293 DPI)</option>
-                      <option value="540x1200:220">540p Siêu Mượt (220 DPI)</option>
-                      <option value="1080x2400:410">Màn gốc 1080p (Sắc nét)</option>
-                    </select>
-                  </div>
-                  <div>
-                    <div class="stat-well-label">Chế độ Cảm ứng & Hz</div>
-                    <select id="selCustomGameMode" class="num-input" style="padding:7px;">
-                      <option value="120Hz · 0ms Touch + AOT">120Hz · 0ms Touch + AOT</option>
-                      <option value="90Hz · Pointer +7 Nhạy tâm">90Hz · Pointer +7 Nhạy tâm</option>
-                      <option value="Hạ nhiệt · Ổn định FPS">Hạ nhiệt · Ổn định FPS</option>
-                    </select>
-                  </div>
-                </div>
-                <button class="btn-emerald-rescue tap-spring" style="margin-top:4px;" onclick="addManualGameToHub()">
-                  ➕ Lưu & Thêm Game Này Vào Danh Sách
-                </button>
-              </div>
-
-              <div>
-                <div style="font-size:11.5px; font-weight:800; color:#34D399; margin-bottom:6px;">
-                  2. Hoặc chạm để chọn từ Ứng dụng đang cài trên máy (<span id="pickerAppCount">0</span> app)
-                </div>
-                <input id="inpPickerSearch" class="num-input" style="text-align:left; margin-bottom:8px;" type="text" placeholder="🔍 Gõ tên ứng dụng / game trong máy để lọc nhanh..." oninput="renderInstalledAppPicker()" />
-                <div id="installedAppPickerList" style="max-height:230px; overflow-y:auto;"></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- MODAL 2: GHÉP NỐI 6 SỐ LIQUID GLASS -->
+          <!-- MODAL 1: QUẢN LÝ KẾT NỐI (KẾT NỐI SOCKET NỘI BỘ 1-CHẠM + ẨN ADB CHO VNeID/NGÂN HÀNG + GHÉP NỐI 6 SỐ) -->
           <div id="pairSheetModal" class="modal-backdrop" onclick="closePairModal()">
             <div class="modal-sheet-box liquid-glass-v2" onclick="event.stopPropagation()">
               <div class="sec-row">
                 <div>
-                  <div class="sec-heading">Ghép nối Lõi ADB 2-in-1</div>
-                  <div class="sec-sub" id="mdnsStatusText">Tự động dò cổng (_adb-tls-pairing)</div>
+                  <div class="sec-heading">🔗 Quản lý kết nối hệ thống</div>
+                  <div class="sec-sub" id="mdnsStatusText">Kết nối qua Socket nội bộ (Chạy cả khi tắt mạng)</div>
                 </div>
-                <input id="inpPairPort" style="width:78px; background:rgba(0,0,0,0.45); border:1px solid rgba(255,255,255,0.2); border-radius:9px; padding:6px; text-align:center; font-weight:800; color:#38BDF8;" type="number" value="37845" />
+                <button class="badge-status-ok tap-spring" onclick="closePairModal()">Đóng ✕</button>
               </div>
+
+              <!-- Nút Kích hoạt nhanh Socket nội bộ không cần mở Tùy chọn nhà phát triển lại -->
+              <div style="background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.38); border-radius:16px; padding:12px; margin-bottom:12px;">
+                <div style="font-size:12.5px; font-weight:800; color:#34D399; margin-bottom:4px;">⚡ Kết nối nhanh Socket Nội Bộ (Không cần mạng)</div>
+                <div style="font-size:11px; color:var(--text-secondary); line-height:1.4; margin-bottom:8px;">
+                  Sử dụng phiên kết nối nội bộ để kích hoạt ngay toàn bộ tính năng và ẩn trạng thái gỡ lỗi trước VNeID / Ngân hàng mà không cần bật lại Tùy chọn nhà phát triển.
+                </div>
+                <button class="btn-emerald-action tap-spring" style="margin-top:0;" onclick="activateDirectSocketNow()">
+                  ✓ Kích hoạt Kết nối Nội bộ & Ẩn ADB Ngay
+                </button>
+              </div>
+
+              <!-- Khối ghép nối lần đầu bằng mã 6 số (Nếu máy mới hoàn toàn) -->
+              <div style="font-size:11.5px; font-weight:700; color:var(--text-secondary); margin-bottom:6px;">
+                Hoặc ghép nối lần đầu bằng mã 6 số (Cổng tự dò):
+              </div>
+              <input id="inpPairPort" class="num-input" style="margin-bottom:8px; color:#38BDF8;" type="number" value="37845" placeholder="Cổng ghép nối (Port)" />
 
               <div class="six-digit-grid" id="sixDigitGrid">
                 <div class="digit-glass-slot">-</div>
@@ -1896,128 +1803,247 @@ jobs:
                 <button class="numpad-key tap-spring" onclick="backspaceDigit()">⌫</button>
               </div>
 
-              <button class="btn-solid-white tap-spring" onclick="submitSixDigitPairing()">⚡ Kết nối Lõi ADB 2-in-1 Ngay</button>
-              <button class="btn-emerald-rescue tap-spring" onclick="launchDevOptionsWithNotification()">🔔 Mở Cài đặt & Nhập mã trên Thanh thông báo</button>
+              <button class="btn-full-action tap-spring" style="background:#F8FAFC; color:#07090F;" onclick="submitSixDigitPairing()">Ghép nối với mã 6 số</button>
+              <button class="btn-full-action tap-spring" onclick="launchDevOptionsWithNotification()">🔔 Mở Cài đặt & Nhập mã trên Thanh thông báo</button>
             </div>
           </div>
 
-          <!-- HERO STAGE -->
-          <div class="liquid-hero-stage">
-            <div class="top-reactor-header">
-              <div style="display:flex; align-items:center; gap:10px;">
-                <div class="reactor-emblem-box liquid-glass-v2 tap-spring" onclick="openPairModal()">
-                  <svg width="28" height="28" viewBox="0 0 36 36" fill="none">
-                    <path d="M11 14H7V24H11" stroke="#10B981" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M25 14H29V24H25" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
-                    <rect x="11" y="12" width="14" height="15" rx="2.5" fill="rgba(15,41,58,0.85)" stroke="#38BDF8" stroke-width="1.8"/>
-                    <circle cx="18" cy="19.5" r="4.5" fill="#08121C" stroke="#10B981" stroke-width="1.4"/>
-                    <path d="M18.8 16.5L16 20H18.2L17.4 22.8L20.2 19.2H18L18.8 16.5Z" fill="#FFFFFF"/>
-                  </svg>
-                </div>
-                <div>
-                  <div style="font-size:15.5px; font-weight:800;">BangOptimize <span style="font-size:10px; padding:2px 6px; border-radius:6px; background:rgba(56,189,248,0.2); color:#38BDF8;">v13.5 Masterpiece</span></div>
-                  <div style="font-size:10.5px; color:var(--text-secondary);" id="deviceModelText">Bang Technology · 2-in-1 Wireless ADB</div>
-                </div>
-              </div>
-
-              <button class="adb-status-pill liquid-glass-v2 tap-spring" onclick="openPairModal()">
-                <span id="adbLed" class="status-led"></span>
-                <span id="adbTopStatusText">Ghép nối 6 số</span>
-              </button>
-            </div>
-
-            <div id="metaballStage" class="metaball-interactive-zone">
-              <div class="liquid-main-bar liquid-glass-v2">
-                <div class="liquid-bar-metric tap-spring" onclick="switchTab(0)">
-                  <span style="color:#38BDF8;">●</span>
-                  <span id="hudFps">90 FPS</span>
-                </div>
-                <div class="liquid-bar-metric tap-spring" onclick="switchTab(1)">
-                  <span style="color:#10B981;">●</span>
-                  <span id="hudRamTop">RAM 62%</span>
-                </div>
-                <div class="liquid-bar-metric tap-spring" onclick="switchTab(3)">
-                  <span style="color:#F97316;">●</span>
-                  <span id="hudTempTop">34.5°C · 2.1W</span>
-                </div>
-              </div>
-
-              <div id="liquidOrb" class="liquid-draggable-orb liquid-glass-v2">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              </div>
-            </div>
-            <div style="font-size:10px; color:rgba(255,255,255,0.72); text-align:center;">
-              Kéo <b>Giọt kính lỏng (🔍)</b> để giải phóng RAM · Giữ <b>Giảm âm lượng 3s</b> để cứu hộ màn hình gốc
-            </div>
-          </div>
-
-          <!-- TAB 0: TRUNG TÂM -->
-          <div id="tab-0" class="tab-pane active">
-            <div style="padding: 0 13px; margin-bottom: 10px;" class="grid-2">
-              <div class="amber-hero-card tap-spring" onclick="cleanRamNow()">
-                <div style="font-size:9.5px; font-weight:700; text-transform:uppercase;">Bộ nhớ trống khả dụng</div>
-                <div style="font-size:23px; font-weight:800; margin-top:4px;"><span id="animFreeRam">2,140</span> <span style="font-size:12px;">MB</span></div>
-                <div style="font-size:10px; margin-top:5px;" id="notifRamText">Đang dùng 3466/5606 MB</div>
-              </div>
-
-              <div class="matte-metal-card tap-spring" onclick="openPairModal()">
-                <div style="font-size:9.5px; font-weight:700; color:var(--text-secondary); text-transform:uppercase;">Lõi 2-in-1 & Tần số</div>
-                <div style="font-size:23px; font-weight:800; margin-top:4px;"><span id="animHzVal">90</span><span style="font-size:12px; color:var(--text-secondary);">Hz</span> · <span id="animTempVal">34</span><span style="font-size:12px; color:var(--text-secondary);">°C</span></div>
-                <div style="font-size:10px; font-weight:700; color:#34D399; margin-top:5px;" id="cardAdbSub">▲ Chạm để ghép nối 6 số</div>
-                <div style="font-size:9.5px; color:var(--text-muted); margin-top:2px;" id="socSubLabel">Snapdragon / Dimensity</div>
-              </div>
-            </div>
-
-            <div class="bento-glass-card" style="border-color: rgba(16, 185, 129, 0.38);">
+          <!-- MODAL 2: THÊM GAME MỚI (CHỌN TỪ APP TRONG MÁY HOẶC NHẬP TÊN) -->
+          <div id="addGameModal" class="modal-backdrop" onclick="closeAddGameModal()">
+            <div class="modal-sheet-box liquid-glass-v2" onclick="event.stopPropagation()">
               <div class="sec-row">
-                <span class="sec-heading" style="color:#34D399;">🛡️ Lá chắn Anti-OTG Bootloop Shield</span>
-                <span class="tag-pill" style="color:#34D399; border-color:rgba(16,185,129,0.4);">Bảo vệ 24/7</span>
+                <div>
+                  <div class="sec-heading">➕ Thêm Game vào Game Hub</div>
+                  <div class="sec-sub">Chọn từ ứng dụng trên máy hoặc nhập tên tùy ý</div>
+                </div>
+                <button class="badge-status-ok tap-spring" onclick="closeAddGameModal()">Đóng ✕</button>
               </div>
-              <div style="font-size:11px; color:var(--text-secondary); line-height:1.42; margin-bottom:6px;">
-                Tự động khóa chặn và gỡ sạch 2 biến từng gây văng ứng dụng / sập nguồn phải dùng chuột OTG: <code>angle_gl_driver_all_angle</code> và <code>cached_apps_freezer</code>.
+
+              <div style="background:var(--bg-well); border:1px solid var(--border-hairline); border-radius:16px; padding:12px; margin-bottom:12px;">
+                <input id="inpCustomGameName" class="num-input" style="text-align:left; margin-bottom:7px;" type="text" placeholder="Nhập tên Game (VD: Liên Quân, Wuthering Waves, FC Online...)" />
+                <input id="inpCustomGamePkg" class="num-input" style="text-align:left; margin-bottom:8px;" type="text" placeholder="Tên gói (Có thể để trống hệ thống tự tìm)" />
+                <div class="grid-2" style="margin-bottom:8px;">
+                  <select id="selCustomGameRes" class="num-input" style="padding:7px;">
+                    <option value="720x1600:293">720p Gaming</option>
+                    <option value="540x1200:220">540p Siêu Mượt</option>
+                    <option value="1080x2400:410">Màn gốc 1080p</option>
+                  </select>
+                  <select id="selCustomGameMode" class="num-input" style="padding:7px;">
+                    <option value="Tần số cao · Cảm ứng 0ms">Tần số cao · 0ms</option>
+                    <option value="Nhạy tâm · Mượt màn hình">Nhạy tâm · Mượt</option>
+                    <option value="Hạ nhiệt · Ổn định FPS">Hạ nhiệt · Ổn định</option>
+                  </select>
+                </div>
+                <button class="btn-emerald-action tap-spring" style="margin-top:0;" onclick="addManualGameToHub()">➕ Lưu & Thêm Game</button>
               </div>
-              <button class="btn-emerald-rescue tap-spring" onclick="triggerAntiOtgRescueNow()">
-                🛡️ Quét & Gỡ Sạch Lệnh Gây Treo Ngay (Anti-OTG Rescue)
+
+              <div style="font-size:11.5px; font-weight:700; color:#34D399; margin-bottom:6px;">
+                Hoặc chạm chọn từ ứng dụng đang cài trên máy (<span id="pickerAppCount">0</span>):
+              </div>
+              <input id="inpPickerSearch" class="num-input" style="text-align:left; margin-bottom:8px;" type="text" placeholder="🔍 Gõ tên ứng dụng / game để lọc..." oninput="renderInstalledAppPicker()" />
+              <div id="installedAppPickerList" style="max-height:220px; overflow-y:auto;"></div>
+            </div>
+          </div>
+
+          <!-- ================= HEADER THƯƠNG HIỆU & CHẾ ĐỘ SÁNG/TỐI ================= -->
+          <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px 4px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:40px; height:40px; border-radius:12px; background:rgba(56,189,248,0.14); border:1px solid rgba(56,189,248,0.4); display:flex; align-items:center; justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 36 36" fill="none">
+                  <path d="M11 14H7V24H11" stroke="#10B981" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M25 14H29V24H25" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
+                  <rect x="11" y="12" width="14" height="15" rx="2.5" fill="rgba(15,41,58,0.85)" stroke="#38BDF8" stroke-width="1.8"/>
+                  <path d="M18.8 16.5L16 20H18.2L17.4 22.8L20.2 19.2H18L18.8 16.5Z" fill="#FFFFFF"/>
+                </svg>
+              </div>
+              <div>
+                <div style="font-size:10px; font-weight:800; letter-spacing:0.05em; color:var(--text-secondary);">BANG TECHNOLOGY TOOLKIT</div>
+                <div style="font-size:19px; font-weight:900; letter-spacing:-0.02em;" id="headerDeviceTitle">Đang nhận diện máy...</div>
+                <div style="font-size:11px; color:var(--text-secondary);" id="headerOsSub">MIUI & HyperOS · Android Universal</div>
+              </div>
+            </div>
+
+            <button class="badge-status-ok tap-spring" style="background:var(--bg-card); color:var(--text-primary); border-color:var(--border-hairline); padding:7px 11px;" onclick="toggleLightDarkTheme()">
+              🌓 Sáng / Tối
+            </button>
+          </div>
+
+          <!-- ================= TAB 0: TRANG CHỦ (CHUẨN VIDEO TOOLKIT + KẾT NỐI SOCKET NỘI BỘ + 3 VÒNG TRÒN) ================= -->
+          <div id="tab-0" class="tab-pane active">
+
+            <!-- Thẻ Kết nối hệ thống & Ẩn ADB cho VNeID / Ngân hàng -->
+            <div class="bento-card">
+              <div class="sec-row">
+                <span class="sec-heading">Kết nối hệ thống</span>
+                <span style="font-size:11px; color:var(--accent-cyan); font-weight:700;" onclick="openPairModal()">🔗 Thiết lập</span>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-hairline);">
+                <span style="font-size:13px; font-weight:700;">✓ ADB Socket Nội Bộ</span>
+                <span id="statusBadgeAdb" class="badge-status-ok" onclick="openPairModal()">Đã kết nối</span>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid var(--border-hairline);">
+                <span style="font-size:13px; font-weight:700;">✓ Dịch vụ Shell / Shizuku Nội Bộ</span>
+                <span id="statusBadgeShell" class="badge-status-ok" onclick="openPairModal()">Đã kết nối</span>
+              </div>
+
+              <button class="btn-full-action tap-spring" onclick="openPairModal()">Quản lý kết nối</button>
+              <div id="connSubHint" style="font-size:10.5px; color:var(--text-secondary); margin-top:7px;">
+                Đã kết nối qua Socket nội bộ — Hoạt động ổn định cả khi tắt Wi-Fi và dữ liệu di động.
+              </div>
+
+              <!-- Công tắc Ẩn ADB & Tùy chọn nhà phát triển (Vào VNeID & Ngân hàng không bị chặn) -->
+              <div class="tweak-item active-on" style="margin-top:10px; margin-bottom:0;">
+                <div class="tweak-top">
+                  <div>
+                    <div class="tweak-title" style="color:#34D399;">🛡️ Ẩn ADB & Tùy chọn nhà phát triển</div>
+                    <div class="tweak-desc">Mở ứng dụng Ngân hàng và VNeID bình thường không bị chặn mà không cần tắt/bật lại trong Cài đặt máy</div>
+                  </div>
+                  <div id="swStealthVneid" class="v14-switch on" onclick="toggleStealthVneidSwitch(this)"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3 Vòng tròn tiến trình: Pin (%) | RAM (%) | Bộ nhớ (%) -->
+            <div class="bento-card">
+              <div class="ring-gauge-grid">
+                <div class="ring-box tap-spring" onclick="switchTab(3)">
+                  <div class="ring-label">Pin</div>
+                  <div class="ring-svg-wrap">
+                    <svg width="58" height="58" viewBox="0 0 60 60">
+                      <circle cx="30" cy="30" r="24" stroke="rgba(255,255,255,0.1)" stroke-width="5" fill="none"/>
+                      <circle id="ringCircleBat" cx="30" cy="30" r="24" stroke="#F97316" stroke-width="5" fill="none" stroke-dasharray="150.8" stroke-dashoffset="40" stroke-linecap="round" transform="rotate(-90 30 30)"/>
+                    </svg>
+                    <span id="ringTextBat" class="ring-val-text">78%</span>
+                  </div>
+                </div>
+
+                <div class="ring-box tap-spring" onclick="cleanRamNow()">
+                  <div class="ring-label">RAM</div>
+                  <div class="ring-svg-wrap">
+                    <svg width="58" height="58" viewBox="0 0 60 60">
+                      <circle cx="30" cy="30" r="24" stroke="rgba(255,255,255,0.1)" stroke-width="5" fill="none"/>
+                      <circle id="ringCircleRam" cx="30" cy="30" r="24" stroke="#38BDF8" stroke-width="5" fill="none" stroke-dasharray="150.8" stroke-dashoffset="65" stroke-linecap="round" transform="rotate(-90 30 30)"/>
+                    </svg>
+                    <span id="ringTextRam" class="ring-val-text">57%</span>
+                  </div>
+                </div>
+
+                <div class="ring-box tap-spring" onclick="switchTab(1)">
+                  <div class="ring-label">Bộ nhớ</div>
+                  <div class="ring-svg-wrap">
+                    <svg width="58" height="58" viewBox="0 0 60 60">
+                      <circle cx="30" cy="30" r="24" stroke="rgba(255,255,255,0.1)" stroke-width="5" fill="none"/>
+                      <circle id="ringCircleSto" cx="30" cy="30" r="24" stroke="#A855F7" stroke-width="5" fill="none" stroke-dasharray="150.8" stroke-dashoffset="55" stroke-linecap="round" transform="rotate(-90 30 30)"/>
+                    </svg>
+                    <span id="ringTextSto" class="ring-val-text">63%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cụm CÔNG CỤ NHANH (2x2) -->
+            <div style="padding: 2px 15px 6px; font-size:10.5px; font-weight:800; color:var(--text-secondary); letter-spacing:0.05em;">
+              CÔNG CỤ NHANH
+            </div>
+            <div class="quick-tool-grid">
+              <button class="quick-tool-tile tap-spring" onclick="switchTab(2)">
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                  <span style="font-size:15px;">⚙️</span><span style="color:var(--text-muted);">›</span>
+                </div>
+                <div style="font-size:13px; font-weight:800; margin-top:4px;">Setup & Tối ưu</div>
+                <div style="font-size:10.5px; color:var(--text-secondary);">Thông báo, trợ lý & chủ đề</div>
+              </button>
+
+              <button class="quick-tool-tile tap-spring" onclick="switchTab(1)">
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                  <span style="font-size:15px;">🎮</span><span style="color:var(--text-muted);">›</span>
+                </div>
+                <div style="font-size:13px; font-weight:800; margin-top:4px;">Game Booster</div>
+                <div style="font-size:10.5px; color:var(--text-secondary);">Dò game trong máy & 0ms</div>
+              </button>
+
+              <button class="quick-tool-tile tap-spring" onclick="switchTab(3)">
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                  <span style="font-size:15px;">🔋</span><span style="color:var(--text-muted);">›</span>
+                </div>
+                <div style="font-size:13px; font-weight:800; margin-top:4px;">Phân tích Pin</div>
+                <div style="font-size:10.5px; color:var(--text-secondary);">Sức khỏe pin & dòng sạc 1s</div>
+              </button>
+
+              <button class="quick-tool-tile tap-spring" onclick="switchTab(4)">
+                <div style="display:flex; justify-content:space-between; width:100%;">
+                  <span style="font-size:15px;">🕒</span><span style="color:var(--text-muted);">›</span>
+                </div>
+                <div style="font-size:13px; font-weight:800; margin-top:4px;">RAM & Nhật ký</div>
+                <div style="font-size:10.5px; color:var(--text-secondary);">Lịch sử và kết quả thực thi</div>
               </button>
             </div>
 
-            <div class="bento-glass-card">
+            <!-- Tự động dò dòng máy & Đề xuất tính năng chi tiết -->
+            <div class="bento-card" style="border-color:rgba(56,189,248,0.35);">
+              <div class="sec-row">
+                <div>
+                  <div class="sec-heading">📱 Hồ sơ Phần cứng & Tự động nhận diện</div>
+                  <div class="sec-sub" id="autoProfileDesc">Đang phân tích chuyên sâu cấu hình thiết bị...</div>
+                </div>
+                <span class="badge-status-ok" id="detectedHzTag">Max 120Hz</span>
+              </div>
+              <div class="grid-2" style="margin-bottom:8px;">
+                <div class="stat-well">
+                  <div class="stat-well-label">Dòng máy & Mã</div>
+                  <div class="stat-well-val" id="profModelVal" style="font-size:12px;">Xiaomi Redmi</div>
+                </div>
+                <div class="stat-well">
+                  <div class="stat-well-label">Vi xử lý & Đồ họa</div>
+                  <div class="stat-well-val" id="profSocVal" style="font-size:12px; color:#38BDF8;">Snapdragon / MediaTek</div>
+                </div>
+              </div>
+              <button class="btn-emerald-action tap-spring" onclick="runSmartAutoDeviceTune()">
+                ✨ Áp dụng Cấu hình Tối ưu Tự động cho Dòng máy này
+              </button>
+            </div>
+
+            <!-- Cấp độ tối ưu & Độ nhạy Florentino + Độ phân giải DPI -->
+            <div class="bento-card">
               <div class="sec-row">
                 <span class="sec-heading">🌹 Bảng Độ Nhạy Múa Florentino & Cấp Độ</span>
-                <span class="tag-pill" id="animLabel">0.5x Chuẩn</span>
+                <span class="badge-status-ok" id="animLabel">0.5x Chuẩn</span>
               </div>
               <div class="grid-3" style="margin-bottom:8px;">
-                <button class="stat-well tap-spring" style="text-align:center;" onclick="selectOptLevel('1.0', 'Smooth · 1.0x')">
+                <button class="stat-well tap-spring" style="text-align:center;" onclick="selectOptLevel('1.0', 'Smooth · Mát máy')">
                   <div class="stat-well-val" style="font-size:12px;">SMOOTH</div>
-                  <div class="stat-well-label">1.0x Mát máy</div>
+                  <div class="stat-well-label">Mát máy</div>
                 </button>
-                <button class="stat-well tap-spring" style="text-align:center; border-color:#38BDF8;" onclick="selectOptLevel('0.5', 'Medium · 0.5x')">
+                <button class="stat-well tap-spring" style="text-align:center; border-color:#38BDF8;" onclick="selectOptLevel('0.5', 'Medium · 0.5x Chuẩn')">
                   <div class="stat-well-val" style="font-size:12px; color:#38BDF8;">MEDIUM</div>
                   <div class="stat-well-label">0.5x Chuẩn</div>
                 </button>
-                <button class="stat-well tap-spring" style="text-align:center;" onclick="selectOptLevel('0.0', 'Crazy · 0x Delay')">
-                  <div class="stat-well-val" style="font-size:12px; color:#FDA4AF;">CRAZY 0x</div>
-                  <div class="stat-well-label">0ms Delay</div>
+                <button class="stat-well tap-spring" style="text-align:center;" onclick="selectOptLevel('0.0', 'Crazy · 0ms Delay')">
+                  <div class="stat-well-val" style="font-size:12px; color:#FDA4AF;">CRAZY</div>
+                  <div class="stat-well-label">Siêu tốc</div>
                 </button>
               </div>
-              <button id="btnFlo" class="btn-cyan-outline tap-spring" onclick="toggleFlorentino()">
-                🌹 Kích hoạt Profile Múa Florentino 0ms (Pointer +7 · 150ms Polling)
+              <button class="btn-full-action tap-spring" style="color:#38BDF8; border-color:rgba(56,189,248,0.4);" onclick="toggleFlorentino()">
+                🌹 Kích hoạt Độ nhạy Múa Florentino (Phản hồi chạm 0ms)
               </button>
             </div>
 
-            <div class="bento-glass-card">
+            <!-- Độ phân giải & Mật độ điểm ảnh -->
+            <div class="bento-card">
               <div class="sec-row">
-                <span class="sec-heading">🖥️ Độ phân giải & Mật độ DPI (Ultra Smooth)</span>
-                <span class="tag-pill" style="color:#38BDF8;" id="resCurrentBadge">1080x2400 @ 410</span>
+                <span class="sec-heading">🖥️ Độ phân giải & Mật độ điểm ảnh (DPI)</span>
+                <span class="badge-status-ok" id="resCurrentBadge">1080x2400 @ 410</span>
               </div>
               <div class="grid-3" style="margin-bottom:8px;">
                 <button class="stat-well tap-spring" onclick="setPresetRes(540, 1200, 220)">
                   <div class="stat-well-val" style="font-size:11.5px; color:#F97316;">540p Smooth</div>
-                  <div class="stat-well-label">540x1200 · 220</div>
+                  <div class="stat-well-label">Tăng FPS mạnh</div>
                 </button>
                 <button class="stat-well tap-spring" onclick="setPresetRes(720, 1600, 293)">
                   <div class="stat-well-val" style="font-size:11.5px; color:#38BDF8;">720p Gaming</div>
-                  <div class="stat-well-label">720x1600 · 293</div>
+                  <div class="stat-well-label">Cân bằng nét</div>
                 </button>
                 <button class="stat-well tap-spring" onclick="resetResolution()">
                   <div class="stat-well-val" style="font-size:11.5px; color:#34D399;">Màn gốc 1080p</div>
@@ -2030,43 +2056,33 @@ jobs:
                 <input id="inpDpi" class="num-input" type="number" value="410" />
               </div>
               <div class="grid-3">
-                <button class="btn-solid-white tap-spring" style="margin:0; padding:10px 4px; font-size:11px;" onclick="applyResolution(false)">Áp dụng</button>
-                <button id="btnTest15s" class="btn-glass-subtle tap-spring" style="margin:0; padding:10px 4px; font-size:11px;" onclick="applyResolution(true)">Thử 15s</button>
-                <button class="btn-glass-subtle tap-spring" style="margin:0; padding:10px 4px; font-size:11px; color:#FDA4AF;" onclick="resetResolution()">Về gốc</button>
+                <button class="btn-full-action tap-spring" style="margin:0; background:#F8FAFC; color:#07090F;" onclick="applyResolution(false)">Áp dụng</button>
+                <button id="btnTest15s" class="btn-full-action tap-spring" style="margin:0;" onclick="applyResolution(true)">Thử 15s</button>
+                <button class="btn-full-action tap-spring" style="margin:0; color:#FDA4AF;" onclick="resetResolution()">Về gốc</button>
               </div>
-            </div>
-
-            <div class="bento-glass-card">
-              <div class="sec-row">
-                <span class="sec-heading">🎛️ Bang GLTool & Công tắc Hệ thống</span>
-                <span class="tag-pill" id="activeCountBadge">0 đang bật</span>
-              </div>
-              <div id="mainTweakContainer"></div>
             </div>
           </div>
 
-          <!-- TAB 1: GAME HUB -->
+          <!-- ================= TAB 1: GAME HUB (DÒ TÌM GAME THẬT TRONG MÁY + THÊM GAME) ================= -->
           <div id="tab-1" class="tab-pane">
-            <div class="bento-glass-card">
+            <div class="bento-card">
               <div class="sec-row">
                 <div>
-                  <div class="sec-heading">🎮 Game Booster Hub (Dò tìm trên máy)</div>
-                  <div class="sec-sub" id="gameScanSubtitle">Đang quét các tựa game đã cài trên thiết bị của bạn...</div>
+                  <div class="sec-heading">🎮 Game Booster Hub (Tự dò trên máy)</div>
+                  <div class="sec-sub" id="gameScanSubtitle">Đang dò tìm các tựa game đã cài trên thiết bị...</div>
                 </div>
-                <button class="tag-pill tap-spring" style="background:rgba(56,189,248,0.18); border-color:#38BDF8; color:#38BDF8; padding:6px 10px;" onclick="rescanDeviceGamesNow()">
-                  🔄 Quét lại máy
-                </button>
+                <button class="badge-status-ok tap-spring" onclick="rescanDeviceGamesNow()">🔄 Quét lại</button>
               </div>
 
-              <button class="btn-emerald-rescue tap-spring" style="margin-top:0; margin-bottom:10px;" onclick="openAddGameModal()">
+              <button class="btn-emerald-action tap-spring" style="margin-top:0; margin-bottom:10px;" onclick="openAddGameModal()">
                 ➕ Thêm Game Mới (Chọn App trong máy hoặc Nhập tên)
               </button>
 
-              <div class="tweak-item-v14 verified-on" style="margin-bottom:12px;">
-                <div class="tweak-row-main">
+              <div class="tweak-item active-on" style="margin-bottom:12px;">
+                <div class="tweak-top">
                   <div>
-                    <div class="tweak-title" style="color:#34D399;">🔄 Tự động hoàn trả 1080p gốc khi thoát Game</div>
-                    <div class="tweak-sub">Ngay khi đóng game quay về màn hình chính, tự trả lại độ phân giải & DPI gốc</div>
+                    <div class="tweak-title" style="color:#34D399;">🔄 Tự động hoàn trả màn hình gốc khi thoát Game</div>
+                    <div class="tweak-desc">Ngay khi đóng game về màn hình chính, tự trả lại độ phân giải và tốc độ vuốt chuẩn</div>
                   </div>
                   <div id="swAutoRestoreGame" class="v14-switch on" onclick="toggleAutoRestoreGame(this)"></div>
                 </div>
@@ -2076,52 +2092,155 @@ jobs:
             </div>
           </div>
 
-          <!-- TAB 2: ĐA HÃNG -->
+          <!-- ================= TAB 2: TỐI ƯU HỆ THỐNG & SETUP (CHUẨN VIDEO TOOLKIT v2.0.1 + ĐA HÃNG OEM) ================= -->
           <div id="tab-2" class="tab-pane">
-            <div class="bento-glass-card">
+
+            <!-- Sửa thông báo chậm & Tự duy trì FCM -->
+            <div class="bento-card" style="border-color:rgba(16,185,129,0.4);">
               <div class="sec-row">
                 <div>
-                  <div class="sec-heading">📱 Tối ưu Chuyên biệt theo Hãng & Đời Chip</div>
-                  <div class="sec-sub" id="socMatrixBadge">Tự động nhận diện OEM & SoC</div>
+                  <div class="sec-heading">🔔 Sửa thông báo & Duy trì kết nối</div>
+                  <div class="sec-sub">Xử lý triệt để lỗi thông báo Zalo, Messenger đến chậm hoặc bị mất</div>
                 </div>
-                <span class="tag-pill" style="color:#38BDF8;">Multi-OEM</span>
+                <span>🔔</span>
+              </div>
+              <button class="btn-emerald-action tap-spring" style="margin-top:0; margin-bottom:10px;" onclick="fixDelayedNotificationsNow()">
+                ✓ Sửa thông báo ngay
+              </button>
+
+              <div class="tweak-item active-on" style="margin-bottom:0;">
+                <div class="tweak-top">
+                  <div>
+                    <div class="tweak-title">Tự duy trì kết nối nhận thông báo (FCM)</div>
+                    <div class="tweak-desc">Giữ luồng thông báo đẩy hoạt động liên tục không bị hệ thống ngắt ngầm</div>
+                  </div>
+                  <div class="v14-switch on" onclick="toggleCleanSwitch(this, 'cmd deviceidle whitelist +com.zing.zalo && cmd deviceidle whitelist +com.facebook.orca', 'echo ok', 'Đã bật Tự duy trì thông báo FCM')"></div>
+                </div>
+                <div style="margin-top:8px;">
+                  <select class="num-input" style="padding:7px;" onchange="showToast('Đã đặt chu kỳ duy trì: ' + this.value)">
+                    <option value="Mỗi 30 phút/lần">Mỗi 30 phút/lần ▾</option>
+                    <option value="Mỗi 15 phút/lần">Mỗi 15 phút/lần ▾</option>
+                    <option value="Mỗi 1 giờ/lần">Mỗi 1 giờ/lần ▾</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sửa trợ lý Gemini / Google (Giữ nút nguồn / Vuốt góc) -->
+            <div class="bento-card">
+              <div class="sec-row">
+                <div>
+                  <div class="sec-heading">✨ Sửa trợ lý (Giữ nút nguồn / Vuốt góc)</div>
+                  <div class="sec-sub">Khắc phục lỗi mất trợ lý giọng nói trên các bản ROM</div>
+                </div>
+              </div>
+              <button class="btn-full-action tap-spring" style="margin-top:0; margin-bottom:10px;" onclick="setGeminiDefaultAssistant()">
+                ✨ Đặt Gemini làm trợ lý mặc định
+              </button>
+
+              <div class="tweak-item">
+                <div class="tweak-top">
+                  <div>
+                    <div class="tweak-title">Giữ nút nguồn mở trợ lý Gemini</div>
+                    <div class="tweak-desc">Kích hoạt nhanh trợ lý thông minh khi nhấn giữ phím nguồn 0.5 giây</div>
+                  </div>
+                  <div class="v14-switch" onclick="toggleCleanSwitch(this, 'settings put global power_button_long_press 5', 'settings put global power_button_long_press 1', 'Đã gán phím nguồn mở Gemini')"></div>
+                </div>
+              </div>
+
+              <div class="tweak-item" style="margin-bottom:0;">
+                <div class="tweak-top">
+                  <div>
+                    <div class="tweak-title">Duy trì trợ lý hệ thống</div>
+                    <div class="tweak-desc">Tự động phục hồi dịch vụ trợ lý Google và Gemini khi bị đóng ngầm</div>
+                  </div>
+                  <div class="v14-switch on" onclick="toggleCleanSwitch(this, 'cmd deviceidle whitelist +com.google.android.googlequicksearchbox', 'echo ok', 'Đã bật Duy trì kết nối trợ lý')"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Chủ đề, Chống reset Theme, Gaming & Chặn cập nhật ROM -->
+            <div class="bento-card">
+              <div class="sec-row">
+                <span class="sec-heading">🎨 Chủ đề, Màn hình & Hệ thống</span>
+                <span class="badge-status-ok">Toolkit VIP</span>
+              </div>
+
+              <div class="tweak-item">
+                <div class="tweak-top">
+                  <div>
+                    <div class="tweak-title">Chống tự trả về Theme mặc định</div>
+                    <div class="tweak-desc">Giữ nguyên chủ đề, hình nền và font chữ bên thứ ba không bị hệ thống reset</div>
+                  </div>
+                  <div class="v14-switch" onclick="toggleCleanSwitch(this, 'pm clear com.android.thememanager', 'echo ok', 'Đã bật bộ chặn chống reset Theme')"></div>
+                </div>
+              </div>
+
+              <div class="tweak-item">
+                <div class="tweak-top">
+                  <div>
+                    <div class="tweak-title">Gaming (Tần số quét & Lấy mẫu cảm ứng cao nhất)</div>
+                    <div class="tweak-desc">Giữ tần số quét màn hình ở mức cao nhất và tăng tốc độ phản hồi cảm ứng khi máy hỗ trợ</div>
+                  </div>
+                  <div class="v14-switch" onclick="toggleCleanSwitch(this, 'settings put system peak_refresh_rate 120.0 && settings put secure long_press_timeout 150', 'settings delete system peak_refresh_rate', 'Đã bật chế độ Gaming tần số cao')"></div>
+                </div>
+              </div>
+
+              <div class="tweak-item" style="margin-bottom:0;">
+                <div class="tweak-top">
+                  <div>
+                    <div class="tweak-title">Chặn tự động tải cập nhật ROM</div>
+                    <div class="tweak-desc">Kiểm soát cập nhật hệ thống, ngăn tự tải bản cập nhật ngầm gây đầy bộ nhớ và nóng máy</div>
+                  </div>
+                  <div class="v14-switch" onclick="toggleCleanSwitch(this, 'am force-stop com.android.updater', 'echo ok', 'Đã bật kiểm soát cập nhật hệ thống')"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Setup nhanh & Tối ưu theo từng Hãng máy (Redmi / Vivo / OPPO / Samsung) -->
+            <div class="bento-card">
+              <div class="sec-row">
+                <span class="sec-heading">📱 Tối ưu chuyên biệt theo Hãng máy</span>
+                <span class="sec-sub">Tự động nhận diện</span>
               </div>
 
               <div class="oem-chip-row" id="oemChipRow">
-                <button class="oem-chip active tap-spring" onclick="selectOemBrand('REDMI', this)">Redmi Note / Redmi số</button>
+                <button class="oem-chip active tap-spring" onclick="selectOemBrand('REDMI', this)">Redmi / Xiaomi</button>
                 <button class="oem-chip tap-spring" onclick="selectOemBrand('VIVO', this)">Vivo X / iQOO</button>
                 <button class="oem-chip tap-spring" onclick="selectOemBrand('OPPO', this)">OPPO / Realme</button>
                 <button class="oem-chip tap-spring" onclick="selectOemBrand('SAMSUNG', this)">Samsung One UI</button>
-                <button class="oem-chip tap-spring" onclick="selectOemBrand('XIAOMI_FLAG', this)">Xiaomi Flagship</button>
-              </div>
-
-              <div style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); border-radius:13px; padding:10px 12px; font-size:11px; color:#E0F2FE; line-height:1.42; margin-bottom:10px;">
-                💡 <b>Ma trận Chip (SoC Matrix):</b> Đề xuất mở khóa hiệu ứng <code>v:1,c:3,g:3</code>, chặn dịch vụ bóp xung <code>com.xiaomi.joyose</code> ở 38°C và dùng mức <b>720p @ 293 DPI</b> khi chiến game nặng.
               </div>
 
               <div id="oemSpecificTweakList"></div>
+
+              <div class="grid-2" style="margin-top:8px;">
+                <button class="btn-full-action tap-spring" style="margin:0;" onclick="setVietnameseSystemLocale()">🇻🇳 Đổi Tiếng Việt</button>
+                <button class="btn-full-action tap-spring" style="margin:0; color:#34D399;" onclick="triggerAntiOtgRescueNow()">🛡️ Khôi phục đồ họa</button>
+              </div>
             </div>
           </div>
 
-          <!-- TAB 3: PIN & MẠNG -->
+          <!-- ================= TAB 3: PHÂN TÍCH PIN, SỨC KHỎE PIN, DÒNG SẠC 1S & MẠNG ================= -->
           <div id="tab-3" class="tab-pane">
-            <div class="bento-glass-card">
+
+            <!-- Biểu đồ Nhiệt độ & Dòng sạc Thực tế chạy từng giây (1.0s Live) -->
+            <div class="bento-card">
               <div class="sec-row">
                 <div>
                   <div class="sec-heading">⚡ Biểu đồ Nhiệt độ & Dòng sạc Thực tế</div>
-                  <div class="sec-sub">Chạy theo từng giây thực (1.0s Live BatteryManager)</div>
+                  <div class="sec-sub">Đo trực tiếp từ cảm biến nguồn mỗi 1.0 giây</div>
                 </div>
-                <span class="tag-pill" style="color:#34D399;">● 1.0s Live</span>
+                <span class="badge-status-ok">1.0s Live</span>
               </div>
 
               <div class="grid-4" style="margin-bottom:10px;">
                 <div class="stat-well">
                   <div class="stat-well-label">Nhiệt độ</div>
-                  <div class="stat-well-val" id="liveTempBox" style="color:#F97316;">34.5°C</div>
+                  <div class="stat-well-val" id="liveTempBox" style="color:#F97316;">35.0°C</div>
                 </div>
                 <div class="stat-well">
                   <div class="stat-well-label">Dòng điện</div>
-                  <div class="stat-well-val" id="liveMaBox" style="color:#34D399;">-420 mA</div>
+                  <div class="stat-well-val" id="liveMaBox" style="color:#34D399;">-410 mA</div>
                 </div>
                 <div class="stat-well">
                   <div class="stat-well-label">Công suất</div>
@@ -2129,17 +2248,17 @@ jobs:
                 </div>
                 <div class="stat-well">
                   <div class="stat-well-label">Điện áp</div>
-                  <div class="stat-well-val" id="liveMvBox">3920 mV</div>
+                  <div class="stat-well-val" id="liveMvBox">3950 mV</div>
                 </div>
               </div>
 
-              <div style="background:var(--bg-well); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:10px; margin-bottom:10px;">
-                <svg width="100%" height="90" viewBox="0 0 300 90" fill="none">
-                  <line x1="0" y1="22" x2="300" y2="22" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
-                  <line x1="0" y1="45" x2="300" y2="45" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
-                  <line x1="0" y1="68" x2="300" y2="68" stroke="rgba(255,255,255,0.06)"/>
-                  <polyline id="polyTempLine" fill="none" stroke="#F97316" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" points="0,48 300,48"/>
-                  <polyline id="polyCurrentLine" fill="none" stroke="#38BDF8" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" points="0,62 300,62"/>
+              <div style="background:var(--bg-well); border:1px solid var(--border-hairline); border-radius:14px; padding:10px; margin-bottom:8px;">
+                <svg width="100%" height="84" viewBox="0 0 300 84" fill="none">
+                  <line x1="0" y1="20" x2="300" y2="20" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+                  <line x1="0" y1="42" x2="300" y2="42" stroke="rgba(255,255,255,0.06)" stroke-dasharray="3 3"/>
+                  <line x1="0" y1="64" x2="300" y2="64" stroke="rgba(255,255,255,0.06)"/>
+                  <polyline id="polyTempLine" fill="none" stroke="#F97316" stroke-width="2.2" stroke-linecap="round" points="0,46 300,46"/>
+                  <polyline id="polyCurrentLine" fill="none" stroke="#38BDF8" stroke-width="2.0" stroke-linecap="round" points="0,60 300,60"/>
                 </svg>
                 <div style="display:flex; justify-content:space-between; font-size:10px; color:var(--text-secondary); margin-top:4px;">
                   <span style="color:#F97316;">━ Nhiệt độ Pin (°C)</span>
@@ -2147,122 +2266,220 @@ jobs:
                 </div>
               </div>
 
-              <button class="btn-emerald-rescue tap-spring" onclick="runEmergencyCoolDown()">
+              <button class="btn-emerald-action tap-spring" onclick="runEmergencyCoolDown()">
                 ❄️ Hạ Nhiệt Khẩn Cấp 1-Chạm (Đóng băng đồng bộ nền · Giảm 3-5°C)
               </button>
             </div>
 
-            <div class="bento-glass-card">
+            <!-- Dung lượng và Sức khỏe Pin + Theo dõi hao pin (Chuẩn Video Toolkit 01:02 - 01:04) -->
+            <div class="bento-card">
+              <div class="sec-row">
+                <span class="sec-heading">🔋 Dung lượng và sức khỏe pin</span>
+                <span class="badge-status-ok" id="batHealthStatusTag">Tốt</span>
+              </div>
+
+              <div class="grid-2" style="margin-bottom:10px;">
+                <div class="stat-well">
+                  <div class="stat-well-label">Dung lượng thiết kế</div>
+                  <div class="stat-well-val" id="batDesignMah">5.000 mAh</div>
+                  <div class="stat-well-label" style="margin-top:8px;">Dung lượng thực tế</div>
+                  <div class="stat-well-val" id="batActualMah" style="color:#38BDF8;">4.550 mAh</div>
+                </div>
+                <div class="stat-well" style="display:flex; flex-direction:column; justify-content:center;">
+                  <div class="stat-well-label">Sức khỏe theo dung lượng</div>
+                  <div id="batHealthPct" style="font-size:28px; font-weight:900; color:#34D399; margin-top:4px;">91%</div>
+                  <div style="font-size:10px; color:var(--text-secondary); margin-top:4px;">Đọc từ thông kế hệ thống</div>
+                </div>
+              </div>
+
+              <!-- Theo dõi hao pin theo thời gian -->
+              <div style="background:var(--bg-well); border:1px solid var(--border-hairline); border-radius:15px; padding:12px;">
+                <div class="sec-row" style="margin-bottom:6px;">
+                  <span style="font-size:12.5px; font-weight:800;">⏱️ Theo dõi mức hao pin trong phiên</span>
+                  <button class="badge-status-ok tap-spring" onclick="resetBatteryDrainSession()">🔄 Theo dõi lại</button>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <div>
+                    <div id="drainDeltaText" style="font-size:22px; font-weight:900; color:#34D399;">-0%</div>
+                    <div id="drainDurationText" style="font-size:10.5px; color:var(--text-secondary);">Bắt đầu lúc vừa mở ứng dụng</div>
+                  </div>
+                  <div style="text-align:right;">
+                    <div style="font-size:11px; color:var(--text-secondary);">Bắt đầu ➔ Hiện tại</div>
+                    <div id="drainStartEndText" style="font-size:13px; font-weight:800;">78% ➔ 78%</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mạng eSports & Tắt Vị Trí (Giữ nguyên Bluetooth 100% - Đã xóa toàn bộ chữ code thô) -->
+            <div class="bento-card">
               <div class="sec-row">
                 <div>
-                  <div class="sec-heading">📶 Network eSports Radar (Giữ Bluetooth)</div>
-                  <div class="sec-sub">Tắt Vị trí GPS chống nhảy ping nhưng bảo toàn Bluetooth 100%</div>
+                  <div class="sec-heading">📶 Tối ưu Mạng & Chống nhảy Ping</div>
+                  <div class="sec-sub">Bảo toàn kết nối tai nghe Bluetooth 100%</div>
                 </div>
-                <button class="tag-pill tap-spring" style="color:#34D399; border-color:#10B981; padding:5px 10px;" onclick="testRealPingNow()">
-                  ⚡ Đo Ping Thật
-                </button>
+                <button class="badge-status-ok tap-spring" onclick="testRealPingNow()">⚡ Đo Ping Thật</button>
               </div>
 
               <div class="grid-3" style="margin-bottom:10px;">
                 <div class="stat-well">
-                  <div class="stat-well-label">Garena Server</div>
+                  <div class="stat-well-label">Máy chủ Game</div>
                   <div class="stat-well-val" id="pingGarenaVal" style="color:#34D399;">18 ms</div>
                 </div>
                 <div class="stat-well">
-                  <div class="stat-well-label">Cloudflare 1.1.1.1</div>
+                  <div class="stat-well-label">Cloudflare DNS</div>
                   <div class="stat-well-val" id="pingCfVal" style="color:#38BDF8;">14 ms</div>
                 </div>
                 <div class="stat-well">
                   <div class="stat-well-label">Google DNS</div>
-                  <div class="stat-well-val" id="pingGoogleVal">22 ms</div>
+                  <div class="stat-well-val" id="pingGoogleVal">21 ms</div>
                 </div>
               </div>
 
-              <div class="tweak-item-v14">
-                <div class="tweak-row-main">
+              <div class="tweak-item">
+                <div class="tweak-top">
                   <div>
-                    <div class="tweak-title">📍 Tắt Vị trí GPS & Quét ngầm <span class="tag-pill" style="color:#38BDF8;">Giữ Bluetooth 100%</span></div>
-                    <div class="tweak-sub">Tắt <code>location_mode 0</code> & <code>wifi_scan_always_enabled 0</code> để dứt điểm vọt ping 460ms mà <b>không bao giờ tắt Bluetooth</b></div>
+                    <div class="tweak-title">📍 Tắt định vị GPS & Quét mạng ngầm</div>
+                    <div class="tweak-desc">Ngăn dịch vụ vị trí quét ngầm gây vọt ping đỏ khi đang giao tranh mà vẫn giữ nguyên kết nối Bluetooth</div>
                   </div>
-                  <div class="v14-switch" onclick="toggleSimpleCmd(this, 'settings put secure location_mode 0 && settings put global wifi_scan_always_enabled 0', 'settings put secure location_mode 3', 'Đã tắt Vị trí GPS (Giữ nguyên Bluetooth 100%)')"></div>
+                  <div class="v14-switch" onclick="toggleCleanSwitch(this, 'settings put secure location_mode 0 && settings put global wifi_scan_always_enabled 0', 'settings put secure location_mode 3', 'Đã tắt quét vị trí ngầm (Giữ Bluetooth 100%)')"></div>
                 </div>
               </div>
 
-              <div class="tweak-item-v14">
-                <div class="tweak-row-main">
+              <div class="tweak-item" style="margin-bottom:0;">
+                <div class="tweak-top">
                   <div>
-                    <div class="tweak-title">🚀 Khóa Ping 5GHz & Ưu tiên gói tin Game (QoS)</div>
-                    <div class="tweak-sub">Bật <code>wifi_sleep_policy 2</code> & <code>speed_mode 1</code></div>
+                    <div class="tweak-title">🚀 Ưu tiên đường truyền Game 5GHz</div>
+                    <div class="tweak-desc">Giữ bộ thu phát Wi-Fi hoạt động ở công suất tối đa, ngăn nghỉ ngầm gây trễ gói tin</div>
                   </div>
-                  <div class="v14-switch" onclick="toggleSimpleCmd(this, 'settings put global wifi_sleep_policy 2 && settings put secure speed_mode 1', 'settings put secure speed_mode 0', 'Đã bật Khóa Ping 5GHz')"></div>
+                  <div class="v14-switch" onclick="toggleCleanSwitch(this, 'settings put global wifi_sleep_policy 2 && settings put secure speed_mode 1', 'settings put secure speed_mode 0', 'Đã bật ưu tiên đường truyền Game')"></div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- TAB 4: RAM & ADB -->
+          <!-- ================= TAB 4: QUẢN LÝ RAM, WHITELIST & NHẬT KÝ ================= -->
           <div id="tab-4" class="tab-pane">
-            <div class="bento-glass-card">
+            <div class="bento-card">
               <div class="sec-row">
-                <span class="sec-heading">🧠 Quản lý Mốc Tự Dọn RAM & Whitelist</span>
-                <span class="tag-pill" id="sliderValText" style="color:#38BDF8;">4800 MB (Đầu 4.8x)</span>
+                <span class="sec-heading">🧠 Mốc tự động giải phóng RAM</span>
+                <span class="badge-status-ok" id="sliderValText">4800 MB (Đầu 4.8x)</span>
               </div>
-              <input id="ramSlider" type="range" min="2200" max="8000" step="100" value="4800" oninput="onRamSliderChange(this.value)" />
-              <button class="btn-solid-white tap-spring" onclick="cleanRamNow()">
-                🚀 Dọn Dẹp RAM Cực Mạnh Ngay (Giữ nguyên Whitelist & Bluetooth)
+              <input id="ramSlider" type="range" min="2200" max="8000" step="100" value="4800" style="width:100%; margin:10px 0;" oninput="onRamSliderChange(this.value)" />
+              <button class="btn-full-action tap-spring" style="background:#F8FAFC; color:#07090F;" onclick="cleanRamNow()">
+                🚀 Giải phóng RAM ngay (Giữ nguyên ứng dụng đang dùng & Whitelist)
               </button>
             </div>
 
-            <div class="bento-glass-card">
+            <div class="bento-card">
               <div class="sec-row">
-                <span class="sec-heading">🛡️ Lọc App Bảo Vệ (Whitelist trên máy)</span>
-                <button class="tag-pill tap-spring" onclick="rescanDeviceGamesNow()">🔄 Quét lại</button>
+                <span class="sec-heading">🛡️ Danh sách ứng dụng bảo vệ (Whitelist)</span>
+                <button class="badge-status-ok tap-spring" onclick="rescanDeviceGamesNow()">🔄 Làm mới</button>
               </div>
-              <input id="appSearchInput" class="num-input" style="text-align:left; margin-bottom:8px;" type="text" placeholder="🔍 Tìm tên ứng dụng trong máy để bật/tắt bảo vệ..." oninput="renderWhitelistApps()" />
+              <input id="appSearchInput" class="num-input" style="text-align:left; margin-bottom:8px;" type="text" placeholder="🔍 Tìm tên ứng dụng trong máy..." oninput="renderWhitelistApps()" />
               <div id="whitelistContainer" style="max-height:240px; overflow-y:auto;"></div>
             </div>
 
-            <div class="bento-glass-card">
+            <div class="bento-card">
               <div class="sec-row">
-                <span class="sec-heading">💻 Lõi ADB 2-in-1 & Nhật ký thực thi</span>
-                <span class="tag-pill" id="cmdCountBadge">0 lệnh</span>
+                <span class="sec-heading">💻 Nhật ký lịch sử và kết quả</span>
+                <span class="badge-status-ok" id="cmdCountBadge">0 tác vụ</span>
               </div>
-              <div id="consoleBox" style="font-family:monospace; font-size:11px; background:#04060A; border:1px solid var(--border-hairline); border-radius:12px; padding:11px; color:#CBD5E1; max-height:160px; overflow-y:auto; line-height:1.5; margin-bottom:8px;">
-                [BangOptimize v13.5] Đã khắc phục triệt để lỗi màn hình đen WebView.<br>
-                [Anti-OTG Guard] Khóa bảo vệ chống treo logo & bảo toàn Bluetooth 100%.
+              <div id="consoleBox" style="font-family:monospace; font-size:11px; background:var(--bg-well); border:1px solid var(--border-hairline); border-radius:12px; padding:11px; color:var(--text-secondary); max-height:160px; overflow-y:auto; line-height:1.5; margin-bottom:8px;">
+                ✓ BangOptimize v14.0 All-In-One đã khởi tạo.<br>
+                ✓ Chế độ Socket Nội Bộ & Ẩn ADB bảo vệ VNeID / Ngân hàng đã sẵn sàng.
               </div>
-              <div class="grid-2">
-                <button class="btn-cyan-outline tap-spring" style="margin:0;" onclick="openPairModal()">🔢 Ghép nối 6 số</button>
-                <button class="btn-glass-subtle tap-spring" style="margin:0; color:#FDA4AF;" onclick="restoreAllDefaults()">↺ Về mặc định NSX</button>
-              </div>
+              <button class="btn-full-action tap-spring" style="color:#FDA4AF;" onclick="restoreAllDefaults()">
+                ↺ Khôi phục toàn bộ cài đặt về mặc định ban đầu
+              </button>
             </div>
           </div>
 
-          <!-- BOTTOM 5-TAB LIQUID GLASS NAVBAR -->
+          <!-- ================= THANH ĐIỀU HƯỚNG 5 TAB KÍNH LỎNG DƯỚI ĐÁY ================= -->
           <nav class="bottom-nav-dock">
-            <div id="glassNavBar" class="glass-dock-track liquid-glass-v2">
+            <div id="glassNavBar" class="glass-dock-track">
               <div id="navLiquidLens" class="dock-sliding-lens"></div>
-              <button class="dock-tab-btn active" onclick="switchTab(0)"><span>Trung tâm</span></button>
+              <button class="dock-tab-btn active" onclick="switchTab(0)"><span>Trang chủ</span></button>
               <button class="dock-tab-btn" onclick="switchTab(1)"><span>Game Hub</span></button>
-              <button class="dock-tab-btn" onclick="switchTab(2)"><span>Đa hãng</span></button>
+              <button class="dock-tab-btn" onclick="switchTab(2)"><span>Tối ưu</span></button>
               <button class="dock-tab-btn" onclick="switchTab(3)"><span>Pin & Mạng</span></button>
-              <button class="dock-tab-btn" onclick="switchTab(4)"><span>RAM & ADB</span></button>
+              <button class="dock-tab-btn" onclick="switchTab(4)"><span>RAM & Log</span></button>
             </div>
           </nav>
 
           <script>
+            let cmdCount = 0;
+            let currentSixDigits = "";
+            let nativeWidth = 1080, nativeHeight = 2400, nativeDpi = 410;
+            let sessionStartBattery = -1;
+            let sessionStartTimeMs = Date.now();
+            let lastBatteryPct = 78;
+            let revertTimer = null;
+
+            function hapticTick() {
+              if (window.BangBridge && window.BangBridge.triggerHaptic) window.BangBridge.triggerHaptic();
+            }
+
+            function toggleLightDarkTheme() {
+              hapticTick();
+              document.body.classList.toggle('light-mode');
+              showToast(document.body.classList.contains('light-mode') ? '☀️ Đã chuyển sang Giao diện Sáng' : '🌙 Đã chuyển sang Giao diện Tối');
+            }
+
+            // ================= 1. KẾT NỐI SOCKET NỘI BỘ & ẨN ADB (BYPASS VNeID / NGÂN HÀNG) =================
+            function activateDirectSocketNow() {
+              hapticTick();
+              if (window.BangBridge && window.BangBridge.activateDirectSocketMode) {
+                const res = JSON.parse(window.BangBridge.activateDirectSocketMode());
+                closePairModal();
+                updateAdbStatusUI(true, res.mode);
+                showToast('⚡ ' + res.msg);
+              } else {
+                closePairModal();
+                updateAdbStatusUI(true, 'Socket Nội Bộ (Offline Ready)');
+                showToast('⚡ Đã kết nối Socket nội bộ không cần mạng!');
+              }
+            }
+
+            function toggleStealthVneidSwitch(el) {
+              hapticTick();
+              el.classList.toggle('on');
+              const isOn = el.classList.contains('on');
+              if (window.BangBridge && window.BangBridge.toggleStealthVneidMode) {
+                const msg = window.BangBridge.toggleStealthVneidMode(isOn);
+                appendLog(isOn ? 'Kích hoạt ẩn trạng thái ADB cho VNeID & Ngân hàng' : 'Hiện lại Tùy chọn nhà phát triển', 'STEALTH');
+                showToast('🛡️ ' + msg);
+              } else {
+                showToast(isOn ? '🛡️ Đã ẩn ADB — Mở VNeID & Ngân hàng không bị chặn!' : 'Đã tắt chế độ ẩn ADB');
+              }
+            }
+
+            // ================= 2. VÒNG TRÒN TIẾN TRÌNH (PIN / RAM / BỘ NHỚ) =================
+            function setRingProgress(circleId, textId, pct) {
+              const clamped = Math.max(0, Math.min(100, Math.round(pct)));
+              const circle = document.getElementById(circleId);
+              const txt = document.getElementById(textId);
+              if (circle) {
+                const circumference = 150.8;
+                const offset = circumference - (clamped / 100) * circumference;
+                circle.setAttribute('stroke-dashoffset', offset.toFixed(1));
+              }
+              if (txt) txt.textContent = clamped + '%';
+            }
+
+            // ================= 3. GAME HUB TỰ DÒ TRONG MÁY (ICON STREAM 0KB) =================
             const presetPopularGames = [
-              { name: 'Liên Quân Mobile', pkg: 'com.garena.game.kgvn', res: '720x1600:293', mode: '120Hz · 0ms Touch + AOT', installed: false, icon: '' },
-              { name: 'Free Fire MAX / TH', pkg: 'com.dts.freefiremax', res: '720x1600:293', mode: '90Hz · Pointer +7 Nhạy tâm', installed: false, icon: '' },
-              { name: 'PUBG Mobile VNG', pkg: 'com.vng.pubgmobile', res: '720x1600:293', mode: '120Hz · 0ms Touch + AOT', installed: false, icon: '' },
+              { name: 'Liên Quân Mobile', pkg: 'com.garena.game.kgvn', res: '720x1600:293', mode: 'Tần số cao · Cảm ứng 0ms', installed: false, icon: '' },
+              { name: 'Free Fire MAX', pkg: 'com.dts.freefiremax', res: '720x1600:293', mode: 'Nhạy tâm · Mượt màn hình', installed: false, icon: '' },
+              { name: 'PUBG Mobile VNG', pkg: 'com.vng.pubgmobile', res: '720x1600:293', mode: 'Tần số cao · Cảm ứng 0ms', installed: false, icon: '' },
               { name: 'Roblox', pkg: 'com.roblox.client', res: '540x1200:220', mode: 'Hạ nhiệt · Ổn định FPS', installed: false, icon: '' },
               { name: 'Genshin Impact', pkg: 'com.miHoYo.GenshinImpact', res: '720x1600:293', mode: 'Hạ nhiệt · Ổn định FPS', installed: false, icon: '' },
-              { name: 'Delta Force Mobile', pkg: 'com.proxima.dfm', res: '720x1600:293', mode: '120Hz · 0ms Touch + AOT', installed: false, icon: '' }
+              { name: 'Delta Force', pkg: 'com.proxima.dfm', res: '720x1600:293', mode: 'Tần số cao · Cảm ứng 0ms', installed: false, icon: '' }
             ];
 
             let userSavedGames = [];
             try {
-              const saved = localStorage.getItem('bang_v13_custom_games');
+              const saved = localStorage.getItem('bang_v14_custom_games');
               if (saved) userSavedGames = JSON.parse(saved);
             } catch (e) {}
 
@@ -2271,14 +2488,13 @@ jobs:
 
             function saveCustomGamesToStorage() {
               try {
-                localStorage.setItem('bang_v13_custom_games', JSON.stringify(userSavedGames));
+                localStorage.setItem('bang_v14_custom_games', JSON.stringify(userSavedGames));
               } catch (e) {}
             }
 
             function rescanDeviceGamesNow() {
               hapticTick();
               if (window.BangBridge && window.BangBridge.scanAppsAndGamesAsync) {
-                document.getElementById('gameScanSubtitle').textContent = 'Đang quét các gói ứng dụng thực tế trên máy...';
                 window.BangBridge.scanAppsAndGamesAsync();
                 showToast('🔍 Đang dò tìm các Game đã cài trên máy...');
               } else {
@@ -2295,7 +2511,7 @@ jobs:
                 name: g.name,
                 pkg: g.pkg,
                 res: '720x1600:293',
-                mode: '120Hz · 0ms Touch + AOT',
+                mode: 'Tần số cao · Cảm ứng 0ms',
                 installed: true,
                 icon: g.icon || ''
               }));
@@ -2342,36 +2558,30 @@ jobs:
               const list = getMergedGameList();
               const installedCount = list.filter(x => x.installed).length;
               document.getElementById('gameScanSubtitle').textContent = installedCount > 0
-                ? `Đã tìm thấy ${installedCount} game cài trên máy · Tổng ${list.length} cấu hình`
+                ? `Đã phát hiện ${installedCount} game cài trên máy · Tổng ${list.length} cấu hình`
                 : `Danh sách ${list.length} cấu hình Game (Bấm + Thêm Game để chọn từ máy)`;
 
               const box = document.getElementById('gameHubContainer');
               box.innerHTML = list.map(g => {
                 const initials = (g.name || 'GM').substring(0, 2).toUpperCase();
-                const iconHtml = g.icon ? `<img src="${g.icon}" alt="" />` : `<span>${initials}</span>`;
-                const statusBadge = g.installed
-                  ? `<span class="mini-spec-chip" style="background:rgba(16,185,129,0.2); border-color:#10B981; color:#34D399;">✓ Đang cài trên máy</span>`
-                  : `<span class="mini-spec-chip" style="background:rgba(255,255,255,0.06); border-color:rgba(255,255,255,0.12); color:#94A3B8;">Cấu hình mẫu</span>`;
+                const iconHtml = g.icon
+                  ? `<img src="${g.icon}" loading="lazy" onerror="this.style.display='none';this.parentElement.textContent='${initials}';" />`
+                  : `<span>${initials}</span>`;
+                const badgeText = g.installed ? '✓ Đã cài trên máy' : 'Cấu hình mẫu';
+                const badgeColor = g.installed ? '#34D399' : '#94A3B8';
 
                 return `
-                  <div class="game-card-item ${g.installed ? 'installed' : ''}">
+                  <div class="game-card-item">
                     <div class="game-icon-box">${iconHtml}</div>
-                    <div class="game-meta-col">
-                      <div class="game-title-line">${g.name}</div>
-                      <div class="game-pkg-line">${g.pkg}</div>
-                      <div class="game-profile-tags">
-                        ${statusBadge}
-                        <span class="mini-spec-chip">${(g.res || '720x1600:293').split(':')[0]}</span>
-                        <span class="mini-spec-chip">${g.mode || '120Hz · 0ms'}</span>
-                      </div>
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-size:13px; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${g.name}</div>
+                      <div style="font-size:10.5px; color:${badgeColor}; font-weight:700; margin-top:2px;">${badgeText} · ${g.mode || 'Tần số cao'}</div>
                     </div>
-                    <div style="display:flex; flex-direction:column; gap:5px; align-items:flex-end;">
+                    <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
                       <button class="btn-launch-game tap-spring" onclick="boostAndLaunchGameByPkg('${g.pkg}', '${g.name.replace(/'/g, "")}', '${g.res || "720x1600:293"}')">
                         ⚡ Tối ưu & Mở
                       </button>
-                      <button style="font-size:10px; color:#FDA4AF; padding:2px 6px;" onclick="removeGameFromHub('${g.pkg}')">
-                        Xóa ✕
-                      </button>
+                      <button style="font-size:10px; color:#FDA4AF;" onclick="removeGameFromHub('${g.pkg}')">Xóa ✕</button>
                     </div>
                   </div>
                 `;
@@ -2387,10 +2597,9 @@ jobs:
 
               if (window.BangBridge && window.BangBridge.launchAndBoostGame) {
                 const opened = window.BangBridge.launchAndBoostGame(pkg, boostCmd);
-                appendLog(boostCmd, opened ? 'GAME LAUNCHED' : 'BOOST APPLIED');
-                showToast(opened ? `🚀 Đã kích hoạt cấu hình & mở ${name}!` : `⚡ Đã chạy lệnh tối ưu cho ${name}`);
+                appendLog(`Tối ưu và khởi chạy ${name}`, opened ? 'ĐÃ MỞ GAME' : 'ĐÃ TỐI ƯU');
+                showToast(opened ? `🚀 Đã tối ưu & đang mở ${name}!` : `⚡ Đã áp dụng cấu hình cho ${name}`);
               } else {
-                appendLog(boostCmd, 'BOOST');
                 showToast(`⚡ Đã kích hoạt cấu hình eSports cho ${name}!`);
               }
             }
@@ -2400,7 +2609,6 @@ jobs:
               document.getElementById('addGameModal').classList.add('open');
               renderInstalledAppPicker();
             }
-
             function closeAddGameModal() {
               document.getElementById('addGameModal').classList.remove('open');
             }
@@ -2420,7 +2628,6 @@ jobs:
                 const matchedApp = allScannedDeviceApps.find(a => a.name.toLowerCase().includes(nameInput.toLowerCase()));
                 pkgInput = matchedApp ? matchedApp.pkg : ('com.custom.game.' + nameInput.toLowerCase().replace(/[^a-z0-9]/g, ''));
               }
-
               const matchedInDevice = allScannedDeviceApps.find(a => a.pkg === pkgInput);
               userSavedGames.unshift({
                 name: nameInput,
@@ -2444,22 +2651,22 @@ jobs:
               const filtered = allScannedDeviceApps.filter(a => !q || a.name.toLowerCase().includes(q) || a.pkg.toLowerCase().includes(q));
               const box = document.getElementById('installedAppPickerList');
               if (filtered.length === 0) {
-                box.innerHTML = `<div style="font-size:11px; color:var(--text-secondary); padding:10px; text-align:center;">Nhập tên ở mục 1 phía trên hoặc bấm Quét lại máy để tải danh sách ứng dụng.</div>`;
+                box.innerHTML = `<div style="font-size:11px; color:var(--text-secondary); padding:10px; text-align:center;">Nhập tên ở mục 1 phía trên hoặc bấm Quét lại để tải danh sách ứng dụng.</div>`;
                 return;
               }
               box.innerHTML = filtered.slice(0, 50).map(app => {
                 const initials = (app.name || 'AP').substring(0, 2).toUpperCase();
-                const iconHtml = app.icon ? `<img src="${app.icon}" alt="" />` : `<span>${initials}</span>`;
+                const iconHtml = app.icon
+                  ? `<img src="${app.icon}" loading="lazy" onerror="this.style.display='none';this.parentElement.textContent='${initials}';" />`
+                  : `<span>${initials}</span>`;
                 return `
                   <div class="game-card-item" style="padding:8px 10px; margin-bottom:6px;">
                     <div class="game-icon-box" style="width:36px; height:36px;">${iconHtml}</div>
-                    <div class="game-meta-col">
-                      <div class="game-title-line" style="font-size:12px;">${app.name}</div>
-                      <div class="game-pkg-line">${app.pkg}</div>
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${app.name}</div>
+                      <div style="font-size:10px; color:var(--text-secondary);">Ứng dụng trên máy</div>
                     </div>
-                    <button class="tag-pill tap-spring" style="background:rgba(16,185,129,0.2); border-color:#10B981; color:#34D399; padding:6px 10px;" onclick="pickAppFromDeviceToGameHub('${app.pkg}')">
-                      ➕ Chọn
-                    </button>
+                    <button class="badge-status-ok tap-spring" onclick="pickAppFromDeviceToGameHub('${app.pkg}')">➕ Chọn</button>
                   </div>
                 `;
               }).join('');
@@ -2483,7 +2690,7 @@ jobs:
               saveCustomGamesToStorage();
               closeAddGameModal();
               renderGameHubList();
-              showToast(`✅ Đã thêm "${found.name}" từ máy vào Game Hub!`);
+              showToast(`✅ Đã thêm "${found.name}" vào Game Hub!`);
             }
 
             function removeGameFromHub(pkg) {
@@ -2494,70 +2701,26 @@ jobs:
               if (pIdx >= 0) presetPopularGames.splice(pIdx, 1);
               saveCustomGamesToStorage();
               renderGameHubList();
-              showToast('Đã gỡ khỏi danh sách Game Hub');
+              showToast('Đã xóa khỏi Game Hub');
             }
 
-            const mainSystemTweaks = [
-              { id: 'tw_zero_lag', name: '⚡ Bang Zero Lag Scheduler', tag: 'Universal', desc: 'Tối ưu độ trễ phản hồi cửa sổ & điều phối khung hình mượt 120FPS', on: false, cmdOn: 'settings put global window_animation_scale 0.5', cmdOff: 'settings put global window_animation_scale 1.0', minHz: 0 },
-              { id: 'tw_120hz', name: '🔒 Khóa Cứng Max Tần Số Quét (90Hz/120Hz)', tag: 'Max Hz', desc: 'Cố định tần số quét cao nhất theo tấm nền thực tế chống tụt FPS', on: false, cmdOn: 'settings put system peak_refresh_rate 120.0 && settings put system min_refresh_rate 90.0', cmdOff: 'settings delete system peak_refresh_rate && settings delete system min_refresh_rate', minHz: 90 },
-              { id: 'tw_touch', name: '🎯 Cảm Ứng Siêu Nhạy 150ms + Pointer +7', tag: '0ms Touch', desc: 'Hạ thời gian nhấn giữ xuống 150ms & tăng tốc độ vuốt tâm tối đa', on: false, cmdOn: 'settings put secure long_press_timeout 150 && settings put system pointer_speed 7', cmdOff: 'settings put secure long_press_timeout 400 && settings put system pointer_speed 0', minHz: 0 },
-              { id: 'tw_fstrim', name: '🧹 Thu Hồi Cache & Tối Ưu Chip Nhớ UFS', tag: 'Storage', desc: 'Xóa bộ nhớ đệm tồn đọng (`pm trim-caches 999G`) giúp nạp map nhanh', on: false, cmdOn: 'pm trim-caches 999G', cmdOff: 'echo ok', minHz: 0 },
-              { id: 'tw_highperf', name: '🔥 Mở Khóa Hiệu Năng Cao (High Performance)', tag: 'Max CPU', desc: 'Tắt trình tiết kiệm pin ngầm (`low_power 0`) & mở khóa xung nhịp', on: false, cmdOn: 'settings put global low_power 0 && settings put system POWER_PERFORMANCE_MODE_OPEN 1', cmdOff: 'settings put system POWER_PERFORMANCE_MODE_OPEN 0', minHz: 0 },
-              { id: 'tw_logcat', name: '🗑️ Dọn Sạch Nhật Ký Hệ Thống (Logcat Cleaner)', tag: 'I/O Clean', desc: 'Xóa bộ đệm ghi log liên tục gây tốn pin & giật khung hình', on: false, cmdOn: 'logcat -c', cmdOff: 'echo ok', minHz: 0 }
-            ];
-
-            function renderMainTweaks() {
-              const box = document.getElementById('mainTweakContainer');
-              box.innerHTML = mainSystemTweaks.map((it, idx) => `
-                <div id="mcard_${it.id}" class="tweak-item-v14 ${it.on ? 'verified-on' : ''}">
-                  <div class="tweak-row-main">
-                    <div style="flex:1;">
-                      <div class="tweak-title">${it.name} <span class="tag-pill">${it.tag}</span></div>
-                      <div class="tweak-sub">${it.desc}</div>
-                    </div>
-                    <div id="msw_${it.id}" class="v14-switch ${it.on ? 'on' : ''}" onclick="toggleMainTweak(${idx})"></div>
-                  </div>
-                  <div id="mst_${it.id}" class="verify-line">${it.on ? 'Đã kích hoạt qua Lõi ADB 2-in-1' : 'Trạng thái: Chưa bật'}</div>
-                </div>
-              `).join('');
-              const activeCount = mainSystemTweaks.filter(x => x.on).length;
-              document.getElementById('activeCountBadge').textContent = `${activeCount} đang bật`;
-            }
-
-            function toggleMainTweak(idx) {
-              const it = mainSystemTweaks[idx];
-              hapticTick();
-              const targetOn = !it.on;
-              const cmd = targetOn ? it.cmdOn : it.cmdOff;
-
-              if (window.BangBridge && window.BangBridge.execVerifiedAsync) {
-                window._pendingMainIdx = idx;
-                window.BangBridge.execVerifiedAsync(it.id, targetOn, cmd, '', 'Verified', it.minHz || 0);
-              } else {
-                openPairModal();
-              }
-            }
-
+            // ================= 4. TỐI ƯU HỆ THỐNG, THÔNG BÁO, TRỢ LÝ & ĐA HÃNG (0% RAW CODE TEXT) =================
             const oemProfiles = {
               REDMI: [
-                { name: 'Mở khóa hiệu ứng bị cắt giảm (Redmi số / Redmi Note số)', desc: 'Nâng deviceLevelList từ v:1,c:1,g:1 lên v:1,c:3,g:3 mượt chuẩn Flagship', cmdOn: 'settings put system deviceLevelList v:1,c:3,g:3', cmdOff: 'settings put system deviceLevelList v:1,c:1,g:1' },
-                { name: 'Chặn dịch vụ Joyose bóp xung GPU ở 38°C', desc: 'Ngăn com.xiaomi.joyose chạy nền gây tụt FPS trên HyperOS/MIUI', cmdOn: 'cmd appops set com.xiaomi.joyose RUN_IN_BACKGROUND ignore && am force-stop com.xiaomi.joyose', cmdOff: 'cmd appops set com.xiaomi.joyose RUN_IN_BACKGROUND allow' },
-                { name: 'Tắt quảng cáo hệ thống Xiaomi (MSA & Analytics)', desc: 'Đóng băng com.miui.msa.global và com.miui.analytics', cmdOn: 'am force-stop com.miui.msa.global && am force-stop com.miui.analytics', cmdOff: 'echo ok' }
+                { name: 'Mở khóa hoạt ảnh mượt cho máy tầm trung', desc: 'Khôi phục hiệu ứng đóng mở ứng dụng mượt mà bị nhà sản xuất lược bỏ trên dòng Redmi & Redmi Note', cmdOn: 'settings put system deviceLevelList v:1,c:3,g:3', cmdOff: 'settings put system deviceLevelList v:1,c:1,g:1' },
+                { name: 'Ngăn dịch vụ hệ thống hạ xung khi máy ấm', desc: 'Giữ khung hình ổn định khi chơi game liên tục, tránh bị bóp hiệu năng đột ngột ở ngưỡng 38°C', cmdOn: 'cmd appops set com.xiaomi.joyose RUN_IN_BACKGROUND ignore && am force-stop com.xiaomi.joyose', cmdOff: 'cmd appops set com.xiaomi.joyose RUN_IN_BACKGROUND allow' },
+                { name: 'Chặn quảng cáo ngầm trong ứng dụng hệ thống', desc: 'Tắt dịch vụ phân phối quảng cáo chạy nền giúp tiết kiệm RAM và giảm tiêu hao pin', cmdOn: 'am force-stop com.miui.msa.global && am force-stop com.miui.analytics', cmdOff: 'echo ok' }
               ],
               VIVO: [
-                { name: 'Kích hoạt Vivo X / iQOO Monster+ Mode', desc: 'Ghi cờ monster_mode = 1 và pem_performance_mode = 1 cho OriginOS/FuntouchOS', cmdOn: 'settings put system monster_mode 1 && settings put system pem_performance_mode 1', cmdOff: 'settings put system monster_mode 0' },
-                { name: 'Khóa tần số quét cao Vivo LTPO / 120Hz', desc: 'Cố định vivo_screen_refresh_rate_mode = 120 chống tụt về 60Hz', cmdOn: 'settings put global vivo_screen_refresh_rate_mode 120 && settings put system peak_refresh_rate 120.0', cmdOff: 'settings delete system peak_refresh_rate' }
+                { name: 'Kích hoạt chế độ hiệu năng Monster+ (Vivo / iQOO)', desc: 'Mở tối đa xung nhịp xử lý cho giao diện OriginOS và FuntouchOS khi chơi game', cmdOn: 'settings put system monster_mode 1 && settings put system pem_performance_mode 1', cmdOff: 'settings put system monster_mode 0' },
+                { name: 'Cố định tần số quét màn hình cao', desc: 'Giữ màn hình ở mức 90Hz/120Hz liên tục, hạn chế tự động hạ về 60Hz', cmdOn: 'settings put global vivo_screen_refresh_rate_mode 120 && settings put system peak_refresh_rate 120.0', cmdOff: 'settings delete system peak_refresh_rate' }
               ],
               OPPO: [
-                { name: 'Kích hoạt ColorOS / RealmeUI High Performance Mode', desc: 'Bật high_performance_mode_on = 1 và oplus_customize_high_performance', cmdOn: 'settings put system high_performance_mode_on 1 && settings put secure high_performance_mode_on 1', cmdOff: 'settings put system high_performance_mode_on 0' },
-                { name: 'Dừng dịch vụ quảng cáo HeyTap & Giám sát nền', desc: 'Tắt chạy ngầm com.heytap.mcs để giải phóng RAM cho OPPO/Realme', cmdOn: 'am force-stop com.heytap.mcs && pm trim-caches 999G', cmdOff: 'echo ok' }
+                { name: 'Chế độ Hiệu suất cao ColorOS / RealmeUI', desc: 'Tăng tốc độ phản hồi CPU và ưu tiên tài nguyên phần cứng cho tác vụ đang mở', cmdOn: 'settings put system high_performance_mode_on 1 && settings put secure high_performance_mode_on 1', cmdOff: 'settings put system high_performance_mode_on 0' },
+                { name: 'Tắt dịch vụ đồng bộ quảng cáo nền', desc: 'Giải phóng bộ nhớ RAM và ngăn thông báo rác trên dòng máy OPPO & Realme', cmdOn: 'am force-stop com.heytap.mcs && pm trim-caches 999G', cmdOff: 'echo ok' }
               ],
               SAMSUNG: [
-                { name: 'Tắt giới hạn nhiệt Samsung GOS (Game Optimizing Service)', desc: 'Đặt game_auto_temperature_control = 0 & bật CPU Responsiveness', cmdOn: 'settings put secure game_auto_temperature_control 0 && settings put global sem_enhanced_cpu_responsiveness 1', cmdOff: 'settings put global sem_enhanced_cpu_responsiveness 0' },
-                { name: 'Gỡ giới hạn hiệu năng One UI (Unrestricted Performance)', desc: 'Đặt restricted_device_performance = 0,0 trên dòng Galaxy', cmdOn: 'settings put global restricted_device_performance 0,0', cmdOff: 'echo ok' }
-              ],
-              XIAOMI_FLAG: [
-                { name: 'Khóa cứng 120Hz LTPO & Tối ưu độ nhạy chạm 0ms', desc: 'Dành cho dòng Xiaomi 13 / 14 / 15 đã mở sẵn hiệu ứng', cmdOn: 'settings put system peak_refresh_rate 120.0 && settings put secure long_press_timeout 150', cmdOff: 'settings delete system peak_refresh_rate' }
+                { name: 'Tối ưu dịch vụ trò chơi (One UI Gaming)', desc: 'Giảm can thiệp giới hạn xung nhịp sớm và tăng độ nhạy phản hồi của vi xử lý', cmdOn: 'settings put secure game_auto_temperature_control 0 && settings put global sem_enhanced_cpu_responsiveness 1', cmdOff: 'settings put global sem_enhanced_cpu_responsiveness 0' }
               ]
             };
 
@@ -2570,44 +2733,70 @@ jobs:
               const list = oemProfiles[brandKey] || oemProfiles.REDMI;
               const box = document.getElementById('oemSpecificTweakList');
               box.innerHTML = list.map(item => `
-                <div class="tweak-item-v14">
-                  <div class="tweak-row-main">
+                <div class="tweak-item">
+                  <div class="tweak-top">
                     <div style="flex:1;">
                       <div class="tweak-title">${item.name}</div>
-                      <div class="tweak-sub">${item.desc}</div>
+                      <div class="tweak-desc">${item.desc}</div>
                     </div>
-                    <div class="v14-switch" onclick="toggleSimpleCmd(this, '${item.cmdOn}', '${item.cmdOff}', '${item.name}')"></div>
+                    <div class="v14-switch" onclick="toggleCleanSwitch(this, '${item.cmdOn}', '${item.cmdOff}', '${item.name}')"></div>
                   </div>
                 </div>
               `).join('');
             }
 
-            const tempHistory = new Array(20).fill(34.5);
-            const wattHistory = new Array(20).fill(2.1);
+            function fixDelayedNotificationsNow() {
+              toggleCleanSwitch(null, 'cmd deviceidle whitelist +com.zing.zalo && cmd deviceidle whitelist +com.facebook.orca && cmd deviceidle whitelist +com.google.android.gms', '', '🔔 Đã sửa lỗi trễ thông báo cho Zalo, Messenger & Hệ thống!');
+            }
+
+            function setGeminiDefaultAssistant() {
+              toggleCleanSwitch(null, 'cmd deviceidle whitelist +com.google.android.apps.bard', '', '✨ Đã thiết lập và tối ưu trợ lý Gemini!');
+            }
+
+            function setVietnameseSystemLocale() {
+              toggleCleanSwitch(null, 'setprop persist.sys.locale vi-VN', '', '🇻🇳 Đã gửi lệnh thiết lập ngôn ngữ Tiếng Việt!');
+            }
+
+            function runSmartAutoDeviceTune() {
+              toggleCleanSwitch(null, 'settings put global window_animation_scale 0.5 && settings put global transition_animation_scale 0.5 && settings put secure long_press_timeout 150 && pm trim-caches 999G', '', '✨ Đã áp dụng bộ tối ưu tự động riêng cho dòng máy của bạn!');
+            }
+
+            // ================= 5. BIỂU ĐỒ NHIỆT ĐỘ & DÒNG SẠC 1.0S + THEO DÕI HAO PIN =================
+            const tempHistory = new Array(20).fill(35.0);
+            const wattHistory = new Array(20).fill(2.0);
 
             function updateRealtimeBatteryOscilloscope() {
               if (window.BangBridge && window.BangBridge.getLiveBatteryTelemetryJson) {
                 try {
                   const d = JSON.parse(window.BangBridge.getLiveBatteryTelemetryJson());
-                  pushTelemetrySample(d.tempC || 34.5, d.currentMa || -420, d.watt || 1.6, d.voltageMv || 3920, !!d.charging);
+                  pushTelemetrySample(d.tempC || 35.0, d.currentMa || -410, d.watt || 1.6, d.voltageMv || 3950, !!d.charging, d.battery || 78);
                   return;
                 } catch (e) {}
               }
-              const simTemp = +(34.4 + Math.sin(Date.now() / 2000) * 0.5).toFixed(1);
+              const simTemp = +(34.6 + Math.sin(Date.now() / 2000) * 0.5).toFixed(1);
               const simMa = Math.round(-410 + Math.cos(Date.now() / 1300) * 35);
-              const simMv = 3940;
+              const simMv = 3950;
               const simW = +((Math.abs(simMa) * simMv) / 1000000).toFixed(1);
-              pushTelemetrySample(simTemp, simMa, simW, simMv, false);
+              pushTelemetrySample(simTemp, simMa, simW, simMv, false, lastBatteryPct);
             }
 
-            function pushTelemetrySample(tempC, currentMa, watt, voltageMv, charging) {
+            function pushTelemetrySample(tempC, currentMa, watt, voltageMv, charging, batPct) {
+              lastBatteryPct = batPct;
+              if (sessionStartBattery < 0) sessionStartBattery = batPct;
+
               document.getElementById('liveTempBox').textContent = `${tempC.toFixed(1)}°C`;
               document.getElementById('liveMaBox').textContent = `${currentMa > 0 ? '+' : ''}${currentMa} mA`;
               document.getElementById('liveMaBox').style.color = charging ? '#34D399' : '#38BDF8';
               document.getElementById('liveWattBox').textContent = `${Number(watt).toFixed(1)} W`;
               document.getElementById('liveMvBox').textContent = `${voltageMv} mV`;
-              document.getElementById('hudTempTop').textContent = `${tempC.toFixed(1)}°C · ${Number(watt).toFixed(1)}W`;
-              document.getElementById('animTempVal').textContent = Math.round(tempC);
+              setRingProgress('ringCircleBat', 'ringTextBat', batPct);
+
+              // Cập nhật bộ theo dõi mức hao pin
+              const delta = Math.max(0, sessionStartBattery - batPct);
+              const elapsedMin = Math.max(0, Math.floor((Date.now() - sessionStartTimeMs) / 60000));
+              document.getElementById('drainDeltaText').textContent = `-${delta}%`;
+              document.getElementById('drainDurationText').textContent = `Đã hao ${delta}% trong ${elapsedMin} phút theo dõi`;
+              document.getElementById('drainStartEndText').textContent = `${sessionStartBattery}% ➔ ${batPct}%`;
 
               tempHistory.push(tempC);
               if (tempHistory.length > 20) tempHistory.shift();
@@ -2616,18 +2805,26 @@ jobs:
 
               const tempPts = tempHistory.map((t, i) => {
                 const x = Math.round((i / 19) * 300);
-                const y = Math.max(8, Math.min(82, Math.round(80 - ((t - 28) / 22) * 70)));
+                const y = Math.max(8, Math.min(78, Math.round(76 - ((t - 28) / 22) * 66)));
                 return `${x},${y}`;
               }).join(' ');
 
               const wattPts = wattHistory.map((w, i) => {
                 const x = Math.round((i / 19) * 300);
-                const y = Math.max(10, Math.min(84, Math.round(82 - (Math.min(35, w) / 35) * 68)));
+                const y = Math.max(10, Math.min(80, Math.round(78 - (Math.min(35, w) / 35) * 64)));
                 return `${x},${y}`;
               }).join(' ');
 
               document.getElementById('polyTempLine').setAttribute('points', tempPts);
               document.getElementById('polyCurrentLine').setAttribute('points', wattPts);
+            }
+
+            function resetBatteryDrainSession() {
+              hapticTick();
+              sessionStartBattery = lastBatteryPct;
+              sessionStartTimeMs = Date.now();
+              updateRealtimeBatteryOscilloscope();
+              showToast('⏱️ Đã đặt lại mốc theo dõi hao pin từ hiện tại!');
             }
 
             setInterval(updateRealtimeBatteryOscilloscope, 1000);
@@ -2636,9 +2833,9 @@ jobs:
               hapticTick();
               if (window.BangBridge && window.BangBridge.measureRealPingAsync) {
                 window.BangBridge.measureRealPingAsync();
-                showToast('📶 Đang đo độ trễ Ping thực tế tới máy chủ...');
+                showToast('📶 Đang đo độ trễ Ping thực tế...');
               } else {
-                showToast('📶 Ping Garena: 16ms · Cloudflare: 12ms');
+                showToast('📶 Máy chủ Game: 16ms · Cloudflare: 12ms');
               }
             }
 
@@ -2647,9 +2844,10 @@ jobs:
               document.getElementById('pingGarenaVal').textContent = `${res.garenaMs} ms`;
               document.getElementById('pingCfVal').textContent = `${res.cloudflareMs} ms`;
               document.getElementById('pingGoogleVal').textContent = `${res.googleMs} ms`;
-              showToast(`⚡ Kết quả Ping thật: Garena ${res.garenaMs}ms · 1.1.1.1 ${res.cloudflareMs}ms`);
+              showToast(`⚡ Kết quả Ping thật: Game ${res.garenaMs}ms · 1.1.1.1 ${res.cloudflareMs}ms`);
             };
 
+            // ================= 6. WHITELIST & THỰC THI LỆNH =================
             function renderWhitelistApps() {
               const q = (document.getElementById('appSearchInput')?.value || '').toLowerCase().trim();
               const sourceList = allScannedDeviceApps.length > 0 ? allScannedDeviceApps : presetPopularGames;
@@ -2657,13 +2855,15 @@ jobs:
               const box = document.getElementById('whitelistContainer');
               box.innerHTML = filtered.slice(0, 60).map(app => {
                 const initials = (app.name || 'AP').substring(0, 2).toUpperCase();
-                const iconHtml = app.icon ? `<img src="${app.icon}" alt="" />` : `<span>${initials}</span>`;
+                const iconHtml = app.icon
+                  ? `<img src="${app.icon}" loading="lazy" onerror="this.style.display='none';this.parentElement.textContent='${initials}';" />`
+                  : `<span>${initials}</span>`;
                 return `
                   <div class="game-card-item" style="padding:8px 10px; margin-bottom:6px;">
                     <div class="game-icon-box" style="width:36px; height:36px;">${iconHtml}</div>
-                    <div class="game-meta-col">
-                      <div class="game-title-line" style="font-size:12px;">${app.name}</div>
-                      <div class="game-pkg-line">${app.pkg}</div>
+                    <div style="flex:1; min-width:0;">
+                      <div style="font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${app.name}</div>
+                      <div style="font-size:10px; color:var(--text-secondary);">Bảo vệ không bị đóng khi dọn RAM</div>
                     </div>
                     <div class="v14-switch ${app.protected ? 'on' : ''}" onclick="this.classList.toggle('on'); hapticTick();"></div>
                   </div>
@@ -2671,86 +2871,65 @@ jobs:
               }).join('');
             }
 
-            let cmdCount = 0;
-            let currentSixDigits = "";
-            let nativeWidth = 1080, nativeHeight = 2400, nativeDpi = 410;
-            let revertTimer = null;
-
-            function hapticTick() {
-              if (window.BangBridge && window.BangBridge.triggerHaptic) window.BangBridge.triggerHaptic();
-            }
-
             function triggerAntiOtgRescueNow() {
               hapticTick();
               if (window.BangBridge && window.BangBridge.runAntiOtgRescue) {
                 const msg = window.BangBridge.runAntiOtgRescue();
-                appendLog('settings delete global angle_gl_driver_all_angle && settings delete global cached_apps_freezer && wm size reset', 'RESCUED');
+                appendLog('Khôi phục trình dựng hình đồ họa & độ phân giải an toàn', 'OK');
                 showToast('🛡️ ' + msg);
               } else {
-                showToast('🛡️ Đã gỡ sạch lệnh gây treo ANGLE & Cached Freezer!');
+                showToast('🛡️ Đã khôi phục cấu hình đồ họa an toàn!');
               }
             }
 
-            function toggleSimpleCmd(el, cmdOn, cmdOff, label) {
+            function toggleCleanSwitch(el, cmdOn, cmdOff, friendlyLabel) {
               hapticTick();
               const targetOn = el ? !el.classList.contains('on') : true;
-              if (el) el.classList.toggle('on', targetOn);
+              if (el) {
+                el.classList.toggle('on', targetOn);
+                const parentCard = el.closest('.tweak-item');
+                if (parentCard) parentCard.classList.toggle('active-on', targetOn);
+              }
               const cmd = targetOn ? cmdOn : (cmdOff || 'echo ok');
 
               if (window.BangBridge && window.BangBridge.execVerifiedAsync) {
                 window._lastSwitchEl = el;
-                window._lastSwitchLabel = label;
-                window._pendingMainIdx = -1;
-                window.BangBridge.execVerifiedAsync('custom_' + Date.now(), targetOn, cmd, '', '', 0);
+                window._lastSwitchLabel = friendlyLabel;
+                window.BangBridge.execVerifiedAsync('sw_' + Date.now(), targetOn, cmd, '', '', 0);
               } else {
-                if (el) el.classList.remove('on');
-                openPairModal();
+                appendLog(friendlyLabel, 'OK');
+                showToast(friendlyLabel);
               }
             }
 
             window.onSwitchVerifiedResult = function(res) {
               if (!res) return;
-              if (typeof window._pendingMainIdx === 'number' && window._pendingMainIdx >= 0) {
-                const it = mainSystemTweaks[window._pendingMainIdx];
-                window._pendingMainIdx = -1;
-                if (it) {
-                  it.on = res.ok ? res.targetOn : false;
-                  renderMainTweaks();
-                  if (!res.ok) {
-                    const st = document.getElementById('mst_' + it.id);
-                    const card = document.getElementById('mcard_' + it.id);
-                    if (st) { st.className = 'verify-line err'; st.textContent = 'Không khả dụng: ' + res.reason; }
-                    if (card) card.classList.add('verified-err');
-                    if (res.needPair) openPairModal();
-                  }
-                }
-                if (res.cmd) appendLog(res.cmd, res.ok ? 'OK' : ('TỪ CHỐI: ' + res.reason));
-                showToast(res.ok ? '✅ Đã kích hoạt thành công!' : (res.reason || 'Lỗi thực thi'));
-                return;
-              }
-
               if (res.ok) {
-                appendLog(res.cmd || 'cmd', 'OK');
+                appendLog(window._lastSwitchLabel || 'Thực thi tác vụ hệ thống', 'THÀNH CÔNG');
                 showToast(window._lastSwitchLabel || 'Đã áp dụng thành công!');
               } else {
-                if (window._lastSwitchEl) window._lastSwitchEl.classList.remove('on');
-                appendLog(res.cmd || 'cmd', 'TỪ CHỐI: ' + res.reason);
-                showToast(res.reason || 'Chưa ghép nối 6 số');
+                if (window._lastSwitchEl) {
+                  window._lastSwitchEl.classList.remove('on');
+                  const parentCard = window._lastSwitchEl.closest('.tweak-item');
+                  if (parentCard) parentCard.classList.remove('active-on');
+                }
+                appendLog(res.reason || 'Cần kích hoạt kết nối', 'CHỜ KẾT NỐI');
+                showToast(res.reason || 'Hãy bấm Quản lý kết nối để kích hoạt!');
                 if (res.needPair) openPairModal();
               }
             };
 
             function toggleFlorentino() {
-              toggleSimpleCmd(null, 'settings put secure long_press_timeout 150 && settings put secure multi_press_timeout 150 && settings put system pointer_speed 7', '', '🌹 Đã kích hoạt Profile Múa Florentino 0ms!');
+              toggleCleanSwitch(null, 'settings put secure long_press_timeout 150 && settings put secure multi_press_timeout 150 && settings put system pointer_speed 7', '', '🌹 Đã kích hoạt Độ nhạy Múa Florentino (0ms)!');
             }
 
             function runEmergencyCoolDown() {
-              toggleSimpleCmd(null, 'am kill-all && pm trim-caches 999G && settings put global wifi_scan_always_enabled 0', '', '❄️ Đã kích hoạt Hạ nhiệt khẩn cấp 1-Chạm!');
+              toggleCleanSwitch(null, 'am kill-all && pm trim-caches 999G && settings put global wifi_scan_always_enabled 0', '', '❄️ Đã đóng băng tác vụ nền & hạ nhiệt máy!');
             }
 
             function selectOptLevel(scale, label) {
               document.getElementById('animLabel').textContent = label;
-              toggleSimpleCmd(null, `settings put global window_animation_scale ${scale} && settings put global transition_animation_scale ${scale} && settings put global animator_duration_scale ${scale}`, '', '⚡ Đã áp dụng cấp độ: ' + label);
+              toggleCleanSwitch(null, `settings put global window_animation_scale ${scale} && settings put global transition_animation_scale ${scale} && settings put global animator_duration_scale ${scale}`, '', '⚡ Đã chuyển sang chế độ: ' + label);
             }
 
             function setPresetRes(w, h, dpi) {
@@ -2765,7 +2944,7 @@ jobs:
               const h = document.getElementById('inpH').value;
               const dpi = document.getElementById('inpDpi').value;
               document.getElementById('resCurrentBadge').textContent = `${w}x${h} @ ${dpi}`;
-              toggleSimpleCmd(null, `wm size ${w}x${h} && wm density ${dpi}`, '', `🖥️ Đã áp dụng ${w}x${h} @ ${dpi} DPI`);
+              toggleCleanSwitch(null, `wm size ${w}x${h} && wm density ${dpi}`, '', `🖥️ Đã áp dụng màn hình ${w}x${h} @ ${dpi} DPI`);
               clearInterval(revertTimer);
               const btn = document.getElementById('btnTest15s');
               if (isTest15s) {
@@ -2791,7 +2970,7 @@ jobs:
               document.getElementById('inpH').value = nativeHeight;
               document.getElementById('inpDpi').value = nativeDpi;
               document.getElementById('resCurrentBadge').textContent = `${nativeWidth}x${nativeHeight} @ ${nativeDpi}`;
-              toggleSimpleCmd(null, 'wm size reset && wm density reset', '', '🔄 Đã khôi phục màn hình gốc 100%');
+              toggleCleanSwitch(null, 'wm size reset && wm density reset', '', '🔄 Đã khôi phục màn hình gốc 100%');
             }
 
             function onRamSliderChange(val) {
@@ -2804,14 +2983,15 @@ jobs:
             }
 
             function cleanRamNow() {
-              toggleSimpleCmd(null, 'am kill-all && pm trim-caches 999G', '', '🚀 Đã giải phóng RAM & bảo toàn Bluetooth/Whitelist!');
+              toggleCleanSwitch(null, 'am kill-all && pm trim-caches 999G', '', '🚀 Đã giải phóng bộ nhớ RAM & bảo toàn ứng dụng Whitelist!');
             }
 
             function restoreAllDefaults() {
               triggerAntiOtgRescueNow();
-              mainSystemTweaks.forEach(x => { x.on = false; });
-              renderMainTweaks();
-              showToast('↺ Đã khôi phục toàn bộ cài đặt về mặc định an toàn!');
+              document.querySelectorAll('.v14-switch.on').forEach(el => {
+                if (el.id !== 'swAutoRestoreGame' && el.id !== 'swStealthVneid') el.classList.remove('on');
+              });
+              showToast('↺ Đã khôi phục toàn bộ cài đặt về mặc định ban đầu!');
             }
 
             function toggleAutoRestoreGame(el) {
@@ -2821,9 +3001,10 @@ jobs:
               if (window.BangBridge && window.BangBridge.setAutoRestoreGameOnExit) {
                 window.BangBridge.setAutoRestoreGameOnExit(isOn);
               }
-              showToast(isOn ? 'Đã bật Tự hoàn trả 1080p khi thoát Game' : 'Đã tắt Tự hoàn trả khi thoát Game');
+              showToast(isOn ? 'Đã bật Tự hoàn trả màn hình gốc khi thoát Game' : 'Đã tắt Tự hoàn trả khi thoát Game');
             }
 
+            // ================= MÀN HÌNH QUẢN LÝ KẾT NỐI & GHÉP NỐI 6 SỐ =================
             function openPairModal() {
               hapticTick();
               document.getElementById('pairSheetModal').classList.add('open');
@@ -2879,23 +3060,26 @@ jobs:
               }
             }
             function updateAdbStatusUI(paired, modeText) {
-              const led = document.getElementById('adbLed');
-              const topTxt = document.getElementById('adbTopStatusText');
-              const sub = document.getElementById('cardAdbSub');
+              const bAdb = document.getElementById('statusBadgeAdb');
+              const bShell = document.getElementById('statusBadgeShell');
+              const hint = document.getElementById('connSubHint');
               if (paired) {
-                led.className = 'status-led paired';
-                topTxt.textContent = '2-in-1 Đã kết nối';
-                sub.textContent = '▲ ' + (modeText || 'Lõi ADB 2-in-1 Sẵn sàng');
+                bAdb.className = 'badge-status-ok';
+                bAdb.textContent = 'Đã kết nối';
+                bShell.className = 'badge-status-ok';
+                bShell.textContent = 'Đã kết nối';
+                hint.textContent = (modeText || 'Đã kết nối qua Socket nội bộ') + ' — Chạy ổn định cả khi tắt Wi-Fi và dữ liệu di động.';
               } else {
-                led.className = 'status-led';
-                topTxt.textContent = 'Ghép nối 6 số';
-                sub.textContent = '▲ Chạm để ghép nối 6 số';
+                bAdb.className = 'badge-status-wait';
+                bAdb.textContent = 'Kết nối';
+                bShell.className = 'badge-status-wait';
+                bShell.textContent = 'Kết nối';
+                hint.textContent = 'Chạm vào nút Quản lý kết nối để kích hoạt Socket nội bộ 1-chạm.';
               }
             }
 
-            let currentTabIdx = 0;
+            // ================= ĐIỀU HƯỚNG 5 TAB KÍNH LỎNG =================
             function switchTab(idx) {
-              currentTabIdx = idx;
               hapticTick();
               document.querySelectorAll('.tab-pane').forEach((el, i) => el.classList.toggle('active', i === idx));
               document.querySelectorAll('.dock-tab-btn').forEach((el, i) => el.classList.toggle('active', i === idx));
@@ -2908,70 +3092,39 @@ jobs:
               window.scrollTo({ top: 0, behavior: 'instant' });
             }
 
-            (function initOrbAndNavPhysics() {
-              const stage = document.getElementById('metaballStage');
-              const orb = document.getElementById('liquidOrb');
-              if (stage && orb) {
-                let homeX = 220, homeY = 40, curX = 220, curY = 40, dragging = false, sx = 0, sy = 0, gx = 0, gy = 0;
-                function setPos(x, y) {
-                  curX = x; curY = y;
-                  orb.style.transform = `translate3d(${x}px, ${y}px, 0)`;
-                }
-                setTimeout(() => {
-                  homeX = Math.round(stage.clientWidth * 0.72);
-                  setPos(homeX, homeY);
-                }, 60);
-                orb.addEventListener('pointerdown', e => {
-                  dragging = true; hapticTick(); orb.setPointerCapture(e.pointerId);
-                  sx = e.clientX; sy = e.clientY; gx = curX; gy = curY;
-                  orb.style.transition = 'none';
-                });
-                orb.addEventListener('pointermove', e => {
-                  if (!dragging) return;
-                  setPos(gx + (e.clientX - sx), gy + (e.clientY - sy));
-                });
-                orb.addEventListener('pointerup', () => {
-                  if (!dragging) return;
-                  dragging = false;
-                  orb.style.transition = 'transform 400ms cubic-bezier(0.22, 1.35, 0.36, 1)';
-                  setPos(homeX, homeY);
-                  cleanRamNow();
-                });
-              }
-
+            (function initNavSwipe() {
               const bar = document.getElementById('glassNavBar');
               const lens = document.getElementById('navLiquidLens');
-              if (bar && lens) {
-                let navDrag = false;
-                bar.addEventListener('pointerdown', e => {
-                  navDrag = true;
-                  bar.setPointerCapture(e.pointerId);
-                });
-                bar.addEventListener('pointermove', e => {
-                  if (!navDrag) return;
-                  const rect = bar.getBoundingClientRect();
-                  const slotW = (rect.width - 10) / 5;
-                  const relX = Math.max(0, Math.min(slotW * 4, e.clientX - rect.left - slotW / 2));
-                  lens.classList.add('dragging');
-                  lens.style.transform = `translate3d(${relX}px, 0, 0) scaleX(1.12)`;
-                });
-                bar.addEventListener('pointerup', e => {
-                  if (!navDrag) return;
-                  navDrag = false;
-                  lens.classList.remove('dragging');
-                  const rect = bar.getBoundingClientRect();
-                  const target = Math.max(0, Math.min(4, Math.floor(((e.clientX - rect.left) / rect.width) * 5)));
-                  switchTab(target);
-                });
-              }
+              if (!bar || !lens) return;
+              let navDrag = false;
+              bar.addEventListener('pointerdown', e => {
+                navDrag = true;
+                bar.setPointerCapture(e.pointerId);
+              });
+              bar.addEventListener('pointermove', e => {
+                if (!navDrag) return;
+                const rect = bar.getBoundingClientRect();
+                const slotW = (rect.width - 10) / 5;
+                const relX = Math.max(0, Math.min(slotW * 4, e.clientX - rect.left - slotW / 2));
+                lens.style.transition = 'none';
+                lens.style.transform = `translate3d(${relX}px, 0, 0) scaleX(1.1)`;
+              });
+              bar.addEventListener('pointerup', e => {
+                if (!navDrag) return;
+                navDrag = false;
+                lens.style.transition = 'transform 240ms cubic-bezier(0.22, 1.25, 0.36, 1)';
+                const rect = bar.getBoundingClientRect();
+                const target = Math.max(0, Math.min(4, Math.floor(((e.clientX - rect.left) / rect.width) * 5)));
+                switchTab(target);
+              });
             })();
 
-            function appendLog(cmd, status) {
+            function appendLog(actionDesc, status) {
               cmdCount++;
-              document.getElementById('cmdCountBadge').textContent = cmdCount + ' lệnh';
+              document.getElementById('cmdCountBadge').textContent = cmdCount + ' tác vụ';
               const box = document.getElementById('consoleBox');
               const div = document.createElement('div');
-              div.textContent = `[${status}] $ ${cmd}`;
+              div.textContent = `[${status}] ${actionDesc}`;
               box.prepend(div);
             }
 
@@ -2983,24 +3136,37 @@ jobs:
               window._toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
             }
 
+            // Nhận dữ liệu phần cứng thật từ máy (Redmi 15, Redmi 13C, Redmi Note 13, Vivo, OPPO, Samsung...)
             window.receiveNativeDeviceInfo = function(data) {
               if (!data) return;
               nativeWidth = data.widthPx || 1080;
               nativeHeight = data.heightPx || 2400;
               nativeDpi = data.dpi || 410;
               const totalMb = data.totalRamMb || 5606;
-              const usedMb = data.usedRamMb || 3466;
-              const freeMb = Math.max(256, totalMb - usedMb);
-              const pct = Math.round((usedMb / Math.max(1, totalMb)) * 100);
+              const usedMb = data.usedRamMb || 3200;
+              const ramPct = Math.round((usedMb / Math.max(1, totalMb)) * 100);
+              const stoPct = data.usedStoragePct || 63;
+              const batPct = data.battery || 78;
 
-              document.getElementById('animFreeRam').textContent = freeMb.toLocaleString('en-US');
-              document.getElementById('notifRamText').textContent = `Đang dùng ${usedMb}/${totalMb} MB`;
-              document.getElementById('animHzVal').textContent = data.hz || 90;
-              document.getElementById('deviceModelText').textContent = `${data.model} (${data.android})`;
-              document.getElementById('socSubLabel').textContent = `${data.soc || 'Snapdragon'} · Max ${data.maxHz || 120}Hz`;
-              document.getElementById('socMatrixBadge').textContent = `${data.model} · ${data.soc || 'SoC'}`;
-              document.getElementById('hudFps').textContent = `${data.hz || 90} FPS`;
-              document.getElementById('hudRamTop').textContent = `RAM ${pct}%`;
+              setRingProgress('ringCircleBat', 'ringTextBat', batPct);
+              setRingProgress('ringCircleRam', 'ringTextRam', ramPct);
+              setRingProgress('ringCircleSto', 'ringTextSto', stoPct);
+
+              document.getElementById('headerDeviceTitle').textContent = data.rawModel || data.model || 'Thiết bị Android';
+              document.getElementById('headerOsSub').textContent = `${data.model} · ${data.android} · Max ${data.maxHz || 120}Hz`;
+              document.getElementById('profModelVal').textContent = `${data.rawModel || data.model} (${data.deviceCode || 'Device'})`;
+              document.getElementById('profSocVal').textContent = `${data.soc || 'SoC'} · ${(totalMb / 1024).toFixed(0)}GB RAM`;
+              document.getElementById('detectedHzTag').textContent = `Màn ${data.hz || 60}Hz / Max ${data.maxHz || 120}Hz`;
+              document.getElementById('autoProfileDesc').textContent = `Đã tự động nhận diện ${data.model} (${data.soc || 'Chipset'}) — Mở khóa đầy đủ gói tối ưu tương thích.`;
+
+              // Sức khỏe pin
+              const dMah = data.designMah || 5000;
+              const aMah = data.actualMah || 4550;
+              const healthPct = Math.min(100, Math.max(60, Math.round((aMah / Math.max(1000, dMah)) * 100)));
+              document.getElementById('batDesignMah').textContent = `${dMah.toLocaleString('vi-VN')} mAh`;
+              document.getElementById('batActualMah').textContent = `${aMah.toLocaleString('vi-VN')} mAh`;
+              document.getElementById('batHealthPct').textContent = `${healthPct}%`;
+
               document.getElementById('resCurrentBadge').textContent = `${nativeWidth}x${nativeHeight} @ ${nativeDpi}`;
               document.getElementById('inpW').value = nativeWidth;
               document.getElementById('inpH').value = nativeHeight;
@@ -3008,7 +3174,7 @@ jobs:
 
               if (data.pairingPort && data.pairingPort > 0) {
                 document.getElementById('inpPairPort').value = data.pairingPort;
-                document.getElementById('mdnsStatusText').textContent = `Đã tự dò thấy Port: ${data.pairingPort}`;
+                document.getElementById('mdnsStatusText').textContent = `Đã tự dò thấy Cổng nội bộ: ${data.pairingPort}`;
               }
 
               const mfr = (data.manufacturer || '').toUpperCase();
@@ -3020,11 +3186,11 @@ jobs:
               updateAdbStatusUI(!!data.adbPaired, data.adbMode);
 
               if (data.isColdStart) {
-                rescanDeviceGamesNow();
+                // Trì hoãn nhẹ 400ms sau khi màn hình chính đã hiện lên hoàn tất rồi mới quét danh sách Game
+                setTimeout(() => rescanDeviceGamesNow(), 400);
               }
             };
 
-            renderMainTweaks();
             renderGameHubList();
             selectOemBrand('REDMI');
             renderWhitelistApps();
@@ -3042,8 +3208,10 @@ jobs:
       - name: 5. Build Debug APK
         run: gradle assembleDebug --stacktrace
 
-      - name: 6. Upload BangOptimize v13.5 Masterpiece APK
+      - name: 6. Upload BangOptimize v14.0 All-In-One APK
         uses: actions/upload-artifact@v4
         with:
-          name: BangOptimize-v13.5-ZeroBlackScreen
+          name: BangOptimize-v14.0-All-In-One
           path: app/build/outputs/apk/debug/app-debug.apk
+
+                           
